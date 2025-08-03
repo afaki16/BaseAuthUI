@@ -1,0 +1,71 @@
+import type { Role, CreateRoleRequest, UpdateRoleRequest } from '~/types'
+
+export const useRoles = () => {
+  const api = useApi()
+  const toast = useToast()
+
+  const getRoles = async () => {
+    try {
+      const response = await api.get<Role[]>('/roles')
+      return response.data || []
+    } catch (error) {
+      console.error('Get roles error:', error)
+      throw error
+    }
+  }
+
+  const getRoleById = async (id: string) => {
+    try {
+      const response = await api.get<Role>(`/roles/${id}`)
+      return response.data
+    } catch (error) {
+      console.error('Get role error:', error)
+      throw error
+    }
+  }
+
+  const createRole = async (roleData: CreateRoleRequest) => {
+    try {
+      const response = await api.post<Role>('/roles', roleData)
+      if (response.success) {
+        toast.success('Role created successfully!')
+        return response.data
+      }
+    } catch (error) {
+      console.error('Create role error:', error)
+      throw error
+    }
+  }
+
+  const updateRole = async (id: string, roleData: UpdateRoleRequest) => {
+    try {
+      const response = await api.put<Role>(`/roles/${id}`, roleData)
+      if (response.success) {
+        toast.success('Role updated successfully!')
+        return response.data
+      }
+    } catch (error) {
+      console.error('Update role error:', error)
+      throw error
+    }
+  }
+
+  const deleteRole = async (id: string) => {
+    try {
+      await api.delete(`/roles/${id}`)
+      toast.success('Role deleted successfully!')
+      return true
+    } catch (error) {
+      console.error('Delete role error:', error)
+      throw error
+    }
+  }
+
+  return {
+    getRoles,
+    getRoleById,
+    createRole,
+    updateRole,
+    deleteRole
+  }
+} 
