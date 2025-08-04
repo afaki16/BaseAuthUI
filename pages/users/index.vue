@@ -260,7 +260,7 @@
       </template>
 
       <!-- Mobile Actions -->
-      <template #item.actions="{ item }" #mobile-actions="{ item }">
+      <template #mobile-actions="{ item }">
         <v-btn
           v-if="authStore.hasPermission('Users.Read')"
           size="small"
