@@ -6,6 +6,9 @@ export const useApi = () => {
 
   const handleApiError = (error: any) => {
     console.error('API Error:', error)
+    console.error('Response Status:', error.response?.status)
+    console.error('Response Data:', error.response?.data)
+    console.error('Response Headers:', error.response?.headers)
     
     if (error.response?.data?.errors) {
       // Multiple validation errors
@@ -15,6 +18,12 @@ export const useApi = () => {
     } else if (error.response?.data?.error) {
       // Single error message
       toast.error(error.response.data.error)
+    } else if (error.response?.data?.message) {
+      // API error message
+      toast.error(error.response.data.message)
+    } else if (error.response?.data) {
+      // Any other error data
+      toast.error(JSON.stringify(error.response.data))
     } else if (error.message) {
       // Network or other errors
       toast.error(error.message)

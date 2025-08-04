@@ -1,4 +1,5 @@
 import type { User, CreateUserRequest, UpdateUserRequest } from '~/types'
+import { API_ENDPOINTS, getPaginatedEndpoint } from '~/utils/apiEndpoints'
 
 export const useUsers = () => {
   const api = useApi()
@@ -6,13 +7,8 @@ export const useUsers = () => {
 
   const getUsers = async (page = 1, pageSize = 10, searchTerm = '') => {
     try {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        pageSize: pageSize.toString(),
-        ...(searchTerm && { searchTerm })
-      })
-      
-      const response = await api.get<User[]>(`/users?${params}`)
+      const endpoint = getPaginatedEndpoint(API_ENDPOINTS.USERS.LIST, page, pageSize, searchTerm)
+      const response = await api.get<User[]>(endpoint)
       return response.data || []
     } catch (error) {
       console.error('Get users error:', error)
@@ -22,7 +18,7 @@ export const useUsers = () => {
 
   const getUserById = async (id: string) => {
     try {
-      const response = await api.get<User>(`/users/${id}`)
+      const response = await api.get<User>(API_ENDPOINTS.USERS.GET_BY_ID(id))
       return response.data
     } catch (error) {
       console.error('Get user error:', error)
@@ -32,7 +28,7 @@ export const useUsers = () => {
 
   const createUser = async (userData: CreateUserRequest) => {
     try {
-      const response = await api.post<User>('/users', userData)
+      const response = await api.post<User>(API_ENDPOINTS.USERS.CREATE, userData)
       if (response.success) {
         toast.success('User created successfully!')
         return response.data
@@ -45,7 +41,7 @@ export const useUsers = () => {
 
   const updateUser = async (id: string, userData: UpdateUserRequest) => {
     try {
-      const response = await api.put<User>(`/users/${id}`, userData)
+      const response = await api.put<User>(API_ENDPOINTS.USERS.UPDATE(id), userData)
       if (response.success) {
         toast.success('User updated successfully!')
         return response.data
@@ -58,7 +54,7 @@ export const useUsers = () => {
 
   const deleteUser = async (id: string) => {
     try {
-      await api.delete(`/users/${id}`)
+      await api.delete(API_ENDPOINTS.USERS.DELETE(id))
       toast.success('User deleted successfully!')
       return true
     } catch (error) {

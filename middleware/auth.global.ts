@@ -10,7 +10,7 @@ export default defineNuxtRouteMiddleware((to) => {
   }
 
   // Public routes that don't require authentication
-  const publicRoutes = ['/auth/login', '/auth/register', '/']
+  const publicRoutes = ['/auth/register', '/']
   
   if (publicRoutes.includes(to.path)) {
     // If user is already authenticated and trying to access auth pages, redirect to dashboard
@@ -22,12 +22,12 @@ export default defineNuxtRouteMiddleware((to) => {
 
   // Protected routes - require authentication
   if (!authStore.isAuthenticated) {
-    return navigateTo('/auth/login')
+    return navigateTo('/')
   }
 
   // Check if token is expired
   if (authStore.isTokenExpired) {
     authStore.clearAuth()
-    return navigateTo('/auth/login?expired=true')
+    return navigateTo('/?expired=true')
   }
 }) 

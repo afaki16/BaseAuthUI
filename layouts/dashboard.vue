@@ -265,11 +265,15 @@
       persistent
       class="align-center justify-center"
     >
-      <LoadingSpinner
-        :size="60"
-        text="Loading..."
-        color="white"
-      />
+      <div class="d-flex flex-column align-center">
+        <v-progress-circular
+          size="60"
+          width="4"
+          color="white"
+          indeterminate
+        />
+        <p class="text-white mt-3">Loading...</p>
+      </div>
     </v-overlay>
   </v-app>
 </template>

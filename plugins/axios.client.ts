@@ -7,9 +7,10 @@ export default defineNuxtPlugin(() => {
   // Create axios instance
   const api = axios.create({
     baseURL: config.public.apiBase,
-    timeout: 10000,
+    timeout: 30000, // Increased timeout for Swagger API
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
     }
   })
 
@@ -38,12 +39,12 @@ export default defineNuxtPlugin(() => {
         const refreshToken = useCookie('refresh_token')
         if (refreshToken.value) {
           try {
-            await $router.push('/auth/login?expired=true')
+            await $router.push('/?expired=true')
           } catch (refreshError) {
-            await $router.push('/auth/login')
+            await $router.push('/')
           }
         } else {
-          await $router.push('/auth/login')
+          await $router.push('/')
         }
       }
       return Promise.reject(error)

@@ -1,4 +1,5 @@
 import type { Role, CreateRoleRequest, UpdateRoleRequest } from '~/types'
+import { API_ENDPOINTS } from '~/utils/apiEndpoints'
 
 export const useRoles = () => {
   const api = useApi()
@@ -6,7 +7,7 @@ export const useRoles = () => {
 
   const getRoles = async () => {
     try {
-      const response = await api.get<Role[]>('/roles')
+      const response = await api.get<Role[]>(API_ENDPOINTS.ROLES.LIST)
       return response.data || []
     } catch (error) {
       console.error('Get roles error:', error)
@@ -16,7 +17,7 @@ export const useRoles = () => {
 
   const getRoleById = async (id: string) => {
     try {
-      const response = await api.get<Role>(`/roles/${id}`)
+      const response = await api.get<Role>(API_ENDPOINTS.ROLES.GET_BY_ID(id))
       return response.data
     } catch (error) {
       console.error('Get role error:', error)
@@ -26,7 +27,7 @@ export const useRoles = () => {
 
   const createRole = async (roleData: CreateRoleRequest) => {
     try {
-      const response = await api.post<Role>('/roles', roleData)
+      const response = await api.post<Role>(API_ENDPOINTS.ROLES.CREATE, roleData)
       if (response.success) {
         toast.success('Role created successfully!')
         return response.data
@@ -39,7 +40,7 @@ export const useRoles = () => {
 
   const updateRole = async (id: string, roleData: UpdateRoleRequest) => {
     try {
-      const response = await api.put<Role>(`/roles/${id}`, roleData)
+      const response = await api.put<Role>(API_ENDPOINTS.ROLES.UPDATE(id), roleData)
       if (response.success) {
         toast.success('Role updated successfully!')
         return response.data
@@ -52,7 +53,7 @@ export const useRoles = () => {
 
   const deleteRole = async (id: string) => {
     try {
-      await api.delete(`/roles/${id}`)
+      await api.delete(API_ENDPOINTS.ROLES.DELETE(id))
       toast.success('Role deleted successfully!')
       return true
     } catch (error) {

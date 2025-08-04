@@ -44,12 +44,21 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
     async setAuth(authData: LoginResponse) {
+      console.log('setAuth called with:', authData)
+      
       this.user = authData.user
       this.accessToken = authData.accessToken
       this.refreshToken = authData.refreshToken
       this.isAuthenticated = true
       this.permissions = authData.user.permissions.map(p => p.fullPermission)
       this.roles = authData.user.roles.map(r => r.name)
+
+      console.log('Auth state after setAuth:', {
+        isAuthenticated: this.isAuthenticated,
+        hasAccessToken: !!this.accessToken,
+        hasRefreshToken: !!this.refreshToken,
+        user: this.user
+      })
 
       // Store tokens in cookies
       const accessTokenCookie = useCookie('access_token', {
@@ -131,6 +140,11 @@ export const useAuthStore = defineStore('auth', {
             this.clearAuth()
           }
         }
+      } else {
+        // No tokens found, ensure we're logged out
+        this.isAuthenticated = false
+        this.accessToken = null
+        this.refreshToken = null
       }
     }
   }
