@@ -1,11 +1,12 @@
 import type { Permission } from '~/types'
+import { API_ENDPOINTS } from '~/utils/apiEndpoints'
 
 export const usePermissions = () => {
   const api = useApi()
 
   const getPermissions = async () => {
     try {
-      const response = await api.get<Permission[]>('/permissions')
+      const response = await api.get<Permission[]>(API_ENDPOINTS.PERMISSIONS.LIST)
       return response.data || []
     } catch (error) {
       console.error('Get permissions error:', error)
