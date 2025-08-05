@@ -34,7 +34,7 @@ export default defineNuxtConfig({
   
   runtimeConfig: {
     public: {
-      apiBase: process.env.API_BASE_URL || 'https://localhost:44346',
+      apiBase: process.env.API_BASE_URL || 'https://localhost:44333',
       appName: 'JTWBaseAuth',
       appVersion: '1.0.0'
     }

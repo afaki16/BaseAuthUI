@@ -186,11 +186,7 @@
 </template>
 
 <script setup lang="ts">
-// Meta
-definePageMeta({
-  layout: 'dashboard',
-  middleware: 'auth'
-})
+
 
 // Composables
 const authStore = useAuthStore()

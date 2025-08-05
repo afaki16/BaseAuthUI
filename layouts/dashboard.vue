@@ -291,7 +291,7 @@ const { navigationItems, filterNavigationByPermissions } = useNavigation()
 const drawer = ref(true)
 
 // Computed
-const { isMobile } = useDisplay()
+
 
 const filteredNavigation = computed(() => {
   return filterNavigationByPermissions(
