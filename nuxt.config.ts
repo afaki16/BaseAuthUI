@@ -12,7 +12,8 @@ export default defineNuxtConfig({
   css: [
     'vuetify/lib/styles/main.sass',
     '@mdi/font/css/materialdesignicons.min.css',
-    '~/assets/scss/main.scss'
+    '~/assets/scss/main.scss',
+    'flag-icons/css/flag-icons.min.css'
   ],
   
   build: {
@@ -22,7 +23,9 @@ export default defineNuxtConfig({
   modules: [
     '@pinia/nuxt',
     '@vueuse/nuxt',
-    '@nuxtjs/google-fonts'
+    '@nuxtjs/google-fonts',
+    '@nuxtjs/tailwindcss',
+    '@nuxt/icon'
   ],
   
   googleFonts: {
@@ -35,21 +38,22 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: process.env.API_BASE_URL || 'https://localhost:44333',
-      appName: 'JTWBaseAuth',
+      appName: 'JWTBaseAuth',
       appVersion: '1.0.0'
     }
   },
   
   app: {
     head: {
-      title: 'JTWBaseAuth - Authentication System',
+      title: 'JWTBaseAuth',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { hid: 'description', name: 'description', content: 'A modern authentication system with role-based permissions' }
+        
       ],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap' }
       ]
     }
   },
@@ -66,6 +70,9 @@ export default defineNuxtConfig({
           additionalData: '@use "~/assets/scss/variables.scss" as *;'
         }
       }
+    },
+    ssr: {
+      noExternal: ['vuetify']
     },
     // HMR overlay'i kapatın
     server: {
