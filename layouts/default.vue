@@ -7,47 +7,33 @@
          <span class="ml-2 text-xl font-semibold text-gray-800">BaseAuth</span>
        </div>
        
-       <nav class="mt-5 px-2">
-       <NuxtLink to="/" class="group flex items-center px-2 py-2 text-base font-medium rounded-md" :class="[$route.path === '/' ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900']">
-      <Icon name="mdi:home" class="mr-3 h-6 w-6" />
-      Ana Sayfa
-    </NuxtLink>
+      <nav class="mt-5 px-2 space-y-6">
+          <!-- Ana Sayfa -->
+            <NuxtLink to="/" class="group flex items-center px-2 py-2 text-base font-medium rounded-md" :class="[$route.path === '/' ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900']">
+              <Icon name="mdi:home" class="mr-3 h-6 w-6" />
+              Ana Sayfa
+            </NuxtLink>
 
-        <NuxtLink to="/patients" class="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md" :class="[$route.path.startsWith('/patients') ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900']">
-      <Icon name="mdi:account-group" class="mr-3 h-6 w-6"  />
-      Hastalar
-    </NuxtLink>
+           <!-- Yetki Yönetimi -->
+           <div>
+             <h3 class="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+               Yetki Yönetimi
+             </h3>
+             <NuxtLink to="/roles" class="group flex items-center px-2 py-2 text-base font-medium rounded-md" :class="[$route.path.startsWith('/roles') ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900']">
+               <Icon name="mdi:shield-account" class="mr-3 h-6 w-6" />
+               Roller
+             </NuxtLink>
+             <NuxtLink to="/permissions" class="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md" :class="[$route.path.startsWith('/permissions') ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900']">
+               <Icon name="mdi:key" class="mr-3 h-6 w-6" />
+               İzinler
+             </NuxtLink>
+             <NuxtLink to="/users" class="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md" :class="[$route.path.startsWith('/users') ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900']">
+               <Icon name="mdi:account-multiple" class="mr-3 h-6 w-6" />
+               Kullanıcılar
+             </NuxtLink>
+           </div>
 
-        <NuxtLink to="/treatments" class="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md" :class="[$route.path.startsWith('/treatments') ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900']">
-      <Icon name="mdi:medical-bag" class="mr-3 h-6 w-6" />
-      Tedaviler
-    </NuxtLink>
-
-         <NuxtLink to="/appointments" class="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md" :class="[$route.path.startsWith('/appointments') ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900']">
-      <Icon name="mdi:calendar-clock" class="mr-3 h-6 w-6" />
-      Randevular
-    </NuxtLink>
-      <NuxtLink to="/doctors" class="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md" :class="[$route.path.startsWith('/doctors') ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900']">
-    <Icon name="mdi:doctor" class="mr-3 h-6 w-6" />
-    Doktorlar
-  </NuxtLink>
-        <NuxtLink to="/tooth" class="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md" :class="[$route.path.startsWith('/tooth') ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900']">
-      <Icon name="mdi:tooth" class="mr-3 h-6 w-6"  />
-      Dişler
-    </NuxtLink>
-     <NuxtLink to="/teeth" class="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md" :class="[$route.path.startsWith('/teeth') ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900']">
-      <Icon name="mdi:toothbrush" class="mr-3 h-6 w-6"  />
-      Dişler Alternatif
-    </NuxtLink>
-      <NuxtLink to="/calendars" class="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md" :class="[$route.path.startsWith('/calendars') ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900']">
-      <Icon name="mdi:calendar-edit" class="mr-3 h-6 w-6" />
-      Randevular Alternatif
-    </NuxtLink>
-     <NuxtLink to="/dentists" class="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md" :class="[$route.path.startsWith('/dentists') ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900']">
-    <Icon name="mdi:toothbrush-paste" class="mr-3 h-6 w-6" />
-    Dişçiler Alternatif
-  </NuxtLink>
-      </nav>
+        </nav>
     </aside>
 
     <!-- Main content -->
@@ -89,9 +75,6 @@
                  class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50"
                >
                  <div class="py-1">
-                   <div class="px-4 py-2 text-xs text-gray-500 border-b border-gray-100">
-                     {{ userInfo.email }}
-                   </div>
                    <button @click="handleProfileClick" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                      <Icon name="mdi:account-circle" class="mr-3 h-5 w-5" />
                      Profil

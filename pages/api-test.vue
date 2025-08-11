@@ -1,175 +1,80 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col cols="12">
-        <v-card>
-          <v-card-title>
-            API Integration Test
-            <v-spacer></v-spacer>
-            <v-btn
-              color="primary"
-              @click="testApiConnection"
-              :loading="isLoading"
-            >
-              Test Connection
-            </v-btn>
-          </v-card-title>
-          
-          <v-card-text>
-            <v-alert
-              v-if="connectionStatus"
-              :type="connectionStatus.type"
-              :title="connectionStatus.title"
-              :text="connectionStatus.message"
-            ></v-alert>
-            
-            <v-divider class="my-4"></v-divider>
-            
-            <h3>API Configuration</h3>
-            <v-list>
-              <v-list-item>
-                <v-list-item-title>Base URL</v-list-item-title>
-                <v-list-item-subtitle>{{ config.public.apiBase }}</v-list-item-subtitle>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title>App Name</v-list-item-title>
-                <v-list-item-subtitle>{{ config.public.appName }}</v-list-item-subtitle>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title>App Version</v-list-item-title>
-                <v-list-item-subtitle>{{ config.public.appVersion }}</v-list-item-subtitle>
-              </v-list-item>
-            </v-list>
-            
-            <v-divider class="my-4"></v-divider>
-            
-            <h3>Available Endpoints</h3>
-            <v-list>
-              <v-list-item v-for="(endpoint, key) in availableEndpoints" :key="key">
-                <v-list-item-title>{{ key }}</v-list-item-title>
-                <v-list-item-subtitle>{{ endpoint }}</v-list-item-subtitle>
-              </v-list-item>
-            </v-list>
-            
-            <v-divider class="my-4"></v-divider>
-            
-            <h3>Test Results</h3>
-            <v-textarea
-              v-model="testResults"
-              label="API Test Results"
-              readonly
-              rows="10"
-              variant="outlined"
-            ></v-textarea>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+  <div class="p-6 space-y-6">
+    <h1 class="text-2xl font-bold">API Test Sayfası</h1>
+    
+    <!-- Permissions API Test -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <h2 class="text-lg font-semibold mb-4">Permissions API Test</h2>
+      
+      <div class="space-y-4">
+        <button
+          @click="testPermissionsAPI"
+          :disabled="isLoading"
+          class="bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg"
+        >
+          {{ isLoading ? 'Test ediliyor...' : 'Permissions API Test Et' }}
+        </button>
+        
+        <div v-if="testResult" class="mt-4">
+          <h3 class="font-medium mb-2">Test Sonucu:</h3>
+          <pre class="bg-gray-100 p-4 rounded-lg text-sm overflow-auto">{{ JSON.stringify(testResult, null, 2) }}</pre>
+        </div>
+        
+        <div v-if="testError" class="mt-4">
+          <h3 class="font-medium text-red-600 mb-2">Hata:</h3>
+          <div class="bg-red-50 border border-red-200 p-4 rounded-lg">
+            <p class="text-red-800">{{ testError }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
-<script setup lang="ts">
-const config = useRuntimeConfig()
-const api = useApi()
-const toast = useToast()
-
+<script setup>
 const isLoading = ref(false)
-const connectionStatus = ref<any>(null)
-const testResults = ref('')
+const testResult = ref(null)
+const testError = ref(null)
 
-const availableEndpoints = {
-  'Login': '/api/auth/login',
-  'Register': '/api/auth/register',
-  'Users List': '/api/users',
-  'Roles List': '/api/roles',
-  'Permissions List': '/api/permissions',
-  'Dashboard Stats': '/api/dashboard/stats'
-}
-
-const testApiConnection = async () => {
+const testPermissionsAPI = async () => {
   isLoading.value = true
-  testResults.value = ''
-  connectionStatus.value = null
+  testResult.value = null
+  testError.value = null
   
   try {
-    testResults.value += `Testing API connection to: ${config.public.apiBase}\n\n`
+    const { $api } = useNuxtApp()
     
-    // Test basic connectivity
-    testResults.value += '1. Testing basic connectivity...\n'
-    const response = await $fetch(`${config.public.apiBase}/swagger/v1/swagger.json`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json'
-      }
-    })
-    testResults.value += '✅ Swagger documentation accessible\n\n'
+    console.log('API test başlatılıyor...')
+    console.log('API Base URL:', $api.defaults.baseURL)
     
-    // Test auth endpoints
-    testResults.value += '2. Testing authentication endpoints...\n'
-    try {
-      await api.get('/api/auth/me')
-      testResults.value += '✅ Auth endpoints accessible\n'
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        testResults.value += '✅ Auth endpoints accessible (401 expected without token)\n'
-      } else {
-        testResults.value += `❌ Auth endpoints error: ${error.message}\n`
-      }
+    const response = await $api.get('/Permissions?version=1.0')
+    
+    console.log('API Response:', response)
+    
+    testResult.value = {
+      status: response.status,
+      statusText: response.statusText,
+      data: response.data,
+      headers: response.headers
     }
     
-    // Test users endpoint
-    testResults.value += '\n3. Testing users endpoint...\n'
-    try {
-      await api.get('/api/users')
-      testResults.value += '✅ Users endpoint accessible\n'
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        testResults.value += '✅ Users endpoint accessible (401 expected without token)\n'
-      } else {
-        testResults.value += `❌ Users endpoint error: ${error.message}\n`
+  } catch (error) {
+    console.error('API Test Error:', error)
+    
+    testError.value = {
+      message: error.message,
+      code: error.code,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        baseURL: error.config?.baseURL
       }
     }
-    
-    // Test roles endpoint
-    testResults.value += '\n4. Testing roles endpoint...\n'
-    try {
-      await api.get('/api/roles')
-      testResults.value += '✅ Roles endpoint accessible\n'
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        testResults.value += '✅ Roles endpoint accessible (401 expected without token)\n'
-      } else {
-        testResults.value += `❌ Roles endpoint error: ${error.message}\n`
-      }
-    }
-    
-    connectionStatus.value = {
-      type: 'success',
-      title: 'Connection Successful',
-      message: 'API integration is working correctly. All endpoints are accessible.'
-    }
-    
-    toast.success('API connection test completed successfully!')
-    
-  } catch (error: any) {
-    console.error('API test error:', error)
-    
-    testResults.value += `\n❌ Connection failed: ${error.message}\n`
-    
-    connectionStatus.value = {
-      type: 'error',
-      title: 'Connection Failed',
-      message: `Failed to connect to API: ${error.message}`
-    }
-    
-    toast.error('API connection test failed!')
   } finally {
     isLoading.value = false
   }
 }
-
-// Set page title
-useHead({
-  title: 'API Test - JTWBaseAuth'
-})
 </script> 

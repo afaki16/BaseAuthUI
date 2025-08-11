@@ -108,11 +108,15 @@ export interface UpdateRoleRequest {
 export interface Permission {
   id: string
   name: string
+  displayName?: string
   description?: string
   resource: string
-  type: PermissionType
-  fullPermission: string
-  createdDate: string
+  action?: string
+  type?: PermissionType
+  fullPermission?: string
+  isActive?: boolean
+  assignedCount?: number
+  createdDate?: string
 }
 
 export enum PermissionType {
