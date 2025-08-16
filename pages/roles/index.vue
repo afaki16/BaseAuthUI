@@ -313,21 +313,20 @@
       </v-row>
     </v-container>
 
-    <!-- Simple Create Dialog -->
-    <v-dialog v-model="showCreateDialog" max-width="500">
+    <!-- Create Role Dialog -->
+    <v-dialog v-model="showCreateDialog" max-width="700">
       <v-card>
-        <v-card-title>Yeni Rol</v-card-title>
+        <v-card-title class="font-weight-bold">Yeni Rol Oluştur</v-card-title>
         <v-card-text>
-          <p>Rol oluşturma özelliği yakında eklenecek.</p>
+          <RoleForm
+            :permissions="permissions"
+            :loading="isLoading"
+            @submit="handleCreateRole"
+          />
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn
-            variant="outlined"
-            @click="showCreateDialog = false"
-          >
-            Kapat
-          </v-btn>
+          <v-btn variant="outlined" @click="showCreateDialog = false">İptal</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -366,6 +365,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import RoleForm from '~/components/Roles/RoleForm.vue'
 
 // Page metadata
 definePageMeta({
@@ -530,6 +530,20 @@ const handleItemsPerPageChange = (itemsPerPage) => {
 
 const openCreateDialog = () => {
   showCreateDialog.value = true
+}
+
+const handleCreateRole = async (roleData) => {
+  try {
+    isLoading.value = true
+    await roles.createRole(roleData)
+    toast.success('Rol başarıyla oluşturuldu!')
+    showCreateDialog.value = false
+    await loadRoles()
+  } catch (error) {
+    toast.error('Rol oluşturulurken hata oluştu')
+  } finally {
+    isLoading.value = false
+  }
 }
 
 const viewRole = (role) => {

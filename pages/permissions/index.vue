@@ -93,48 +93,6 @@
           </v-col>
         </v-row>
 
-        <!-- Search and Filters -->
-        <v-row>
-          <v-col cols="12">
-            <v-card class="mb-6">
-              <v-card-text>
-                <v-row align="center" justify="space-between">
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      v-model="searchTerm"
-                      placeholder="İzinleri ara..."
-                      prepend-inner-icon="mdi-magnify"
-                      variant="outlined"
-                      density="compact"
-                      hide-details
-                      clearable
-                    />
-                  </v-col>
-                  <v-col cols="12" md="4">
-                    <v-select
-                      v-model="resourceFilter"
-                      :items="uniqueResources"
-                      label="Kaynak"
-                      variant="outlined"
-                      density="compact"
-                      hide-details
-                      clearable
-                    />
-                  </v-col>
-                  <v-col cols="12" md="4">
-                    <v-btn
-                      variant="outlined"
-                      @click="resetFilters"
-                      :disabled="!hasActiveFilters"
-                    >
-                      Filtreleri Temizle
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
 
         <!-- Permissions Table -->
         <v-row>

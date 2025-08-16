@@ -1,55 +1,58 @@
 <template>
   <v-form ref="form" v-model="isValid" @submit.prevent="handleSubmit">
-    <!-- Basic Information -->
+    <!-- Temel Bilgiler -->
     <div class="mb-6">
-      <h3 class="text-h6 mb-4">Basic Information</h3>
-      
+      <h3 class="text-h6 mb-4">Rol Bilgileri</h3>
       <v-text-field
         v-model="formData.name"
-        label="Role Name"
+        label="Rol Adı"
         :rules="[rules.required, rules.minLength(2), rules.maxLength(50)]"
         variant="outlined"
         :disabled="loading || (role && role.isSystemRole)"
         class="mb-4"
-        hint="Use a descriptive name that clearly indicates the role's purpose"
+        hint="Rolün amacını açıkça belirten bir isim kullanın"
         persistent-hint
+        prepend-inner-icon="mdi-account-key"
       />
-      
       <v-textarea
         v-model="formData.description"
-        label="Description (Optional)"
+        label="Açıklama (Opsiyonel)"
         :rules="[rules.maxLength(500)]"
         variant="outlined"
         :disabled="loading"
         rows="3"
-        hint="Provide a clear description of what this role is intended for"
+        hint="Bu rolün ne için kullanılacağını açıklayın"
         persistent-hint
+        prepend-inner-icon="mdi-text"
       />
     </div>
-
-    <!-- Permission Assignment -->
+    <!-- İzin Atama -->
     <div>
-      <h3 class="text-h6 mb-4">Permission Assignment</h3>
-      
+      <h3 class="text-h6 mb-4">İzinler</h3>
       <div v-if="groupedPermissions && Object.keys(groupedPermissions).length">
         <v-expansion-panels variant="accordion" multiple>
           <v-expansion-panel
             v-for="(perms, resource) in groupedPermissions"
             :key="resource"
-            :title="`${resource} (${perms.length})`"
           >
+            <v-expansion-panel-title>
+              <v-icon class="me-2" color="primary">mdi-folder-key</v-icon>
+              <span class="font-weight-medium">{{ resource }}</span>
+              <span class="ml-2 text-caption text-grey">({{ perms.length }} izin)</span>
+            </v-expansion-panel-title>
             <v-expansion-panel-text>
               <div class="d-flex align-center mb-3">
                 <v-checkbox
                   :model-value="isResourceFullySelected(resource)"
                   :indeterminate="isResourcePartiallySelected(resource)"
                   @update:model-value="toggleResourcePermissions(resource, $event)"
+                  color="primary"
+                  hide-details
                 />
                 <span class="text-subtitle-2 font-weight-medium">
-                  Select All {{ resource }} Permissions
+                  Tüm {{ resource }} izinlerini seç
                 </span>
               </div>
-              
               <v-row>
                 <v-col
                   v-for="permission in perms"
@@ -63,6 +66,8 @@
                     :value="permission.id"
                     :disabled="loading"
                     density="compact"
+                    color="primary"
+                    hide-details
                   >
                     <template #label>
                       <div>
@@ -81,16 +86,27 @@
           </v-expansion-panel>
         </v-expansion-panels>
       </div>
-      
       <div v-else class="text-center py-8">
         <v-icon size="48" color="grey-400" class="mb-3">
           mdi-key-off
         </v-icon>
         <p class="text-body-1 text-grey-600">
-          No permissions available to assign
+          Atanabilir izin yok
         </p>
       </div>
     </div>
+    <!-- Oluştur Butonu -->
+    <v-btn
+      color="primary"
+      class="mt-8 mb-2"
+      size="large"
+      block
+      :loading="loading"
+      type="submit"
+      style="font-weight:600; letter-spacing:0.5px;"
+    >
+      Oluştur
+    </v-btn>
   </v-form>
 </template>
 
@@ -170,9 +186,9 @@ const toggleResourcePermissions = (resource: string, selected: boolean) => {
 }
 
 const handleSubmit = async () => {
-  const { valid } = await form.value.validate()
-  if (!valid) return
-
+  const validation = await form.value.validate()
+  if (!validation.valid) return
+  formData.permissionIds = formData.permissionIds.map(id => Number(id))
   emit('submit', formData)
 }
 
