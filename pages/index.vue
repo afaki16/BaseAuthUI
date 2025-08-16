@@ -164,7 +164,9 @@ const backgroundImages = [
 const form = reactive<LoginRequest>({
   email: '',
   password: '',
-  rememberMe: false
+  rememberMe: false,
+  deviceId: '',
+  deviceName: ''
 })
 
 // Methods
@@ -175,6 +177,7 @@ const handleLogin = async () => {
     await auth.login(form)
   } catch (error) {
     console.error('Login failed:', error)
+    // Error handling is now done in useApi.ts, so we don't need to show additional messages here
   }
 }
 
@@ -204,6 +207,33 @@ onMounted(() => {
   const registeredEmail = route.query.email as string
   if (registeredEmail) {
     form.email = registeredEmail
+  }
+
+  // Auto-generate device information
+  if (process.client) {
+    // Device ID oluştur
+    let deviceId = localStorage.getItem('deviceId')
+    if (!deviceId) {
+      deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+      localStorage.setItem('deviceId', deviceId)
+    }
+    form.deviceId = deviceId
+
+    // Device name tespit et
+    const userAgent = navigator.userAgent
+    if (userAgent.includes('Windows')) {
+      form.deviceName = 'Windows Device'
+    } else if (userAgent.includes('Mac')) {
+      form.deviceName = 'Mac Device'
+    } else if (userAgent.includes('Linux')) {
+      form.deviceName = 'Linux Device'
+    } else if (userAgent.includes('Android')) {
+      form.deviceName = 'Android Device'
+    } else if (userAgent.includes('iOS')) {
+      form.deviceName = 'iOS Device'
+    } else {
+      form.deviceName = 'Unknown Device'
+    }
   }
 
   // Start background image rotation

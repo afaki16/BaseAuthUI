@@ -12,6 +12,8 @@ export interface LoginRequest {
   email: string
   password: string
   rememberMe?: boolean
+  deviceId?: string
+  deviceName?: string
 }
 
 export interface RegisterRequest {

@@ -11,10 +11,59 @@ export const useAuth = () => {
   const router = useRouter()
   const toast = useToast()
 
+  // Device ID oluştur
+  const generateDeviceId = (): string => {
+    // Client-side kontrolü
+    if (process.client) {
+      // Local storage'dan mevcut device ID'yi al veya yeni oluştur
+      let deviceId = localStorage.getItem('deviceId')
+      if (!deviceId) {
+        deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+        localStorage.setItem('deviceId', deviceId)
+      }
+      return deviceId
+    }
+    // Server-side için fallback
+    return 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+  }
+
+  // Device name al
+  const getDeviceName = (): string => {
+    // Client-side kontrolü
+    if (process.client) {
+      const userAgent = navigator.userAgent
+      const platform = navigator.platform
+      
+      if (userAgent.includes('Windows')) {
+        return 'Windows Device'
+      } else if (userAgent.includes('Mac')) {
+        return 'Mac Device'
+      } else if (userAgent.includes('Linux')) {
+        return 'Linux Device'
+      } else if (userAgent.includes('Android')) {
+        return 'Android Device'
+      } else if (userAgent.includes('iOS')) {
+        return 'iOS Device'
+      } else {
+        return 'Unknown Device'
+      }
+    }
+    // Server-side için fallback
+    return 'Unknown Device'
+  }
+
   const login = async (credentials: LoginRequest) => {
     try {
       authStore.setLoading(true)
-      const response = await api.post<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, credentials)
+      
+      // Device bilgilerini ekle
+      const requestData = {
+        ...credentials,
+        deviceId: credentials.deviceId || generateDeviceId(),
+        deviceName: credentials.deviceName || getDeviceName()
+      }
+      
+      const response = await api.post<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, requestData)
       
       console.log('Login Response:', response)
       

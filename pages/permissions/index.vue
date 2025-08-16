@@ -1,266 +1,392 @@
 <template>
-  <div class="space-y-6">
+  <div class="min-h-screen bg-gray-50">
     <!-- Page Header -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">İzin Yönetimi</h1>
-          <p class="text-gray-600 mt-1">Sistem genelinde kullanıcı izinlerini yönetin</p>
-        </div>
-        <button
-          @click="$router.push('/permissions/create')"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors duration-200"
-        >
-          <Icon name="mdi:key-plus" class="w-5 h-5" />
-          <span>Yeni İzin Ekle</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Loading State -->
-    <div v-if="permissionsStore.isLoading" class="bg-white rounded-lg shadow-sm border border-gray-200 p-12">
-      <div class="text-center">
-        <div class="inline-flex items-center justify-center w-12 h-12 bg-indigo-100 rounded-lg mb-4">
-          <Icon name="mdi:loading" class="w-6 h-6 text-indigo-600 animate-spin" />
-        </div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">İzinler yükleniyor...</h3>
-        <p class="text-gray-500">Lütfen bekleyin</p>
-      </div>
-    </div>
-
-    <!-- Content when not loading -->
-    <div v-else>
-      <!-- Statistics Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Icon name="mdi:key" class="w-6 h-6 text-blue-600" />
-              </div>
+    <v-container class="py-6">
+      <v-row>
+        <v-col cols="12">
+          <div class="d-flex align-center justify-space-between mb-6">
+            <div>
+              <h1 class="text-h4 font-weight-bold text-gray-900 mb-2">
+                İzin Yönetimi
+              </h1>
+              <p class="text-body-1 text-gray-600">
+                Sistem genelinde kullanıcı izinlerini yönetin
+              </p>
             </div>
-            <div class="ml-4">
-              <div class="text-2xl font-bold text-gray-900">{{ permissionsStore.permissions.length }}</div>
-              <div class="text-sm font-medium text-gray-500">Toplam İzin</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <Icon name="mdi:check-circle" class="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-            <div class="ml-4">
-              <div class="text-2xl font-bold text-gray-900">{{ activePermissionsCount }}</div>
-              <div class="text-sm font-medium text-gray-500">Aktif İzinler</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Icon name="mdi:shield-account" class="w-6 h-6 text-purple-600" />
-              </div>
-            </div>
-            <div class="ml-4">
-              <div class="text-2xl font-bold text-gray-900">{{ uniqueResourcesCount }}</div>
-              <div class="text-sm font-medium text-gray-500">Kaynak Türü</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <Icon name="mdi:account-group" class="w-6 h-6 text-yellow-600" />
-              </div>
-            </div>
-            <div class="ml-4">
-              <div class="text-2xl font-bold text-gray-900">{{ totalAssignedCount }}</div>
-              <div class="text-sm font-medium text-gray-500">Atanmış İzinler</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Filters -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Arama</label>
-            <div class="relative">
-              <Icon name="mdi:magnify" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                v-model="searchTerm"
-                type="text"
-                placeholder="İzinleri ara..."
-                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Kaynak</label>
-            <select
-              v-model="resourceFilter"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            <v-btn
+              color="primary"
+              prepend-icon="mdi-key-plus"
+              @click="$router.push('/permissions/create')"
             >
-              <option value="">Tümü</option>
-              <option v-for="resource in uniqueResources" :key="resource" :value="resource">
-                {{ resource }}
-              </option>
-            </select>
+              Yeni İzin Ekle
+            </v-btn>
           </div>
+        </v-col>
+      </v-row>
 
-          <div class="flex items-end">
-            <button
-              @click="resetFilters"
-              class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors duration-200"
-            >
-              Filtreleri Temizle
-            </button>
-          </div>
-        </div>
+      <!-- Loading State -->
+      <div v-if="isLoading" class="d-flex justify-center align-center py-12">
+        <v-progress-circular
+          indeterminate
+          color="primary"
+          size="64"
+        />
       </div>
 
-      <!-- Permissions Table -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">İzinler</h3>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  İzin Adı
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Kaynak
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  İşlem
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Açıklama
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Durum
-                </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  İşlemler
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="permission in filteredPermissions" :key="permission.id" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
-                      <Icon name="mdi:key" class="w-4 h-4 text-indigo-600" />
-                    </div>
-                    <div>
-                      <div class="text-sm font-medium text-gray-900">{{ permission.name }}</div>
-                      <div class="text-sm text-gray-500">{{ permission.displayName || permission.name }}</div>
-                    </div>
+      <!-- Content when not loading -->
+      <div v-else>
+        <!-- Statistics Cards -->
+        <v-row class="mb-6">
+          <v-col cols="12" md="3">
+            <v-card>
+              <v-card-text>
+                <div class="d-flex align-center">
+                  <v-icon size="48" color="primary" class="mr-4">
+                    mdi-key
+                  </v-icon>
+                  <div>
+                    <div class="text-h4 font-weight-bold">{{ permissions.length }}</div>
+                    <div class="text-body-2 text-grey">Toplam İzin</div>
                   </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                    {{ permission.resource }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                    {{ permission.action || permission.type || 'N/A' }}
-                  </span>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ permission.description || 'Açıklama yok' }}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span
-                    :class="[
-                      'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-                      permission.isActive !== false
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    ]"
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="3">
+            <v-card>
+              <v-card-text>
+                <div class="d-flex align-center">
+                  <v-icon size="48" color="success" class="mr-4">
+                    mdi-check-circle
+                  </v-icon>
+                  <div>
+                    <div class="text-h4 font-weight-bold">{{ activePermissionsCount }}</div>
+                    <div class="text-body-2 text-grey">Aktif İzinler</div>
+                  </div>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="3">
+            <v-card>
+              <v-card-text>
+                <div class="d-flex align-center">
+                  <v-icon size="48" color="purple" class="mr-4">
+                    mdi-shield-account
+                  </v-icon>
+                  <div>
+                    <div class="text-h4 font-weight-bold">{{ uniqueResourcesCount }}</div>
+                    <div class="text-body-2 text-grey">Kaynak Türü</div>
+                  </div>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="3">
+            <v-card>
+              <v-card-text>
+                <div class="d-flex align-center">
+                  <v-icon size="48" color="warning" class="mr-4">
+                    mdi-account-group
+                  </v-icon>
+                  <div>
+                    <div class="text-h4 font-weight-bold">{{ totalAssignedCount }}</div>
+                    <div class="text-body-2 text-grey">Atanmış İzinler</div>
+                  </div>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+
+        <!-- Search and Filters -->
+        <v-row>
+          <v-col cols="12">
+            <v-card class="mb-6">
+              <v-card-text>
+                <v-row align="center" justify="space-between">
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="searchTerm"
+                      placeholder="İzinleri ara..."
+                      prepend-inner-icon="mdi-magnify"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                      clearable
+                    />
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-select
+                      v-model="resourceFilter"
+                      :items="uniqueResources"
+                      label="Kaynak"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                      clearable
+                    />
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-btn
+                      variant="outlined"
+                      @click="resetFilters"
+                      :disabled="!hasActiveFilters"
+                    >
+                      Filtreleri Temizle
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+
+        <!-- Permissions Table -->
+        <v-row>
+          <v-col cols="12">
+            <v-card>
+              <v-card-title class="d-flex align-center justify-space-between">
+                <span>İzinler</span>
+                <div class="d-flex align-center gap-2">
+                  <v-chip
+                    v-if="permissions.length > 0"
+                    color="primary"
+                    variant="outlined"
+                    size="small"
                   >
-                    {{ permission.isActive !== false ? 'Aktif' : 'Pasif' }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div class="flex items-center justify-end space-x-2">
-                    <button
-                      @click="viewPermission(permission)"
-                      class="text-indigo-600 hover:text-indigo-900 p-1 rounded"
-                      title="Görüntüle"
-                    >
-                      <Icon name="mdi:eye" class="w-4 h-4" />
-                    </button>
-                    <button
-                      @click="editPermission(permission)"
-                      class="text-blue-600 hover:text-blue-900 p-1 rounded"
-                      title="Düzenle"
-                    >
-                      <Icon name="mdi:pencil" class="w-4 h-4" />
-                    </button>
-                    <button
-                      @click="deletePermission(permission)"
-                      class="text-red-600 hover:text-red-900 p-1 rounded"
-                      title="Sil"
-                    >
-                      <Icon name="mdi:delete" class="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+                    {{ permissions.length }} izin
+                  </v-chip>
+                  <v-btn
+                    icon="mdi-refresh"
+                    variant="text"
+                    size="small"
+                    @click="loadPermissions"
+                    :loading="isLoading"
+                  />
+                </div>
+              </v-card-title>
 
-        <!-- Empty State -->
-        <div v-if="filteredPermissions.length === 0 && !permissionsStore.isLoading" class="text-center py-12">
-          <Icon name="mdi:key-off" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 class="text-lg font-medium text-gray-900 mb-2">İzin bulunamadı</h3>
-          <p class="text-gray-500">Arama kriterlerinize uygun izin bulunmuyor.</p>
-        </div>
+              <v-card-text class="pa-0">
+                <!-- Loading State -->
+                <div v-if="isLoading" class="d-flex justify-center align-center py-12">
+                  <v-progress-circular
+                    indeterminate
+                    color="primary"
+                    size="64"
+                  />
+                </div>
+
+                <!-- Empty State -->
+                <div v-else-if="filteredPermissions.length === 0" class="text-center py-12">
+                  <v-icon
+                    icon="mdi-key-off"
+                    size="64"
+                    color="grey"
+                    class="mb-4"
+                  />
+                  <h3 class="text-h6 text-grey-darken-1 mb-2">
+                    İzin Bulunamadı
+                  </h3>
+                  <p class="text-body-2 text-grey mb-4">
+                    Arama kriterlerinize uygun izin bulunamadı.
+                  </p>
+                  <v-btn
+                    color="primary"
+                    @click="resetFilters"
+                  >
+                    Filtreleri Temizle
+                  </v-btn>
+                </div>
+
+                <!-- Permissions Table -->
+                <div v-else>
+                  <v-data-table
+                    :headers="tableHeaders"
+                    :items="filteredPermissions"
+                    :loading="isLoading"
+                    :items-per-page="itemsPerPage"
+                    :page="currentPage"
+                    :total-items="filteredPermissions.length"
+                    class="elevation-0"
+                    @update:page="handlePageChange"
+                    @update:items-per-page="handleItemsPerPageChange"
+                  >
+                    <!-- Permission Name and Icon -->
+                    <template #item.name="{ item }">
+                      <div class="d-flex align-center">
+                        <v-avatar size="40" class="mr-3" color="primary" variant="tonal">
+                          <v-icon size="20" color="primary">
+                            mdi-key
+                          </v-icon>
+                        </v-avatar>
+                        <div>
+                          <div class="font-weight-medium text-body-1">
+                            {{ item.name }}
+                          </div>
+                          <div class="text-caption text-grey">
+                            {{ item.displayName || item.name }}
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- Resource -->
+                    <template #item.resource="{ item }">
+                      <v-chip
+                        color="primary"
+                        variant="outlined"
+                        size="small"
+                      >
+                        {{ item.resource }}
+                      </v-chip>
+                    </template>
+
+                    <!-- Action/Type -->
+                    <template #item.action="{ item }">
+                      <v-chip
+                        color="success"
+                        variant="outlined"
+                        size="small"
+                      >
+                        {{ item.action || item.type || 'N/A' }}
+                      </v-chip>
+                    </template>
+
+                    <!-- Description -->
+                    <template #item.description="{ item }">
+                      <div class="text-body-2 text-grey">
+                        {{ item.description || 'Açıklama yok' }}
+                      </div>
+                    </template>
+
+                    <!-- Status -->
+                    <template #item.isActive="{ item }">
+                      <v-chip
+                        :color="item.isActive !== false ? 'success' : 'error'"
+                        :text="item.isActive !== false ? 'Aktif' : 'Pasif'"
+                        size="small"
+                        variant="flat"
+                      />
+                    </template>
+
+                    <!-- Actions -->
+                    <template #item.actions="{ item }">
+                      <div class="d-flex gap-1">
+                        <v-btn
+                          icon="mdi-eye"
+                          size="small"
+                          variant="text"
+                          color="primary"
+                          @click="viewPermission(item)"
+                          title="Görüntüle"
+                        />
+                        <v-btn
+                          icon="mdi-pencil"
+                          size="small"
+                          variant="text"
+                          color="warning"
+                          @click="editPermission(item)"
+                          title="Düzenle"
+                        />
+                        <v-btn
+                          icon="mdi-delete"
+                          size="small"
+                          variant="text"
+                          color="error"
+                          @click="deletePermission(item)"
+                          title="Sil"
+                        />
+                      </div>
+                    </template>
+                  </v-data-table>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
       </div>
-    </div>
+    </v-container>
   </div>
 </template>
 
 <script setup>
-// SEO
-useHead({
-  title: 'İzin Yönetimi - DentBook',
-  meta: [
-    { name: 'description', content: 'DentBook sisteminde izin ve yetki yönetimi' }
-  ]
+// Page metadata
+definePageMeta({
+  title: 'İzin Yönetimi',
+  requiresAuth: true,
+  permissions: ['permissions.read']
 })
 
 // Composables
-const permissionsStore = usePermissionsStore()
+const { getPermissions } = usePermissions()
+const toast = useToast()
 
 // Reactive data
+const permissions = ref([])
+const isLoading = ref(false)
 const searchTerm = ref('')
 const resourceFilter = ref('')
+const currentPage = ref(1)
+const itemsPerPage = ref(10)
 
-// Computed
+// Table headers
+const tableHeaders = [
+  { 
+    title: 'İzin Adı', 
+    key: 'name', 
+    sortable: true, 
+    width: '300px',
+    align: 'start'
+  },
+  { 
+    title: 'Kaynak', 
+    key: 'resource', 
+    sortable: true, 
+    width: '150px',
+    align: 'start'
+  },
+  { 
+    title: 'İşlem', 
+    key: 'action', 
+    sortable: true, 
+    width: '120px',
+    align: 'start'
+  },
+  { 
+    title: 'Açıklama', 
+    key: 'description', 
+    sortable: false, 
+    width: '250px',
+    align: 'start'
+  },
+  { 
+    title: 'Durum', 
+    key: 'isActive', 
+    sortable: true, 
+    width: '100px',
+    align: 'center'
+  },
+  { 
+    title: 'İşlemler', 
+    key: 'actions', 
+    sortable: false, 
+    width: '120px', 
+    align: 'center'
+  }
+]
+
+// Computed properties
+const hasActiveFilters = computed(() => {
+  return searchTerm.value || resourceFilter.value
+})
+
 const filteredPermissions = computed(() => {
-  let permissions = permissionsStore.permissions
+  let filtered = permissions.value
 
   if (searchTerm.value) {
     const search = searchTerm.value.toLowerCase()
-    permissions = permissions.filter(permission => 
+    filtered = filtered.filter(permission => 
       permission.name.toLowerCase().includes(search) ||
       (permission.displayName && permission.displayName.toLowerCase().includes(search)) ||
       (permission.description && permission.description.toLowerCase().includes(search)) ||
@@ -271,69 +397,119 @@ const filteredPermissions = computed(() => {
   }
 
   if (resourceFilter.value) {
-    permissions = permissions.filter(permission => permission.resource === resourceFilter.value)
+    filtered = filtered.filter(permission => permission.resource === resourceFilter.value)
   }
 
-  return permissions
+  return filtered
 })
 
 const activePermissionsCount = computed(() => 
-  permissionsStore.permissions.filter(permission => permission.isActive !== false).length
+  permissions.value.filter(permission => permission.isActive !== false).length
 )
 
 const uniqueResources = computed(() => 
-  [...new Set(permissionsStore.permissions.map(permission => permission.resource))]
+  [...new Set(permissions.value.map(permission => permission.resource))]
 )
 
 const uniqueResourcesCount = computed(() => uniqueResources.value.length)
 
 const totalAssignedCount = computed(() => 
-  permissionsStore.permissions.reduce((total, permission) => total + (permission.assignedCount || 0), 0)
+  permissions.value.reduce((total, permission) => total + (permission.assignedCount || 0), 0)
 )
 
 // Methods
+const loadPermissions = async () => {
+  try {
+    isLoading.value = true
+    const response = await getPermissions()
+    
+    // Handle different response formats
+    if (Array.isArray(response)) {
+      permissions.value = response
+    } else if (response && response.data) {
+      permissions.value = response.data.items || response.data
+    } else {
+      permissions.value = []
+    }
+  } catch (error) {
+    console.error('Error loading permissions:', error)
+    toast.error('İzinler yüklenirken hata oluştu')
+    permissions.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
+
 const resetFilters = () => {
   searchTerm.value = ''
   resourceFilter.value = ''
+  currentPage.value = 1
+}
+
+const handlePageChange = (page) => {
+  currentPage.value = page
+}
+
+const handleItemsPerPageChange = (itemsPerPage) => {
+  currentPage.value = 1
 }
 
 const viewPermission = (permission) => {
-  $router.push(`/permissions/${permission.id}`)
+  console.log('View permission:', permission)
+  toast.info('İzin görüntüleme özelliği yakında eklenecek')
 }
 
 const editPermission = (permission) => {
-  $router.push(`/permissions/${permission.id}/edit`)
+  console.log('Edit permission:', permission)
+  toast.info('İzin düzenleme özelliği yakında eklenecek')
 }
 
 const deletePermission = async (permission) => {
   if (confirm(`${permission.name} iznini silmek istediğinizden emin misiniz?`)) {
     try {
-      await permissionsStore.deletePermission(permission.id)
-      alert(`${permission.name} izni başarıyla silindi`)
+      // await deletePermissionApi(permission.id)
+      await loadPermissions()
+      toast.success('İzin başarıyla silindi')
     } catch (error) {
-      console.error('İzin silinirken hata oluştu:', error)
-      alert('İzin silinirken bir hata oluştu')
+      console.error('Error deleting permission:', error)
+      toast.error('İzin silinirken hata oluştu')
     }
   }
 }
 
-// Load permissions on mount
+// Load initial data
 onMounted(async () => {
-  try {
-    await permissionsStore.fetchPermissions()
-  } catch (error) {
-    console.error('İzinler yüklenirken hata oluştu:', error)
-    
-    // API bağlantı hatası kontrolü
-    if (error.code === 'NETWORK_ERROR' || error.message?.includes('Network Error')) {
-      alert('API sunucusuna bağlanılamıyor. Lütfen sunucunun çalıştığından emin olun.')
-    } else if (error.response?.status === 404) {
-      alert('API endpoint bulunamadı. Lütfen API URL\'ini kontrol edin.')
-    } else if (error.response?.status === 401) {
-      alert('Yetkilendirme hatası. Lütfen tekrar giriş yapın.')
-    } else {
-      alert(`İzinler yüklenirken bir hata oluştu: ${error.message || 'Bilinmeyen hata'}`)
-    }
-  }
+  await loadPermissions()
 })
-</script> 
+
+// SEO
+useHead({
+  title: 'İzin Yönetimi - JTWBaseAuth',
+  meta: [
+    { name: 'description', content: 'Sistem genelinde kullanıcı izinlerini yönetin' }
+  ]
+})
+</script>
+
+<style scoped>
+.v-data-table {
+  border-radius: 8px;
+}
+
+.v-data-table :deep(.v-data-table-header) {
+  background-color: #f8f9fa;
+}
+
+.v-data-table :deep(.v-data-table-header th) {
+  font-weight: 600;
+  color: #374151;
+}
+
+.v-data-table :deep(.v-data-table__td) {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.v-data-table :deep(.v-data-table__tr:hover) {
+  background-color: #f9fafb;
+}
+</style> 

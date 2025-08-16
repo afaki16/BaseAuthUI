@@ -74,8 +74,11 @@ const config = useRuntimeConfig()
 
 const isLoading = ref(false)
 const testData = reactive({
-  email: 'test@example.com',
-  password: 'Test123!'
+  email: 'admin@baseauth.com',
+  password: 'Admin123!',
+  rememberMe: true,
+  deviceId: '',
+  deviceName: ''
 })
 
 const requestDetails = ref('')
@@ -89,6 +92,33 @@ const testLogin = async () => {
   errorDetails.value = ''
   
   try {
+    // Device bilgilerini otomatik doldur
+    if (process.client) {
+      // Device ID oluştur
+      let deviceId = localStorage.getItem('deviceId')
+      if (!deviceId) {
+        deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+        localStorage.setItem('deviceId', deviceId)
+      }
+      testData.deviceId = deviceId
+
+      // Device name tespit et
+      const userAgent = navigator.userAgent
+      if (userAgent.includes('Windows')) {
+        testData.deviceName = 'Windows Device'
+      } else if (userAgent.includes('Mac')) {
+        testData.deviceName = 'Mac Device'
+      } else if (userAgent.includes('Linux')) {
+        testData.deviceName = 'Linux Device'
+      } else if (userAgent.includes('Android')) {
+        testData.deviceName = 'Android Device'
+      } else if (userAgent.includes('iOS')) {
+        testData.deviceName = 'iOS Device'
+      } else {
+        testData.deviceName = 'Unknown Device'
+      }
+    }
+    
     const url = `${config.public.apiBase}/api/auth/login`
     requestDetails.value = `URL: ${url}\nMethod: POST\nData: ${JSON.stringify(testData, null, 2)}`
     
