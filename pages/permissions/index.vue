@@ -193,107 +193,88 @@
                   </v-btn>
                 </div>
 
-                <!-- Permissions Table -->
+                <!-- Grouped Permissions Table as Accordion -->
                 <div v-else>
-                  <v-data-table
-                    :headers="tableHeaders"
-                    :items="filteredPermissions"
-                    :loading="isLoading"
-                    :items-per-page="itemsPerPage"
-                    :page="currentPage"
-                    :total-items="filteredPermissions.length"
-                    class="elevation-0"
-                    @update:page="handlePageChange"
-                    @update:items-per-page="handleItemsPerPageChange"
-                  >
-                    <!-- Permission Name and Icon -->
-                    <template #item.name="{ item }">
-                      <div class="d-flex align-center">
-                        <v-avatar size="40" class="mr-3" color="primary" variant="tonal">
-                          <v-icon size="20" color="primary">
-                            mdi-key
-                          </v-icon>
-                        </v-avatar>
-                        <div>
-                          <div class="font-weight-medium text-body-1">
-                            {{ item.name }}
-                          </div>
-                          <div class="text-caption text-grey">
-                            {{ item.displayName || item.name }}
+                  <v-expansion-panels variant="accordion" multiple>
+                    <v-expansion-panel
+                      v-for="resource in uniqueResources"
+                      :key="resource"
+                    >
+                      <v-expansion-panel-title>
+                        <div class="d-flex align-center">
+                          <v-icon class="me-3" color="primary">mdi-folder-key</v-icon>
+                          <div>
+                            <div class="text-subtitle-1 font-weight-medium">{{ resource }}</div>
+                            <div class="text-caption text-grey-600">
+                              {{ filteredPermissions.filter(p => p.resource === resource).length }} izin
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </template>
-
-                    <!-- Resource -->
-                    <template #item.resource="{ item }">
-                      <v-chip
-                        color="primary"
-                        variant="outlined"
-                        size="small"
-                      >
-                        {{ item.resource }}
-                      </v-chip>
-                    </template>
-
-                    <!-- Action/Type -->
-                    <template #item.action="{ item }">
-                      <v-chip
-                        color="success"
-                        variant="outlined"
-                        size="small"
-                      >
-                        {{ item.action || item.type || 'N/A' }}
-                      </v-chip>
-                    </template>
-
-                    <!-- Description -->
-                    <template #item.description="{ item }">
-                      <div class="text-body-2 text-grey">
-                        {{ item.description || 'Açıklama yok' }}
-                      </div>
-                    </template>
-
-                    <!-- Status -->
-                    <template #item.isActive="{ item }">
-                      <v-chip
-                        :color="item.isActive !== false ? 'success' : 'error'"
-                        :text="item.isActive !== false ? 'Aktif' : 'Pasif'"
-                        size="small"
-                        variant="flat"
-                      />
-                    </template>
-
-                    <!-- Actions -->
-                    <template #item.actions="{ item }">
-                      <div class="d-flex gap-1">
-                        <v-btn
-                          icon="mdi-eye"
-                          size="small"
-                          variant="text"
-                          color="primary"
-                          @click="viewPermission(item)"
-                          title="Görüntüle"
-                        />
-                        <v-btn
-                          icon="mdi-pencil"
-                          size="small"
-                          variant="text"
-                          color="warning"
-                          @click="editPermission(item)"
-                          title="Düzenle"
-                        />
-                        <v-btn
-                          icon="mdi-delete"
-                          size="small"
-                          variant="text"
-                          color="error"
-                          @click="deletePermission(item)"
-                          title="Sil"
-                        />
-                      </div>
-                    </template>
-                  </v-data-table>
+                      </v-expansion-panel-title>
+                      <v-expansion-panel-text>
+                        <v-data-table
+                          :headers="tableHeaders"
+                          :items="filteredPermissions.filter(p => p.resource === resource)"
+                          :loading="isLoading"
+                          :items-per-page="itemsPerPage"
+                          :page="currentPage"
+                          :total-items="filteredPermissions.filter(p => p.resource === resource).length"
+                          class="elevation-0 mb-4"
+                          @update:page="handlePageChange"
+                          @update:items-per-page="handleItemsPerPageChange"
+                        >
+                          <template #item.name="{ item }">
+                            <div class="d-flex align-center">
+                              <v-avatar size="40" class="mr-3" color="primary" variant="tonal">
+                                <v-icon size="20" color="primary">
+                                  mdi-key
+                                </v-icon>
+                              </v-avatar>
+                              <div>
+                                <div class="font-weight-medium text-body-1">
+                                  {{ item.name }}
+                                </div>
+                                <div class="text-caption text-grey">
+                                  {{ item.displayName || item.name }}
+                                </div>
+                              </div>
+                            </div>
+                          </template>
+                          <template #item.resource="{ item }">
+                            <v-chip
+                              color="primary"
+                              variant="outlined"
+                              size="small"
+                            >
+                              {{ item.resource }}
+                            </v-chip>
+                          </template>
+                          <template #item.action="{ item }">
+                            <v-chip
+                              color="success"
+                              variant="outlined"
+                              size="small"
+                            >
+                              {{ item.action || item.type || 'N/A' }}
+                            </v-chip>
+                          </template>
+                          <template #item.description="{ item }">
+                            <div class="text-body-2 text-grey">
+                              {{ item.description || 'Açıklama yok' }}
+                            </div>
+                          </template>
+                          <template #item.isActive="{ item }">
+                            <v-chip
+                              :color="item.isActive !== false ? 'success' : 'error'"
+                              :text="item.isActive !== false ? 'Aktif' : 'Pasif'"
+                              size="small"
+                              variant="flat"
+                            />
+                          </template>
+                        </v-data-table>
+                      </v-expansion-panel-text>
+                    </v-expansion-panel>
+                  </v-expansion-panels>
                 </div>
               </v-card-text>
             </v-card>
@@ -360,36 +341,22 @@ const tableHeaders = [
     sortable: true, 
     width: '100px',
     align: 'center'
-  },
-  { 
-    title: 'İşlemler', 
-    key: 'actions', 
-    sortable: false, 
-    width: '120px', 
-    align: 'center'
   }
 ]
 
 // Computed properties
-const hasActiveFilters = computed(() => {
-  return searchTerm.value || resourceFilter.value
-})
-
 const filteredPermissions = computed(() => {
   let filtered = permissions.value
 
+  // Apply search term filter
   if (searchTerm.value) {
-    const search = searchTerm.value.toLowerCase()
     filtered = filtered.filter(permission => 
-      permission.name.toLowerCase().includes(search) ||
-      (permission.displayName && permission.displayName.toLowerCase().includes(search)) ||
-      (permission.description && permission.description.toLowerCase().includes(search)) ||
-      permission.resource.toLowerCase().includes(search) ||
-      (permission.action && permission.action.toLowerCase().includes(search)) ||
-      (permission.type && permission.type.toString().toLowerCase().includes(search))
+      permission.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+      permission.displayName?.toLowerCase().includes(searchTerm.value.toLowerCase())
     )
   }
 
+  // Apply resource filter
   if (resourceFilter.value) {
     filtered = filtered.filter(permission => permission.resource === resourceFilter.value)
   }
