@@ -13,13 +13,7 @@
                 Sistem genelinde kullanıcı izinlerini yönetin
               </p>
             </div>
-            <v-btn
-              color="primary"
-              prepend-icon="mdi-key-plus"
-              @click="$router.push('/permissions/create')"
-            >
-              Yeni İzin Ekle
-            </v-btn>
+            <!-- 'Yeni İzin Ekle' butonu kaldırıldı -->
           </div>
         </v-col>
       </v-row>
