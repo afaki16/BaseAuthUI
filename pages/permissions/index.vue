@@ -300,8 +300,6 @@ const toast = useToast()
 // Reactive data
 const permissions = ref([])
 const isLoading = ref(false)
-const searchTerm = ref('')
-const resourceFilter = ref('')
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
 
@@ -401,12 +399,6 @@ const loadPermissions = async () => {
   }
 }
 
-const resetFilters = () => {
-  searchTerm.value = ''
-  resourceFilter.value = ''
-  currentPage.value = 1
-}
-
 const handlePageChange = (page) => {
   currentPage.value = page
 }
@@ -436,6 +428,19 @@ const deletePermission = async (permission) => {
       toast.error('İzin silinirken hata oluştu')
     }
   }
+}
+
+// Restore searchTerm, resourceFilter, hasActiveFilters, resetFilters, and their usages if they were removed
+const searchTerm = ref('')
+const resourceFilter = ref(null)
+
+const hasActiveFilters = computed(() => {
+  return searchTerm.value || resourceFilter.value
+})
+
+const resetFilters = () => {
+  searchTerm.value = ''
+  resourceFilter.value = null
 }
 
 // Load initial data
