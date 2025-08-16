@@ -1,31 +1,12 @@
 <template>
   <div>
-    <PageHeader
-      :title="role?.name || 'Role Details'"
-      description="View role information and assigned permissions"
-      :breadcrumbs="breadcrumbs"
-    >
-      <template #actions>
-        <v-btn
-          v-if="authStore.hasPermission('Roles.Update') && role && !role.isSystemRole"
-          color="primary"
-          prepend-icon="mdi-pencil"
-          @click="$router.push(`/roles/${route.params.id}/edit`)"
-        >
-          Edit Role
-        </v-btn>
-        
-        <v-btn
-          v-if="authStore.hasPermission('Roles.Delete') && role && !role.isSystemRole"
-          color="error"
-          variant="outlined"
-          prepend-icon="mdi-delete"
-          @click="deleteRole"
-        >
-          Delete Role
-        </v-btn>
+    <v-breadcrumbs :items="breadcrumbs" class="mb-4">
+      <template #title="{ item, index }">
+        <v-icon v-if="index === 0" size="18" class="mr-1">mdi-home</v-icon>
+        <v-icon v-else-if="index === 1" size="18" class="mr-1">mdi-shield-account</v-icon>
+        {{ item.title }}
       </template>
-    </PageHeader>
+    </v-breadcrumbs>
 
     <div v-if="isLoading" class="text-center py-12">
       <LoadingSpinner text="Loading role details..." />

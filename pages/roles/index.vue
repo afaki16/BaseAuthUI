@@ -2,18 +2,16 @@
   <div class="min-h-screen bg-gray-50">
     <!-- Page Header -->
     <v-container class="py-6">
-      <v-row>
+        <v-row>
         <v-col cols="12">
           <div class="d-flex align-center justify-space-between mb-6">
             <div>
-              <h1 class="text-h4 font-weight-bold text-gray-900 mb-2">
-                Roller
-              </h1>
-              <p class="text-body-1 text-gray-600">
-                Sistem rollerini görüntüleyin ve yönetin
-              </p>
+              <BreadCrumb :items="[
+      { text: 'Ana Sayfa', to: '/' },
+      { text: 'Roller' }
+    ]" />
             </div>
-            <v-btn
+              <v-btn
               color="primary"
               prepend-icon="mdi-plus"
               @click="openCreateDialog"

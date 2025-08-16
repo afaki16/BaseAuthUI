@@ -1,10 +1,28 @@
 <template>
   <div>
-    <PageHeader
-      title="Create Role"
-      description="Define a new role with specific permissions"
-      :breadcrumbs="breadcrumbs"
-    />
+    <v-breadcrumbs class="mb-4" :items="breadcrumbs">
+      <template #prepend>
+        <v-icon size="18" class="mr-1">mdi-home</v-icon>
+      </template>
+      <template #item="{ item, index }">
+        <v-breadcrumbs-item
+          :to="item.to"
+          :disabled="index === breadcrumbs.length - 1"
+        >
+          <template v-if="index === 0">
+            <v-icon size="18" class="mr-1">mdi-home</v-icon>
+            {{ item.title }}
+          </template>
+          <template v-else-if="index === 1">
+            <v-icon size="18" class="mr-1">mdi-shield-account</v-icon>
+            {{ item.title }}
+          </template>
+          <template v-else>
+            {{ item.title }}
+          </template>
+        </v-breadcrumbs-item>
+      </template>
+    </v-breadcrumbs>
 
     <v-row>
       <v-col cols="12" lg="8">

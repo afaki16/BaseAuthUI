@@ -182,8 +182,8 @@ const getRoleColor = (role: Role) => {
 }
 
 const handleSubmit = async () => {
-  const { valid } = await form.value.validate()
-  if (!valid) return
+  const validation = await form.value.validate()
+  if (!validation.valid) return
 
   emit('submit', formData)
 }

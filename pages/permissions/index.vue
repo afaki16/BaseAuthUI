@@ -1,19 +1,17 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Page Header -->
+      
     <v-container class="py-6">
       <v-row>
         <v-col cols="12">
           <div class="d-flex align-center justify-space-between mb-6">
             <div>
-              <h1 class="text-h4 font-weight-bold text-gray-900 mb-2">
-                İzin Yönetimi
-              </h1>
-              <p class="text-body-1 text-gray-600">
-                Sistem genelinde kullanıcı izinlerini yönetin
-              </p>
+              <BreadCrumb :items="[
+      { text: 'Ana Sayfa', to: '/' },
+      { text: 'İzinler' }
+    ]" />
             </div>
-            <!-- 'Yeni İzin Ekle' butonu kaldırıldı -->
           </div>
         </v-col>
       </v-row>
@@ -50,42 +48,12 @@
             <v-card>
               <v-card-text>
                 <div class="d-flex align-center">
-                  <v-icon size="48" color="success" class="mr-4">
-                    mdi-check-circle
-                  </v-icon>
-                  <div>
-                    <div class="text-h4 font-weight-bold">{{ activePermissionsCount }}</div>
-                    <div class="text-body-2 text-grey">Aktif İzinler</div>
-                  </div>
-                </div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-          <v-col cols="12" md="3">
-            <v-card>
-              <v-card-text>
-                <div class="d-flex align-center">
                   <v-icon size="48" color="purple" class="mr-4">
                     mdi-shield-account
                   </v-icon>
                   <div>
                     <div class="text-h4 font-weight-bold">{{ uniqueResourcesCount }}</div>
                     <div class="text-body-2 text-grey">Kaynak Türü</div>
-                  </div>
-                </div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-          <v-col cols="12" md="3">
-            <v-card>
-              <v-card-text>
-                <div class="d-flex align-center">
-                  <v-icon size="48" color="warning" class="mr-4">
-                    mdi-account-group
-                  </v-icon>
-                  <div>
-                    <div class="text-h4 font-weight-bold">{{ totalAssignedCount }}</div>
-                    <div class="text-body-2 text-grey">Atanmış İzinler</div>
                   </div>
                 </div>
               </v-card-text>
@@ -221,14 +189,6 @@
                               {{ item.description || 'Açıklama yok' }}
                             </div>
                           </template>
-                          <template #item.isActive="{ item }">
-                            <v-chip
-                              :color="item.isActive !== false ? 'success' : 'error'"
-                              :text="item.isActive !== false ? 'Aktif' : 'Pasif'"
-                              size="small"
-                              variant="flat"
-                            />
-                          </template>
                         </v-data-table>
                       </v-expansion-panel-text>
                     </v-expansion-panel>
@@ -290,13 +250,6 @@ const tableHeaders = [
     sortable: false, 
     width: '250px',
     align: 'start'
-  },
-  { 
-    title: 'Durum', 
-    key: 'isActive', 
-    sortable: true, 
-    width: '100px',
-    align: 'center'
   }
 ]
 
