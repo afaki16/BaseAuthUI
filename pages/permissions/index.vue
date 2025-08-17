@@ -65,137 +65,11 @@
         <!-- Permissions Table -->
         <v-row>
           <v-col cols="12">
-            <v-card>
-              <v-card-title class="d-flex align-center justify-space-between">
-                <span>İzinler</span>
-                <div class="d-flex align-center gap-2">
-                  <v-chip
-                    v-if="permissions.length > 0"
-                    color="primary"
-                    variant="outlined"
-                    size="small"
-                  >
-                    {{ permissions.length }} izin
-                  </v-chip>
-                  <v-btn
-                    icon="mdi-refresh"
-                    variant="text"
-                    size="small"
-                    @click="loadPermissions"
-                    :loading="isLoading"
-                  />
-                </div>
-              </v-card-title>
-
-              <v-card-text class="pa-0">
-                <!-- Loading State -->
-                <div v-if="isLoading" class="d-flex justify-center align-center py-12">
-                  <v-progress-circular
-                    indeterminate
-                    color="primary"
-                    size="64"
-                  />
-                </div>
-
-                <!-- Empty State -->
-                <div v-else-if="filteredPermissions.length === 0" class="text-center py-12">
-                  <v-icon
-                    icon="mdi-key-off"
-                    size="64"
-                    color="grey"
-                    class="mb-4"
-                  />
-                  <h3 class="text-h6 text-grey-darken-1 mb-2">
-                    İzin Bulunamadı
-                  </h3>
-                  <p class="text-body-2 text-grey mb-4">
-                    Arama kriterlerinize uygun izin bulunamadı.
-                  </p>
-                  <v-btn
-                    color="primary"
-                    @click="resetFilters"
-                  >
-                    Filtreleri Temizle
-                  </v-btn>
-                </div>
-
-                <!-- Grouped Permissions Table as Accordion -->
-                <div v-else>
-                  <v-expansion-panels variant="accordion" multiple>
-                    <v-expansion-panel
-                      v-for="resource in uniqueResources"
-                      :key="resource"
-                    >
-                      <v-expansion-panel-title>
-                        <div class="d-flex align-center">
-                          <v-icon class="me-3" color="primary">mdi-folder-key</v-icon>
-                          <div>
-                            <div class="text-subtitle-1 font-weight-medium">{{ resource }}</div>
-                            <div class="text-caption text-grey-600">
-                              {{ filteredPermissions.filter(p => p.resource === resource).length }} izin
-                            </div>
-                          </div>
-                        </div>
-                      </v-expansion-panel-title>
-                      <v-expansion-panel-text>
-                        <v-data-table
-                          :headers="tableHeaders"
-                          :items="filteredPermissions.filter(p => p.resource === resource)"
-                          :loading="isLoading"
-                          :items-per-page="itemsPerPage"
-                          :page="currentPage"
-                          :total-items="filteredPermissions.filter(p => p.resource === resource).length"
-                          class="elevation-0 mb-4"
-                          @update:page="handlePageChange"
-                          @update:items-per-page="handleItemsPerPageChange"
-                        >
-                          <template #item.name="{ item }">
-                            <div class="d-flex align-center">
-                              <v-avatar size="40" class="mr-3" color="primary" variant="tonal">
-                                <v-icon size="20" color="primary">
-                                  mdi-key
-                                </v-icon>
-                              </v-avatar>
-                              <div>
-                                <div class="font-weight-medium text-body-1">
-                                  {{ item.name }}
-                                </div>
-                                <div class="text-caption text-grey">
-                                  {{ item.displayName || item.name }}
-                                </div>
-                              </div>
-                            </div>
-                          </template>
-                          <template #item.resource="{ item }">
-                            <v-chip
-                              color="primary"
-                              variant="outlined"
-                              size="small"
-                            >
-                              {{ item.resource }}
-                            </v-chip>
-                          </template>
-                          <template #item.action="{ item }">
-                            <v-chip
-                              color="success"
-                              variant="outlined"
-                              size="small"
-                            >
-                              {{ item.action || item.type || 'N/A' }}
-                            </v-chip>
-                          </template>
-                          <template #item.description="{ item }">
-                            <div class="text-body-2 text-grey">
-                              {{ item.description || 'Açıklama yok' }}
-                            </div>
-                          </template>
-                        </v-data-table>
-                      </v-expansion-panel-text>
-                    </v-expansion-panel>
-                  </v-expansion-panels>
-                </div>
-              </v-card-text>
-            </v-card>
+            <DataTable
+              :fields="tableHeaders"
+              :items="filteredPermissions"
+              :pageSize="itemsPerPage"
+            />
           </v-col>
         </v-row>
       </div>
@@ -204,6 +78,7 @@
 </template>
 
 <script setup>
+import DataTable from '~/components/UI/DataTable.vue'
 // Page metadata
 definePageMeta({
   title: 'İzin Yönetimi',
@@ -223,34 +98,10 @@ const itemsPerPage = ref(10)
 
 // Table headers
 const tableHeaders = [
-  { 
-    title: 'İzin Adı', 
-    key: 'name', 
-    sortable: true, 
-    width: '300px',
-    align: 'start'
-  },
-  { 
-    title: 'Kaynak', 
-    key: 'resource', 
-    sortable: true, 
-    width: '150px',
-    align: 'start'
-  },
-  { 
-    title: 'İşlem', 
-    key: 'action', 
-    sortable: true, 
-    width: '120px',
-    align: 'start'
-  },
-  { 
-    title: 'Açıklama', 
-    key: 'description', 
-    sortable: false, 
-    width: '250px',
-    align: 'start'
-  }
+  { label: 'İzin Adı', value: 'name' },
+  { label: 'Kaynak', value: 'resource' },
+  { label: 'İşlem', value: 'action' },
+  { label: 'Açıklama', value: 'description' }
 ]
 
 // Computed properties
