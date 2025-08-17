@@ -76,7 +76,7 @@ const formData = reactive<LoginRequest>({
 })
 
 // Methods
-const validate = () => {
+const validateForm = () => {
   return form.value?.validate()
 }
 
@@ -91,7 +91,7 @@ const reset = () => {
 
 // Expose methods
 defineExpose({
-  validate,
+  validateForm,
   reset,
   formData
 })

@@ -1,288 +1,85 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Page Header -->
-    <v-container class="py-6">
-      <v-row>
-        <v-col cols="12">
-          <div class="d-flex align-center justify-space-between mb-6">
-            <div>
-              <h1 class="text-h4 font-weight-bold text-gray-900 mb-2">
-                Kullanıcılar
-              </h1>
-              <p class="text-body-1 text-gray-600">
-                Sistem kullanıcılarını görüntüleyin ve yönetin
-              </p>
-            </div>
-            <v-btn
-              color="primary"
-              prepend-icon="mdi-plus"
-              @click="openCreateDialog"
-              :loading="isLoading"
-            >
-              Yeni Kullanıcı
-            </v-btn>
-          </div>
-        </v-col>
-      </v-row>
+  <v-sheet border rounded>
+    <v-data-table
+      :headers="headers"
+      :hide-default-footer="users.length < 11"
+      :items="users"
+      :loading="isLoading"
+    >
+      <template v-slot:top>
+        <v-toolbar flat>
+          <v-toolbar-title>
+            <v-icon color="medium-emphasis" icon="mdi-account-multiple" size="x-small" start></v-icon>
+            Kullanıcılar
+          </v-toolbar-title>
+          <v-btn
+            class="me-2"
+            prepend-icon="mdi-plus"
+            rounded="lg"
+            text="Yeni Kullanıcı"
+            border
+            @click="openCreateDialog"
+            :loading="isLoading"
+          ></v-btn>
+        </v-toolbar>
+      </template>
 
-      <!-- Search and Filters -->
-      <v-row>
-        <v-col cols="12">
-          <v-card class="mb-6">
-            <v-card-text>
-              <v-row align="center" justify="space-between">
-                <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model="searchTerm"
-                    placeholder="Kullanıcı ara..."
-                    prepend-inner-icon="mdi-magnify"
-                    variant="outlined"
-                    density="compact"
-                    hide-details
-                    @update:model-value="handleSearch"
-                    clearable
-                  />
-                </v-col>
-                <v-col cols="12" md="3">
-                  <v-select
-                    v-model="statusFilter"
-                    :items="statusOptions"
-                    label="Durum"
-                    variant="outlined"
-                    density="compact"
-                    hide-details
-                    @update:model-value="handleFilter"
-                    clearable
-                  />
-                </v-col>
-                <v-col cols="12" md="3">
-                  <v-select
-                    v-model="roleFilter"
-                    :items="roleOptions"
-                    label="Rol"
-                    variant="outlined"
-                    density="compact"
-                    hide-details
-                    @update:model-value="handleFilter"
-                    clearable
-                  />
-                </v-col>
-                <v-col cols="12" md="2">
-                  <v-btn
-                    variant="outlined"
-                    @click="clearFilters"
-                    :disabled="!hasActiveFilters"
-                  >
-                    Filtreleri Temizle
-                  </v-btn>
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
+      <template v-slot:item.fullName="{ value }">
+        <v-chip :text="value" border="thin opacity-25" prepend-icon="mdi-account" label />
+      </template>
 
-      <!-- Users Table -->
-      <v-row>
-        <v-col cols="12">
-          <v-card>
-            <v-card-title class="d-flex align-center justify-space-between">
-              <span>Kullanıcı Listesi</span>
-              <div class="d-flex align-center gap-2">
-                <v-chip
-                  v-if="totalUsers > 0"
-                  color="primary"
-                  variant="outlined"
-                  size="small"
-                >
-                  {{ totalUsers }} kullanıcı
-                </v-chip>
-                <v-btn
-                  icon="mdi-refresh"
-                  variant="text"
-                  size="small"
-                  @click="loadUsers"
-                  :loading="isLoading"
-                />
-              </div>
-            </v-card-title>
+      <template v-slot:item.role="{ item }">
+        <v-chip v-if="item.roles && item.roles.length" :text="item.roles[0].name" border label size="small" color="primary" />
+        <span v-else>-</span>
+      </template>
 
-            <v-card-text class="pa-0">
-              <!-- Loading State -->
-              <div v-if="isLoading" class="d-flex justify-center align-center py-12">
-                <v-progress-circular
-                  indeterminate
-                  color="primary"
-                  size="64"
-                />
-              </div>
+      <template v-slot:item.status="{ item }">
+        <v-chip :color="getStatusColor(item.status)" :text="getStatusText(item.status)" size="small" variant="flat" />
+      </template>
 
-              <!-- Empty State -->
-              <div v-else-if="users.length === 0" class="text-center py-12">
-                <v-icon
-                  icon="mdi-account-group-outline"
-                  size="64"
-                  color="grey"
-                  class="mb-4"
-                />
-                <h3 class="text-h6 text-grey-darken-1 mb-2">
-                  Kullanıcı Bulunamadı
-                </h3>
-                <p class="text-body-2 text-grey mb-4">
-                  Arama kriterlerinize uygun kullanıcı bulunamadı.
-                </p>
-                <v-btn
-                  color="primary"
-                  @click="openCreateDialog"
-                >
-                  Yeni Kullanıcı Ekle
-                </v-btn>
-              </div>
+      <template v-slot:item.email="{ value }">
+        <span>{{ value }}</span>
+      </template>
 
-              <!-- Users Table -->
-              <div v-else>
-                <v-data-table
-                  :headers="tableHeaders"
-                  :items="users"
-                  :loading="isLoading"
-                  :items-per-page="itemsPerPage"
-                  :page="currentPage"
-                  :total-items="totalUsers"
-                  class="elevation-0"
-                  @update:page="handlePageChange"
-                  @update:items-per-page="handleItemsPerPageChange"
-                >
-                  <!-- Avatar and User Info -->
-                  <template #item.avatar="{ item }">
-                    <div class="d-flex align-center">
-                      <v-avatar size="40" class="mr-3">
-                        <v-img
-                          v-if="item.profileImageUrl"
-                          :src="item.profileImageUrl"
-                          :alt="item.fullName"
-                        />
-                        <v-icon v-else size="24" color="grey">
-                          mdi-account
-                        </v-icon>
-                      </v-avatar>
-                      <div>
-                        <div class="font-weight-medium text-body-1">
-                          {{ item.fullName }}
-                        </div>
-                        <div class="text-caption text-grey">
-                          {{ item.email }}
-                        </div>
-                      </div>
-                    </div>
-                  </template>
+      <template v-slot:item.actions="{ item }">
+        <div class="d-flex ga-2 justify-end">
+          <v-icon color="medium-emphasis" icon="mdi-pencil" size="small" @click="editUser(item)"></v-icon>
+          <v-icon color="medium-emphasis" icon="mdi-delete" size="small" @click="deleteUser(item)"></v-icon>
+        </div>
+      </template>
 
-                  <!-- Status -->
-                  <template #item.status="{ item }">
-                    <v-chip
-                      :color="getStatusColor(item.status)"
-                      :text="getStatusText(item.status)"
-                      size="small"
-                      variant="flat"
-                    />
-                  </template>
+      <template v-slot:no-data>
+        <v-btn
+          prepend-icon="mdi-backup-restore"
+          rounded="lg"
+          text="Yenile"
+          variant="text"
+          border
+          @click="loadUsers"
+        ></v-btn>
+      </template>
+    </v-data-table>
 
-                  <!-- Roles -->
-                  <template #item.roles="{ item }">
-                    <div class="d-flex flex-wrap gap-1">
-                      <v-chip
-                        v-for="role in item.roles.slice(0, 2)"
-                        :key="role.id"
-                        size="x-small"
-                        variant="outlined"
-                        color="primary"
-                      >
-                        {{ role.name }}
-                      </v-chip>
-                      <v-chip
-                        v-if="item.roles.length > 2"
-                        size="x-small"
-                        variant="outlined"
-                        color="grey"
-                      >
-                        +{{ item.roles.length - 2 }}
-                      </v-chip>
-                    </div>
-                  </template>
-
-                  <!-- Phone Number -->
-                  <template #item.phoneNumber="{ item }">
-                    <span v-if="item.phoneNumber" class="text-body-2">
-                      {{ item.phoneNumber }}
-                    </span>
-                    <span v-else class="text-caption text-grey">
-                      Belirtilmemiş
-                    </span>
-                  </template>
-
-                  <!-- Created Date -->
-                  <template #item.createdDate="{ item }">
-                    <div class="text-body-2 text-grey">
-                      {{ formatDate(item.createdDate) }}
-                    </div>
-                  </template>
-
-                  <!-- Actions -->
-                  <template #item.actions="{ item }">
-                    <div class="d-flex gap-1">
-                      <v-btn
-                        icon="mdi-eye"
-                        size="small"
-                        variant="text"
-                        color="primary"
-                        @click="viewUser(item)"
-                        title="Görüntüle"
-                      />
-                      <v-btn
-                        icon="mdi-pencil"
-                        size="small"
-                        variant="text"
-                        color="warning"
-                        @click="editUser(item)"
-                        title="Düzenle"
-                      />
-                      <v-btn
-                        icon="mdi-delete"
-                        size="small"
-                        variant="text"
-                        color="error"
-                        @click="deleteUser(item)"
-                        title="Sil"
-                      />
-                    </div>
-                  </template>
-                </v-data-table>
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
-
-    <!-- Simple Create Dialog -->
-    <v-dialog v-model="showCreateDialog" max-width="500">
+    <!-- Dialog ve diğer kodlar aynı kalacak -->
+    <v-dialog v-model="showUserDialog" max-width="500">
       <v-card>
-        <v-card-title>Yeni Kullanıcı</v-card-title>
+        <v-card-title>{{ isEditing ? 'Kullanıcıyı Düzenle' : 'Yeni Kullanıcı' }}</v-card-title>
         <v-card-text>
-          <p>Kullanıcı oluşturma özelliği yakında eklenecek.</p>
+          <v-form ref="userFormRef" @submit.prevent="saveUser">
+            <v-text-field v-model="userForm.fullName" label="Ad Soyad" :rules="[v => !!v || 'Zorunlu alan']" required />
+            <v-text-field v-model="userForm.email" label="E-posta" :rules="[v => !!v || 'Zorunlu alan']" required type="email" />
+            <v-select v-model="userForm.roleId" :items="roleOptions" label="Rol" item-title="title" item-value="value" :rules="[v => !!v || 'Zorunlu alan']" required />
+            <v-text-field v-model="userForm.phoneNumber" label="Telefon" />
+            <v-select v-model="userForm.status" :items="statusOptions" label="Durum" item-title="title" item-value="value" />
+          </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn
-            variant="outlined"
-            @click="showCreateDialog = false"
-          >
-            Kapat
-          </v-btn>
+          <v-btn variant="outlined" @click="showUserDialog = false">İptal</v-btn>
+          <v-btn color="primary" :loading="isSaving" @click="saveUser">Kaydet</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-    <!-- Confirm Delete Dialog -->
     <v-dialog v-model="showDeleteDialog" max-width="400">
       <v-card>
         <v-card-title class="text-h6">
@@ -295,23 +92,12 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn
-            variant="outlined"
-            @click="showDeleteDialog = false"
-          >
-            İptal
-          </v-btn>
-          <v-btn
-            color="error"
-            @click="confirmDelete"
-            :loading="isDeleting"
-          >
-            Sil
-          </v-btn>
+          <v-btn variant="outlined" @click="showDeleteDialog = false">İptal</v-btn>
+          <v-btn color="error" @click="confirmDelete" :loading="isDeleting">Sil</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </div>
+  </v-sheet>
 </template>
 
 <script setup>
@@ -325,7 +111,7 @@ definePageMeta({
 })
 
 // Composables
-const { getUsers, deleteUser: deleteUserApi } = useUsers()
+const { getUsers, createUser, updateUser, deleteUser: deleteUserApi } = useUsers()
 const { getRoles } = useRoles()
 const toast = useToast()
 
@@ -345,51 +131,26 @@ const roles = ref([])
 const showCreateDialog = ref(false)
 const showDeleteDialog = ref(false)
 const userToDelete = ref(null)
+const showUserDialog = ref(false)
+const isEditing = ref(false)
+const isSaving = ref(false)
+const userFormRef = ref(null)
+const userForm = ref({
+  id: null,
+  fullName: '',
+  email: '',
+  roleId: null,
+  phoneNumber: '',
+  status: 1
+})
 
 // Table headers
-const tableHeaders = [
-  { 
-    title: 'Kullanıcı', 
-    key: 'avatar', 
-    sortable: false, 
-    width: '300px',
-    align: 'start'
-  },
-  { 
-    title: 'Durum', 
-    key: 'status', 
-    sortable: true, 
-    width: '120px',
-    align: 'center'
-  },
-  { 
-    title: 'Roller', 
-    key: 'roles', 
-    sortable: false, 
-    width: '200px',
-    align: 'start'
-  },
-  { 
-    title: 'Telefon', 
-    key: 'phoneNumber', 
-    sortable: false, 
-    width: '150px',
-    align: 'start'
-  },
-  { 
-    title: 'Kayıt Tarihi', 
-    key: 'createdDate', 
-    sortable: true, 
-    width: '150px',
-    align: 'start'
-  },
-  { 
-    title: 'İşlemler', 
-    key: 'actions', 
-    sortable: false, 
-    width: '120px', 
-    align: 'center'
-  }
+const headers = [
+  { title: 'Ad Soyad', key: 'fullName' },
+  { title: 'E-posta', key: 'email' },
+  { title: 'Rol', key: 'role' },
+  { title: 'Durum', key: 'status' },
+  { title: 'İşlemler', key: 'actions', sortable: false }
 ]
 
 // Status options
@@ -478,7 +239,9 @@ const handleItemsPerPageChange = (itemsPerPage) => {
 }
 
 const openCreateDialog = () => {
-  showCreateDialog.value = true
+  isEditing.value = false
+  userForm.value = { id: null, fullName: '', email: '', roleId: null, phoneNumber: '', status: 1 }
+  showUserDialog.value = true
 }
 
 const viewUser = (user) => {
@@ -487,8 +250,16 @@ const viewUser = (user) => {
 }
 
 const editUser = (user) => {
-  console.log('Edit user:', user)
-  toast.info('Kullanıcı düzenleme özelliği yakında eklenecek')
+  isEditing.value = true
+  userForm.value = {
+    id: user.id,
+    fullName: user.fullName,
+    email: user.email,
+    roleId: user.roles && user.roles.length > 0 ? user.roles[0].id : null,
+    phoneNumber: user.phoneNumber || '',
+    status: user.status || 1
+  }
+  showUserDialog.value = true
 }
 
 const deleteUser = (user) => {
@@ -511,6 +282,42 @@ const confirmDelete = async () => {
     isDeleting.value = false
     userToDelete.value = null
     showDeleteDialog.value = false
+  }
+}
+
+const saveUser = async () => {
+  if (!userForm.value.fullName || !userForm.value.email || !userForm.value.roleId) {
+    toast.error('Lütfen zorunlu alanları doldurun')
+    return
+  }
+  isSaving.value = true
+  try {
+    if (isEditing.value) {
+      await updateUser({
+        id: userForm.value.id,
+        fullName: userForm.value.fullName,
+        email: userForm.value.email,
+        phoneNumber: userForm.value.phoneNumber,
+        status: userForm.value.status,
+        roleId: userForm.value.roleId
+      })
+      toast.success('Kullanıcı güncellendi')
+    } else {
+      await createUser({
+        fullName: userForm.value.fullName,
+        email: userForm.value.email,
+        phoneNumber: userForm.value.phoneNumber,
+        status: userForm.value.status,
+        roleId: userForm.value.roleId
+      })
+      toast.success('Kullanıcı eklendi')
+    }
+    showUserDialog.value = false
+    await loadUsers()
+  } catch (error) {
+    toast.error('Kullanıcı kaydedilirken hata oluştu')
+  } finally {
+    isSaving.value = false
   }
 }
 
@@ -561,22 +368,5 @@ onMounted(async () => {
 <style scoped>
 .v-data-table {
   border-radius: 8px;
-}
-
-.v-data-table :deep(.v-data-table-header) {
-  background-color: #f8f9fa;
-}
-
-.v-data-table :deep(.v-data-table-header th) {
-  font-weight: 600;
-  color: #374151;
-}
-
-.v-data-table :deep(.v-data-table__td) {
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.v-data-table :deep(.v-data-table__tr:hover) {
-  background-color: #f9fafb;
 }
 </style> 
