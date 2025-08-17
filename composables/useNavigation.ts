@@ -1,13 +1,20 @@
-import type { NavigationItem } from '~/types'
+  import type { NavigationItem } from '~/types'
 
-export const useNavigation = () => {
-  const navigationItems: NavigationItem[] = [
+  export const navigationItems: NavigationItem[] = [
     {
       title: 'Dashboard',
       icon: 'mdi-view-dashboard',
+      children: [
+        {
+           title: 'Dashboard',
+      icon: 'mdi-view-dashboard',
       to: '/dashboard',
-      permission: 'Dashboard.Read'
+     permission: 'Permissions.Read'
+        },
+        
+      ]
     },
+    
     {
       title: 'User Management',
       icon: 'mdi-account-group',
@@ -32,33 +39,16 @@ export const useNavigation = () => {
         }
       ]
     },
+    
     {
-      title: 'Reports',
-      icon: 'mdi-chart-line',
-      to: '/reports',
-      permission: 'Reports.Read'
-    },
-    {
-      title: 'System',
+      title: 'Settings',
       icon: 'mdi-cog',
-      children: [
-        {
-          title: 'Settings',
-          icon: 'mdi-cog-outline',
-          to: '/settings',
-          roles: ['Admin', 'SuperAdmin']
-        },
-        {
-          title: 'Audit Logs',
-          icon: 'mdi-history',
-          to: '/audit-logs',
-          permission: 'System.AuditLogs'
-        }
-      ]
+      to: '/settings',
+      roles: ['Admin', 'SuperAdmin']
     }
   ]
 
-  const filterNavigationByPermissions = (
+  export const filterNavigationByPermissions = (
     items: NavigationItem[],
     hasPermission: (permission: string) => boolean,
     hasRole: (role: string) => boolean
@@ -83,10 +73,4 @@ export const useNavigation = () => {
 
       return true
     })
-  }
-
-  return {
-    navigationItems,
-    filterNavigationByPermissions
-  }
-} 
+  } 
