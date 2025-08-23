@@ -38,28 +38,9 @@
       @filter="handleFilter"
     >
       <!-- Custom cell renderers -->
-      <template #cell-name="{ item, value }">
-        <div class="permission-name-cell">
-          <div class="permission-icon">
-            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1721 9z" />
-            </svg>
-          </div>
-          <div class="permission-info">
-            <span class="permission-title">{{ value }}</span>
-            <span v-if="item.code" class="permission-code">{{ item.code }}</span>
-          </div>
-        </div>
-      </template>
-
       <template #cell-resource="{ item, value }">
         <div class="resource-cell">
           <div class="resource-badge" :class="getResourceColorClass(value)">
-            <div class="resource-icon">
-              <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getResourceIconPath(value)" />
-              </svg>
-            </div>
             <span class="resource-name">{{ formatResourceName(value) }}</span>
           </div>
         </div>
@@ -90,7 +71,7 @@
 <script setup>
 import BaseDataTable from '~/components/UI/BaseDataTable.vue'
 
-// Page metadata
+// Page metadata - Önemli !!!
 definePageMeta({
   title: 'İzin Yönetimi',
   requiresAuth: true,
@@ -184,11 +165,6 @@ const formatResourceName = (resource) => {
     'users': 'Kullanıcılar',
     'roles': 'Roller',
     'permissions': 'İzinler',
-    'settings': 'Ayarlar',
-    'dashboard': 'Dashboard',
-    'reports': 'Raporlar',
-    'files': 'Dosyalar',
-    'system': 'Sistem'
   }
   return resourceNames[resource?.toLowerCase()] || resource
 }
@@ -214,11 +190,6 @@ const getResourceColorClass = (resource) => {
     'users': 'resource-blue',
     'roles': 'resource-purple',
     'permissions': 'resource-green',
-    'settings': 'resource-orange',
-    'dashboard': 'resource-indigo',
-    'reports': 'resource-pink',
-    'files': 'resource-yellow',
-    'system': 'resource-red'
   }
   return colorMap[resource?.toLowerCase()] || 'resource-gray'
 }
