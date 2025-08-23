@@ -78,7 +78,6 @@ useHead({
 })
 // Composables
 const { getUsers } = useUsers()
-const { getRoles } = useRoles()
 const toast = useToast()
 
 // Reactive data
@@ -121,11 +120,6 @@ const tableColumns = [
   },
 ]
 
-const currentPage = ref(1)
-const totalUsers = ref(0)
-const roles = ref([])
-
-
 // Methods
 const loadUsers = async () => {
   try {
@@ -135,36 +129,21 @@ const loadUsers = async () => {
     // Handle different response formats
     if (Array.isArray(response)) {
       users.value = response
-      totalUsers.value = response.length
     } else if (response && response.data) {
       users.value = response.data.items || response.data
-      totalUsers.value = response.data.total || response.data.length
     } else {
       users.value = []
-      totalUsers.value = 0
     }
   } catch (error) {
     console.error('Error loading users:', error)
     toast.error('Kullanıcılar yüklenirken hata oluştu')
     users.value = []
-    totalUsers.value = 0
   } finally {
     isLoading.value = false
   }
 }
 
-const loadRoles = async () => {
-  try {
-    const response = await getRoles()
-    roles.value = response || []
-  } catch (error) {
-    console.error('Error loading roles:', error)
-    roles.value = []
-  }
-}
-
 const handleSearch = () => {
-  currentPage.value = 1
   loadUsers()
 }
 const createPermission = () => {
@@ -196,7 +175,7 @@ const deletePermission = async (permission) => {
 
 // Load initial data
 onMounted(async () => {
-  await Promise.all([loadUsers(), loadRoles()])
+  await Promise.all([loadUsers()])
 })
 </script>
 
