@@ -290,7 +290,7 @@
         </div>
 
         <!-- Pagination -->
-        <div v-if="showPagination && totalPages > 1" class="pagination">
+        <div  class="pagination">
           <div class="pagination-info">
             <div class="results-info">
               <span class="results-text">{{ paginationInfo }}</span>
@@ -555,9 +555,7 @@ const paginatedItems = computed(() => {
 })
 
 const paginationInfo = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPageLocal.value + 1
-  const end = Math.min(currentPage.value * itemsPerPageLocal.value, totalItems.value)
-  return `${start}-${end} / ${totalItems.value} kayıt gösteriliyor`
+  return `Toplam Kayıt : ${totalItems.value}`
 })
 
 const visiblePages = computed(() => {
@@ -1001,7 +999,7 @@ watch(() => props.itemsPerPage, (newValue) => {
 }
 
 .results-text {
-  @apply text-sm text-gray-700 font-medium;
+  @apply text-sm text-gray-700 font-bold;
 }
 
 .items-per-page-select {
