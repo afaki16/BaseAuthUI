@@ -32,17 +32,9 @@
         </button>
       </div>
     </div>
-       
-      
         <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none flex items-center space-x-4">
-        <!-- Search Bar -->
-  
-        
         </div>
-        
   <div class="base-data-table">
-      
-     
      <v-toolbar flat class="toolbar-section gradient-toolbar">
       <v-toolbar-title class="gradient-title">
         <v-icon :icon="toolbarIcon" size="x-small" start class="gradient-icon"></v-icon>
@@ -407,7 +399,7 @@ watch(() => props.items, () => {
 })
 </script>
 
-<style scoped>
+<style>
 .base-data-table {
   @apply bg-white rounded-lg shadow-sm border border-gray-200;
 }
@@ -622,7 +614,7 @@ background: linear-gradient(135deg, #ffffff 0%, #2563eb 100%);
 }
 
 .action-button svg {
-  @apply h-4 w-4;
+  @apply h-5 w-5;
 }
 
 /* Pagination */

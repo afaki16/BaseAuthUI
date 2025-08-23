@@ -23,10 +23,10 @@
       empty-description="Henüz hiç izin tanımlanmamış."
       :show-add-button="true"
       :show-search="true"
-      :show-actions="true"
+      :show-actions="false"
       :show-view-button="true"
-      :show-edit-button="true"
-      :show-delete-button="true"
+      :show-edit-button="false"
+      :show-delete-button="false"
       :show-pagination="true"
       :items-per-page="10"
       @add="createPermission"
@@ -64,37 +64,7 @@
         </span>
       </template>
 
-      <!-- Custom actions -->
-      <template #actions="{ item }">
-        <button
-          @click="viewPermission(item)"
-          class="action-button view-button"
-          title="Görüntüle"
-        >
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          </svg>
-        </button>
-        <button
-          @click="editPermission(item)"
-          class="action-button edit-button"
-          title="Düzenle"
-        >
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-        </button>
-        <button
-          @click="deletePermission(item)"
-          class="action-button delete-button"
-          title="Sil"
-        >
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
-      </template>
+      
         </BaseDataTable>
   </div>
 </template>
@@ -232,81 +202,7 @@ const deletePermission = async (permission) => {
 onMounted(async () => {
   await loadPermissions()
   
-  // Add sample data for demonstration if no permissions exist
-  if (permissions.value.length === 0) {
-    permissions.value = [
-      {
-        id: 1,
-        name: 'Kullanıcı Yönetimi',
-        resource: 'users',
-        action: 'read',
-        description: 'Kullanıcıları görüntüleme izni'
-      },
-      {
-        id: 2,
-        name: 'Kullanıcı Oluşturma',
-        resource: 'users',
-        action: 'create',
-        description: 'Yeni kullanıcı oluşturma izni'
-      },
-      {
-        id: 3,
-        name: 'Kullanıcı Düzenleme',
-        resource: 'users',
-        action: 'update',
-        description: 'Kullanıcı bilgilerini düzenleme izni'
-      },
-      {
-        id: 4,
-        name: 'Kullanıcı Silme',
-        resource: 'users',
-        action: 'delete',
-        description: 'Kullanıcı silme izni'
-      },
-      {
-        id: 5,
-        name: 'Rol Yönetimi',
-        resource: 'roles',
-        action: 'read',
-        description: 'Rolleri görüntüleme izni'
-      },
-      {
-        id: 6,
-        name: 'Rol Oluşturma',
-        resource: 'roles',
-        action: 'create',
-        description: 'Yeni rol oluşturma izni'
-      },
-      {
-        id: 7,
-        name: 'İzin Yönetimi',
-        resource: 'permissions',
-        action: 'read',
-        description: 'İzinleri görüntüleme izni'
-      },
-      {
-        id: 8,
-        name: 'İzin Oluşturma',
-        resource: 'permissions',
-        action: 'create',
-        description: 'Yeni izin oluşturma izni'
-      },
-      {
-        id: 9,
-        name: 'Sistem Ayarları',
-        resource: 'settings',
-        action: 'read',
-        description: 'Sistem ayarlarını görüntüleme izni'
-      },
-      {
-        id: 10,
-        name: 'Rapor İndirme',
-        resource: 'reports',
-        action: 'export',
-        description: 'Raporları indirme izni'
-      }
-    ]
-  }
+ 
 })
 
 // SEO
@@ -321,39 +217,5 @@ useHead({
 <style scoped>
 .permissions-page {
   @apply p-6;
-}
-
-/* Custom styles for the BaseDataTable integration */
-:deep(.base-data-table) {
-  @apply shadow-lg;
-}
-
-:deep(.table-header-cell) {
-  @apply font-semibold;
-}
-
-:deep(.table-row:hover) {
-  @apply bg-gray-50;
-}
-
-/* Action button styles */
-.action-button {
-  @apply p-1.5 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
-}
-
-.view-button {
-  @apply text-blue-600 hover:bg-blue-50 focus:ring-blue-500;
-}
-
-.edit-button {
-  @apply text-yellow-600 hover:bg-yellow-50 focus:ring-yellow-500;
-}
-
-.delete-button {
-  @apply text-red-600 hover:bg-red-50 focus:ring-red-500;
-}
-
-.action-button svg {
-  @apply h-4 w-4;
 }
 </style> 
