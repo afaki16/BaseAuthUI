@@ -10,7 +10,7 @@
         <NuxtLink
           v-if="item.to"
           :to="item.to"
-          class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
+          class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500 breadcrumb-link"
         >
           <component
             v-if="item.icon"
@@ -50,5 +50,9 @@ defineProps<{
 .breadcrumb-item:not(:last-child)::after {
   content: '/';
   @apply mx-2 text-gray-400;
+}
+
+.breadcrumb-link:hover {
+  color: #3b82f6 !important;
 }
 </style> 
