@@ -44,7 +44,7 @@
     <!-- Main content -->
     <div class="flex flex-col min-h-screen transition-all duration-300" :class="{ 'pl-64': isSidebarOpen, 'pl-0': !isSidebarOpen }">
       <!-- Top navbar -->
-      <header class="fixed top-0 right-0 left-0 bg-white shadow-sm z-10" :class="{ 'left-64': isSidebarOpen, 'left-0': !isSidebarOpen }">
+      <header class="fixed top-0 right-0 left-0 shadow-sm z-10 gradient-navbar" :class="{ 'left-64': isSidebarOpen, 'left-0': !isSidebarOpen }">
         <div class="flex items-center justify-between h-16 px-4">
           <div class="flex items-center">
             <div class="flex items-center">
@@ -166,3 +166,31 @@ onMounted(() => {
   })
 })
 </script>
+
+<style scoped>
+/* Gradient Navbar */
+.gradient-navbar {
+  background: linear-gradient(135deg, #ffffff 0%, #2563eb 100%);
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Navbar içindeki text renklerini ayarla */
+.gradient-navbar .text-gray-800 {
+  color: #1e40af;
+  font-weight: 600;
+}
+
+.gradient-navbar .text-gray-700 {
+  color: #1e40af;
+}
+
+/* Logo ve başlık için gradient text */
+.gradient-navbar .text-xl {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+</style>
