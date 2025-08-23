@@ -1,45 +1,39 @@
 <template>
-  <div class="datatable-wrapper">
     <!-- Header Section -->
-    <div class="datatable-header">
-      <div class="datatable-title-section">
-        <h2 v-if="title" class="datatable-title">{{ title }}</h2>
-        <p v-if="description" class="datatable-description">{{ description }}</p>
+    <div class="sm:flex sm:items-center">
+      <div class="sm:flex-auto">
+        <p class="mt-2 text-sm text-gray-700">
+          {{ description }}
+        </p>
       </div>
-      
-      <div class="datatable-actions">
-        <!-- Search Bar -->
-        <div v-if="showSearch" class="datatable-search">
-          <div class="relative">
-            <input
-              v-model="searchQuery"
-              type="text"
-              :placeholder="searchPlaceholder"
-              class="datatable-search-input"
-            />
-            <div class="datatable-search-icon">
-              <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
+      <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none flex items-center space-x-4">
+        <!-- Arama Çubuğu -->
+        <div v-if="showSearch" class="relative">
+          <input
+            type="text"
+            v-model="searchQuery"
+            :placeholder="searchPlaceholder"
+            class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+          />
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </div>
         </div>
-
-        <!-- Add Button -->
         <button
           v-if="showAddButton"
           type="button"
           @click="$emit('add')"
-          class="datatable-add-button"
+          class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
         >
-          <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
           {{ addButtonText }}
         </button>
       </div>
     </div>
 
+
+  <div class="mt-8 flex flex-col">
     <!-- Table Section -->
     <div class="datatable-table-section">
       <!-- Loading State -->
@@ -141,8 +135,8 @@
                       <button
                         v-if="showViewButton"
                         @click="$emit('view', item)"
-                        class="datatable-action-button datatable-action-view"
-                        title="Görüntüle"
+                        class="text-indigo-600 hover:text-indigo-900"
+                        title="Detay"
                       >
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -152,7 +146,7 @@
                       <button
                         v-if="showEditButton"
                         @click="$emit('edit', item)"
-                        class="datatable-action-button datatable-action-edit"
+                        class="text-indigo-600 hover:text-indigo-900"
                         title="Düzenle"
                       >
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -162,7 +156,7 @@
                       <button
                         v-if="showDeleteButton"
                         @click="$emit('delete', item)"
-                        class="datatable-action-button datatable-action-delete"
+                        class="text-red-600 hover:text-red-900"
                         title="Sil"
                       >
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -398,41 +392,7 @@ watch(currentPage, (newPage) => {
   @apply bg-white rounded-lg shadow-sm border border-gray-200;
 }
 
-.datatable-header {
-  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between p-6 border-b border-gray-200;
-}
-
-.datatable-title-section {
-  @apply mb-4 sm:mb-0;
-}
-
-.datatable-title {
-  @apply text-lg font-semibold text-gray-900;
-}
-
-.datatable-description {
-  @apply mt-1 text-sm text-gray-600;
-}
-
-.datatable-actions {
-  @apply flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4;
-}
-
-.datatable-search {
-  @apply relative;
-}
-
-.datatable-search-input {
-  @apply w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm;
-}
-
-.datatable-search-icon {
-  @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none;
-}
-
-.datatable-add-button {
-  @apply inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2;
-}
+/* Header styles are now inline Tailwind classes */
 
 .datatable-table-section {
   @apply relative;
