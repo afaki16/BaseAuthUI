@@ -1,84 +1,180 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <!-- Page Header -->
-      
     <v-container class="py-6">
       <v-row>
         <v-col cols="12">
           <div class="d-flex align-center justify-space-between mb-6">
             <div>
               <BreadCrumb :items="[
-      { text: 'Ana Sayfa', to: '/' },
-      { text: 'İzinler' }
-    ]" />
+                { text: 'Ana Sayfa', to: '/' },
+                { text: 'İzinler' }
+              ]" />
             </div>
           </div>
         </v-col>
       </v-row>
 
-      <!-- Loading State -->
-      <div v-if="isLoading" class="d-flex justify-center align-center py-12">
-        <v-progress-circular
-          indeterminate
-          color="primary"
-          size="64"
-        />
-      </div>
-
-      <!-- Content when not loading -->
-      <div v-else>
-        <!-- Statistics Cards -->
-        <v-row class="mb-6">
-          <v-col cols="12" md="3">
-            <v-card>
-              <v-card-text>
-                <div class="d-flex align-center">
-                  <v-icon size="48" color="primary" class="mr-4">
-                    mdi-key
-                  </v-icon>
-                  <div>
-                    <div class="text-h4 font-weight-bold">{{ permissions.length }}</div>
-                    <div class="text-body-2 text-grey">Toplam İzin</div>
-                  </div>
+      <!-- Statistics Cards -->
+      <v-row class="mb-6">
+        <v-col cols="12" md="3">
+          <v-card>
+            <v-card-text>
+              <div class="d-flex align-center">
+                <v-icon size="48" color="primary" class="mr-4">
+                  mdi-key
+                </v-icon>
+                <div>
+                  <div class="text-h4 font-weight-bold">{{ permissions.length }}</div>
+                  <div class="text-body-2 text-grey">Toplam İzin</div>
                 </div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-          <v-col cols="12" md="3">
-            <v-card>
-              <v-card-text>
-                <div class="d-flex align-center">
-                  <v-icon size="48" color="purple" class="mr-4">
-                    mdi-shield-account
-                  </v-icon>
-                  <div>
-                    <div class="text-h4 font-weight-bold">{{ uniqueResourcesCount }}</div>
-                    <div class="text-body-2 text-grey">Kaynak Türü</div>
-                  </div>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="12" md="3">
+          <v-card>
+            <v-card-text>
+              <div class="d-flex align-center">
+                <v-icon size="48" color="purple" class="mr-4">
+                  mdi-shield-account
+                </v-icon>
+                <div>
+                  <div class="text-h4 font-weight-bold">{{ uniqueResourcesCount }}</div>
+                  <div class="text-body-2 text-grey">Kaynak Türü</div>
                 </div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="12" md="3">
+          <v-card>
+            <v-card-text>
+              <div class="d-flex align-center">
+                <v-icon size="48" color="success" class="mr-4">
+                  mdi-check-circle
+                </v-icon>
+                <div>
+                  <div class="text-h4 font-weight-bold">{{ activePermissionsCount }}</div>
+                  <div class="text-body-2 text-grey">Aktif İzin</div>
+                </div>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="12" md="3">
+          <v-card>
+            <v-card-text>
+              <div class="d-flex align-center">
+                <v-icon size="48" color="info" class="mr-4">
+                  mdi-account-multiple
+                </v-icon>
+                <div>
+                  <div class="text-h4 font-weight-bold">{{ totalAssignedCount }}</div>
+                  <div class="text-body-2 text-grey">Toplam Atama</div>
+                </div>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
 
+      <!-- Permissions DataTable -->
+      <v-row>
+        <v-col cols="12">
+          <DataTable
+            :fields="tableHeaders"
+            :items="permissions"
+            :loading="isLoading"
+            loading-text="İzinler yükleniyor..."
+            empty-title="İzin bulunamadı"
+            empty-description="Henüz hiç izin tanımlanmamış."
+            search-placeholder="İzin ara..."
+            add-button-text="Yeni İzin Ekle"
+            :show-add-button="false"
+            :show-view-button="false"
+            :show-edit-button="false"
+            :show-delete-button="false"
+            :show-actions="false"
+            @add="createPermission"
+            @view="viewPermission"
+            @edit="editPermission"
+            @delete="deletePermission"
+          >
+            <!-- Custom cell renderers -->
+            <template #cell-name="{ item, value }">
+              <div class="d-flex align-center">
+                <v-icon size="20" color="primary" class="mr-2">
+                  mdi-key
+                </v-icon>
+                <span class="font-weight-medium">{{ value }}</span>
+              </div>
+            </template>
 
-        <!-- Permissions Table -->
-        <v-row>
-          <v-col cols="12">
-            <DataTable
-              :fields="tableHeaders"
-              :items="filteredPermissions"
-              :pageSize="itemsPerPage"
-            />
-          </v-col>
-        </v-row>
-      </div>
+            <template #cell-resource="{ item, value }">
+              <v-chip
+                size="small"
+                color="primary"
+                variant="outlined"
+                class="font-weight-medium"
+              >
+                {{ value }}
+              </v-chip>
+            </template>
+
+            <template #cell-action="{ item, value }">
+              <v-chip
+                size="small"
+                :color="getActionColor(value)"
+                variant="tonal"
+                class="font-weight-medium"
+              >
+                {{ value }}
+              </v-chip>
+            </template>
+
+            <template #cell-description="{ item, value }">
+              <span class="text-body-2 text-grey-600">
+                {{ value || 'Açıklama yok' }}
+              </span>
+            </template>
+
+            <!-- Custom actions -->
+            <template #actions="{ item }">
+              <v-btn
+                icon="mdi-eye"
+                size="small"
+                variant="text"
+                color="primary"
+                @click="viewPermission(item)"
+                title="Görüntüle"
+              />
+              <v-btn
+                icon="mdi-pencil"
+                size="small"
+                variant="text"
+                color="warning"
+                @click="editPermission(item)"
+                title="Düzenle"
+              />
+              <v-btn
+                icon="mdi-delete"
+                size="small"
+                variant="text"
+                color="error"
+                @click="deletePermission(item)"
+                title="Sil"
+              />
+            </template>
+          </DataTable>
+        </v-col>
+      </v-row>
     </v-container>
   </div>
 </template>
 
 <script setup>
 import DataTable from '~/components/UI/DataTable.vue'
+
 // Page metadata
 definePageMeta({
   title: 'İzin Yönetimi',
@@ -93,37 +189,31 @@ const toast = useToast()
 // Reactive data
 const permissions = ref([])
 const isLoading = ref(false)
-const currentPage = ref(1)
-const itemsPerPage = ref(10)
 
 // Table headers
 const tableHeaders = [
-  { label: 'İzin Adı', value: 'name' },
-  { label: 'Kaynak', value: 'resource' },
-  { label: 'İşlem', value: 'action' },
-  { label: 'Açıklama', value: 'description' }
+  { 
+    label: 'İzin Adı', 
+    value: 'name', 
+    sortable: true 
+  },
+  { 
+    label: 'Kaynak', 
+    value: 'resource', 
+    sortable: true 
+  },
+  { 
+    label: 'İşlem', 
+    value: 'action', 
+    sortable: true 
+  },
+  { 
+    label: 'Açıklama', 
+    value: 'description' 
+  }
 ]
 
 // Computed properties
-const filteredPermissions = computed(() => {
-  let filtered = permissions.value
-
-  // Apply search term filter
-  if (searchTerm.value) {
-    filtered = filtered.filter(permission => 
-      permission.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-      permission.displayName?.toLowerCase().includes(searchTerm.value.toLowerCase())
-    )
-  }
-
-  // Apply resource filter
-  if (resourceFilter.value) {
-    filtered = filtered.filter(permission => permission.resource === resourceFilter.value)
-  }
-
-  return filtered
-})
-
 const activePermissionsCount = computed(() => 
   permissions.value.filter(permission => permission.isActive !== false).length
 )
@@ -161,12 +251,20 @@ const loadPermissions = async () => {
   }
 }
 
-const handlePageChange = (page) => {
-  currentPage.value = page
+const getActionColor = (action) => {
+  const colors = {
+    'create': 'success',
+    'read': 'info',
+    'update': 'warning',
+    'delete': 'error',
+    'list': 'primary',
+    'export': 'secondary'
+  }
+  return colors[action?.toLowerCase()] || 'grey'
 }
 
-const handleItemsPerPageChange = (itemsPerPage) => {
-  currentPage.value = 1
+const createPermission = () => {
+  toast.info('İzin oluşturma özelliği yakında eklenecek')
 }
 
 const viewPermission = (permission) => {
@@ -192,19 +290,6 @@ const deletePermission = async (permission) => {
   }
 }
 
-// Restore searchTerm, resourceFilter, hasActiveFilters, resetFilters, and their usages if they were removed
-const searchTerm = ref('')
-const resourceFilter = ref(null)
-
-const hasActiveFilters = computed(() => {
-  return searchTerm.value || resourceFilter.value
-})
-
-const resetFilters = () => {
-  searchTerm.value = ''
-  resourceFilter.value = null
-}
-
 // Load initial data
 onMounted(async () => {
   await loadPermissions()
@@ -220,24 +305,27 @@ useHead({
 </script>
 
 <style scoped>
-.v-data-table {
+/* Custom styles for the DataTable integration */
+:deep(.datatable-wrapper) {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+:deep(.datatable-table) {
   border-radius: 8px;
 }
 
-.v-data-table :deep(.v-data-table-header) {
+:deep(.datatable-th) {
   background-color: #f8f9fa;
-}
-
-.v-data-table :deep(.v-data-table-header th) {
   font-weight: 600;
   color: #374151;
 }
 
-.v-data-table :deep(.v-data-table__td) {
+:deep(.datatable-td) {
   border-bottom: 1px solid #e5e7eb;
 }
 
-.v-data-table :deep(.v-data-table__tr:hover) {
+:deep(.datatable-tr:hover) {
   background-color: #f9fafb;
 }
 </style> 
