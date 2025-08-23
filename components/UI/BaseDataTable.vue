@@ -1,60 +1,172 @@
 <template>
-        <div class="sm:flex sm:items-center">
-      <div class="sm:flex-auto">
-       
-      </div>
-      <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none flex items-center space-x-4">
-        <!-- Arama Çubuğu -->
-        <div class="relative">
-          <input
+  <div class="modern-data-table">
+    <!-- Header Section -->
+    <div class="table-header">
+      <div class="header-content">
+        <!-- Title & Description -->
+        <div class="header-left">
+          <div class="title-section">
+            <div class="title-wrapper">
+              <div class="title-icon">
+                <v-icon :icon="toolbarIcon" size="24" />
+              </div>
+              <div class="title-content">
+                <h2 class="page-title">{{ title }}</h2>
+                <p class="page-description">{{ description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions Section -->
+        <div class="header-right">
+          <!-- Advanced Filters Toggle -->
+          <button
+            v-if="showAdvancedFilters"
+            @click="toggleAdvancedFilters"
+            class="filter-toggle-btn"
+            :class="{ 'active': showFilters }"
+          >
+            <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 2v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            Filtreler
+            <span v-if="activeFiltersCount" class="filter-count">{{ activeFiltersCount }}</span>
+          </button>
+
+          <!-- Search -->
+          <div class="search-container">
+            <div class="search-input-wrapper">
+              <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
                 type="text"
                 v-model="searchQuery"
                 :placeholder="searchPlaceholder"
-                class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                class="search-input"
                 @input="handleSearch"
               />
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+              <button
+                v-if="searchQuery"
+                @click="clearSearch"
+                class="clear-search-btn"
+              >
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
-        <button
-        v-if="showAddButton"  
-            type="button"
-           @click="$emit('add')"
+
+          <!-- Export Button -->
+          <button
+            v-if="showExportButton"
+            @click="$emit('export')"
+            class="export-btn"
+          >
+            <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Dışa Aktar
+          </button>
+
+          <!-- Add Button -->
+          <button
+            v-if="showAddButton"
+            @click="$emit('add')"
             class="add-button"
-        >
-         <svg class="add-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          >
+            <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             {{ addButtonText }}
-        </button>
+          </button>
+        </div>
+      </div>
+
+      <!-- Advanced Filters Panel -->
+      <div v-if="showAdvancedFilters && showFilters" class="filters-panel">
+        <div class="filters-header">
+          <h3 class="filters-title">Gelişmiş Filtreler</h3>
+          <button @click="clearAllFilters" class="clear-filters-btn">
+            Tümünü Temizle
+          </button>
+        </div>
+        
+        <div class="filters-grid">
+          <div
+            v-for="column in filterableColumns"
+            :key="column.key"
+            class="filter-item"
+          >
+            <label class="filter-label">{{ column.label }}</label>
+            
+            <!-- Text Filter -->
+            <input
+              v-if="column.filterType === 'text' || !column.filterType"
+              v-model="columnFilters[column.key]"
+              type="text"
+              :placeholder="`${column.label} filtrele...`"
+              class="filter-input"
+              @input="applyFilters"
+            />
+            
+            <!-- Select Filter -->
+            <select
+              v-else-if="column.filterType === 'select'"
+              v-model="columnFilters[column.key]"
+              class="filter-select"
+              @change="applyFilters"
+            >
+              <option value="">Tümü</option>
+              <option
+                v-for="option in getColumnOptions(column.key)"
+                :key="option"
+                :value="option"
+              >
+                {{ option }}
+              </option>
+            </select>
+            
+            <!-- Date Range Filter -->
+            <div v-else-if="column.filterType === 'date'" class="date-range-filter">
+              <input
+                v-model="columnFilters[column.key + '_start']"
+                type="date"
+                class="filter-input date-input"
+                @change="applyFilters"
+              />
+              <span class="date-separator">-</span>
+              <input
+                v-model="columnFilters[column.key + '_end']"
+                type="date"
+                class="filter-input date-input"
+                @change="applyFilters"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-        <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none flex items-center space-x-4">
-        </div>
-  <div class="base-data-table">
-     <v-toolbar flat class="toolbar-section gradient-toolbar">
-      <v-toolbar-title class="gradient-title">
-        <v-icon :icon="toolbarIcon" size="x-small" start class="gradient-icon"></v-icon>
-        <span class="gradient-text">{{ title }}</span>
-      </v-toolbar-title>
-      
-    </v-toolbar>
-    <!-- Table Section -->
+
+    <!-- Table Container -->
     <div class="table-container">
       <!-- Loading State -->
       <div v-if="loading" class="loading-state">
-        <div class="loading-spinner"></div>
+        <div class="loading-spinner">
+          <div class="spinner"></div>
+        </div>
         <p class="loading-text">{{ loadingText }}</p>
       </div>
 
       <!-- Empty State -->
       <div v-else-if="filteredItems.length === 0" class="empty-state">
-        <svg class="empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-        </svg>
+        <div class="empty-icon">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
         <h3 class="empty-title">{{ emptyTitle }}</h3>
         <p class="empty-description">{{ emptyDescription }}</p>
         <button
@@ -62,6 +174,9 @@
           @click="$emit('add')"
           class="empty-add-button"
         >
+          <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
           {{ addButtonText }}
         </button>
       </div>
@@ -70,31 +185,42 @@
       <div v-else class="table-wrapper">
         <div class="table-responsive">
           <table class="data-table">
-            <thead class="table-header-row">
-              <tr>
+            <thead class="table-header-section">
+              <tr class="table-header-row">
                 <th
                   v-for="column in columns"
                   :key="column.key"
                   class="table-header-cell"
-                  :class="{ 'sortable': column.sortable !== false }"
+                  :class="[
+                    column.align || 'left',
+                    { 'sortable': column.sortable !== false },
+                    { 'sorted': sortBy === column.key }
+                  ]"
+                  :style="{ width: column.width }"
                   @click="column.sortable !== false ? handleSort(column.key) : null"
                 >
                   <div class="header-cell-content">
                     <span class="header-text">{{ column.label }}</span>
-                    <svg
-                      v-if="column.sortable !== false"
-                      class="sort-icon"
-                      :class="{ 'sort-active': sortBy === column.key }"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                    </svg>
+                    <div v-if="column.sortable !== false" class="sort-indicators">
+                      <svg
+                        class="sort-icon sort-asc"
+                        :class="{ 'active': sortBy === column.key && sortOrder === 'asc' }"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                      >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                      </svg>
+                      <svg
+                        class="sort-icon sort-desc"
+                        :class="{ 'active': sortBy === column.key && sortOrder === 'desc' }"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                      >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
                   </div>
                 </th>
                 <th v-if="showActions" class="table-header-cell actions-header">
-                  <span class="sr-only">İşlemler</span>
+                  <span class="header-text">İşlemler</span>
                 </th>
               </tr>
             </thead>
@@ -103,50 +229,70 @@
                 v-for="(item, index) in paginatedItems"
                 :key="item.id || index"
                 class="table-row"
+                @click="$emit('row-click', item)"
               >
                 <td
                   v-for="column in columns"
                   :key="column.key"
                   class="table-cell"
+                  :class="column.align || 'left'"
                 >
                   <slot :name="`cell-${column.key}`" :item="item" :value="getNestedValue(item, column.key)">
-                    <span class="cell-text">{{ getNestedValue(item, column.key) }}</span>
+                    <div class="cell-content">
+                      <span class="cell-text" :class="column.cellClass">
+                        {{ formatCellValue(getNestedValue(item, column.key), column) }}
+                      </span>
+                    </div>
                   </slot>
                 </td>
                 <td v-if="showActions" class="table-cell actions-cell">
                   <div class="action-buttons">
                     <slot name="actions" :item="item">
-                      <button
-                        v-if="showViewButton"
-                        @click="$emit('view', item)"
-                        class="action-button view-button"
-                        title="Görüntüle"
-                      >
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                      </button>
-                      <button
-                        v-if="showEditButton"
-                        @click="$emit('edit', item)"
-                        class="action-button edit-button"
-                        title="Düzenle"
-                      >
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </button>
-                      <button
-                        v-if="showDeleteButton"
-                        @click="$emit('delete', item)"
-                        class="action-button delete-button"
-                        title="Sil"
-                      >
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
+                      <div class="actions-dropdown">
+                        <button class="actions-trigger" @click="toggleActionsMenu(item.id)">
+                          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01" />
+                          </svg>
+                        </button>
+                        <div 
+                          v-if="activeActionsMenu === item.id"
+                          class="actions-menu"
+                          @click.stop
+                        >
+                          <button
+                            v-if="showViewButton"
+                            @click="$emit('view', item); closeActionsMenu()"
+                            class="action-menu-item"
+                          >
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            Görüntüle
+                          </button>
+                          <button
+                            v-if="showEditButton"
+                            @click="$emit('edit', item); closeActionsMenu()"
+                            class="action-menu-item"
+                          >
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Düzenle
+                          </button>
+                          <div v-if="showDeleteButton" class="action-divider"></div>
+                          <button
+                            v-if="showDeleteButton"
+                            @click="$emit('delete', item); closeActionsMenu()"
+                            class="action-menu-item danger"
+                          >
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Sil
+                          </button>
+                        </div>
+                      </div>
                     </slot>
                   </div>
                 </td>
@@ -158,16 +304,34 @@
         <!-- Pagination -->
         <div v-if="showPagination && totalPages > 1" class="pagination">
           <div class="pagination-info">
-            <span class="pagination-text">
-              {{ paginationInfo }}
-            </span>
+            <div class="results-info">
+              <span class="results-text">{{ paginationInfo }}</span>
+              <select v-model="itemsPerPageLocal" @change="changeItemsPerPage" class="items-per-page-select">
+                <option :value="5">5</option>
+                <option :value="10">10</option>
+                <option :value="25">25</option>
+                <option :value="50">50</option>
+                <option :value="100">100</option>
+              </select>
+            </div>
           </div>
           <div class="pagination-controls">
+            <button
+              @click="goToPage(1)"
+              :disabled="currentPage === 1"
+              class="pagination-button"
+              title="İlk sayfa"
+            >
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              </svg>
+            </button>
+            
             <button
               @click="goToPage(currentPage - 1)"
               :disabled="currentPage === 1"
               class="pagination-button"
-              :class="{ 'disabled': currentPage === 1 }"
+              title="Önceki sayfa"
             >
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -178,7 +342,7 @@
               v-for="page in visiblePages"
               :key="page"
               @click="goToPage(page)"
-              class="pagination-button"
+              class="pagination-button page-button"
               :class="{ 'active': page === currentPage }"
             >
               {{ page }}
@@ -188,10 +352,21 @@
               @click="goToPage(currentPage + 1)"
               :disabled="currentPage === totalPages"
               class="pagination-button"
-              :class="{ 'disabled': currentPage === totalPages }"
+              title="Sonraki sayfa"
             >
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+            
+            <button
+              @click="goToPage(totalPages)"
+              :disabled="currentPage === totalPages"
+              class="pagination-button"
+              title="Son sayfa"
+            >
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
               </svg>
             </button>
           </div>
@@ -225,11 +400,11 @@ const props = defineProps({
   },
   toolbarIcon: {
     type: String,
-    default: 'mdi-account-multiple'
+    default: 'mdi-table'
   },
   searchPlaceholder: {
     type: String,
-    default: 'Ara...'
+    default: 'Tabloda ara...'
   },
   addButtonText: {
     type: String,
@@ -243,7 +418,7 @@ const props = defineProps({
   },
   loadingText: {
     type: String,
-    default: 'Yükleniyor...'
+    default: 'Veriler yükleniyor...'
   },
   emptyTitle: {
     type: String,
@@ -251,7 +426,7 @@ const props = defineProps({
   },
   emptyDescription: {
     type: String,
-    default: 'Henüz hiç veri eklenmemiş.'
+    default: 'Henüz hiç veri eklenmemiş veya arama kriterlerinize uygun veri bulunamadı.'
   },
   
   // Visibility controls
@@ -259,7 +434,11 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
-  showSearch: {
+  showExportButton: {
+    type: Boolean,
+    default: true
+  },
+  showAdvancedFilters: {
     type: Boolean,
     default: true
   },
@@ -292,19 +471,33 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['add', 'view', 'edit', 'delete', 'search', 'sort'])
+const emit = defineEmits([
+  'add', 'view', 'edit', 'delete', 'export', 'search', 'sort', 'row-click', 'filter'
+])
 
 // Reactive data
 const searchQuery = ref('')
 const sortBy = ref('')
 const sortOrder = ref('asc')
 const currentPage = ref(1)
+const itemsPerPageLocal = ref(props.itemsPerPage)
+const showFilters = ref(false)
+const columnFilters = ref({})
+const activeActionsMenu = ref(null)
 
 // Computed properties
+const filterableColumns = computed(() => {
+  return props.columns.filter(col => col.filterable !== false)
+})
+
+const activeFiltersCount = computed(() => {
+  return Object.values(columnFilters.value).filter(val => val && val.toString().trim()).length
+})
+
 const filteredItems = computed(() => {
   let filtered = [...props.items]
   
-  // Search filtering
+  // Global search filtering
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(item => {
@@ -314,6 +507,40 @@ const filteredItems = computed(() => {
       })
     })
   }
+  
+  // Column-specific filtering
+  Object.entries(columnFilters.value).forEach(([key, value]) => {
+    if (value && value.toString().trim()) {
+      if (key.endsWith('_start') || key.endsWith('_end')) {
+        // Date range filtering logic
+        const baseKey = key.replace('_start', '').replace('_end', '')
+        const startDate = columnFilters.value[baseKey + '_start']
+        const endDate = columnFilters.value[baseKey + '_end']
+        
+        if (startDate || endDate) {
+          filtered = filtered.filter(item => {
+            const itemDate = new Date(getNestedValue(item, baseKey))
+            if (startDate && itemDate < new Date(startDate)) return false
+            if (endDate && itemDate > new Date(endDate)) return false
+            return true
+          })
+        }
+      } else {
+        const column = props.columns.find(col => col.key === key)
+        if (column && column.filterType === 'select') {
+          filtered = filtered.filter(item => {
+            const itemValue = getNestedValue(item, key)
+            return itemValue === value
+          })
+        } else {
+          filtered = filtered.filter(item => {
+            const itemValue = getNestedValue(item, key)
+            return itemValue && itemValue.toString().toLowerCase().includes(value.toLowerCase())
+          })
+        }
+      }
+    }
+  })
   
   // Sorting
   if (sortBy.value) {
@@ -332,18 +559,18 @@ const filteredItems = computed(() => {
 })
 
 const totalItems = computed(() => filteredItems.value.length)
-const totalPages = computed(() => Math.ceil(totalItems.value / props.itemsPerPage))
+const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPageLocal.value))
 
 const paginatedItems = computed(() => {
-  const start = (currentPage.value - 1) * props.itemsPerPage
-  const end = start + props.itemsPerPage
+  const start = (currentPage.value - 1) * itemsPerPageLocal.value
+  const end = start + itemsPerPageLocal.value
   return filteredItems.value.slice(start, end)
 })
 
 const paginationInfo = computed(() => {
-  const start = (currentPage.value - 1) * props.itemsPerPage + 1
-  const end = Math.min(currentPage.value * props.itemsPerPage, totalItems.value)
-  return `${start}-${end} / ${totalItems.value} kayıt`
+  const start = (currentPage.value - 1) * itemsPerPageLocal.value + 1
+  const end = Math.min(currentPage.value * itemsPerPageLocal.value, totalItems.value)
+  return `${start}-${end} / ${totalItems.value} kayıt gösteriliyor`
 })
 
 const visiblePages = computed(() => {
@@ -370,9 +597,28 @@ const getNestedValue = (obj, path) => {
   }, obj)
 }
 
+const formatCellValue = (value, column) => {
+  if (column.formatter && typeof column.formatter === 'function') {
+    return column.formatter(value)
+  }
+  return value || '-'
+}
+
+const getColumnOptions = (columnKey) => {
+  const values = props.items
+    .map(item => getNestedValue(item, columnKey))
+    .filter(val => val)
+  return [...new Set(values)]
+}
+
 const handleSearch = () => {
   currentPage.value = 1
   emit('search', searchQuery.value)
+}
+
+const clearSearch = () => {
+  searchQuery.value = ''
+  handleSearch()
 }
 
 const handleSort = (key) => {
@@ -387,70 +633,104 @@ const handleSort = (key) => {
   emit('sort', { key, order: sortOrder.value })
 }
 
+const toggleAdvancedFilters = () => {
+  showFilters.value = !showFilters.value
+}
+
+const applyFilters = () => {
+  currentPage.value = 1
+  emit('filter', columnFilters.value)
+}
+
+const clearAllFilters = () => {
+  columnFilters.value = {}
+  applyFilters()
+}
+
+const toggleActionsMenu = (itemId) => {
+  activeActionsMenu.value = activeActionsMenu.value === itemId ? null : itemId
+}
+
+const closeActionsMenu = () => {
+  activeActionsMenu.value = null
+}
+
 const goToPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page
   }
 }
 
-// Watch for items changes to reset pagination
+const changeItemsPerPage = () => {
+  currentPage.value = 1
+}
+
+// Close actions menu when clicking outside
+const handleClickOutside = (event) => {
+  if (!event.target.closest('.actions-dropdown')) {
+    closeActionsMenu()
+  }
+}
+
+// Lifecycle
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
+// Watch for items changes
 watch(() => props.items, () => {
   currentPage.value = 1
 })
+
+watch(() => props.itemsPerPage, (newValue) => {
+  itemsPerPageLocal.value = newValue
+})
 </script>
 
-<style>
-.base-data-table {
-  @apply bg-white rounded-lg shadow-sm border border-gray-200;
-}
-
-/* Modern Gradient Icon */
-.gradient-icon {
-background: linear-gradient(135deg, #ffffff 0%, #2563eb 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 2px 4px rgba(79, 172, 254, 0.3));
-}
-
-/* Gradient Toolbar */
-.gradient-toolbar {
-background: linear-gradient(135deg, #ffffff 0%, #2563eb 100%);
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.gradient-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.gradient-text {
- background: linear-gradient(#2563eb);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 600;
-  font-size: 1.125rem;
-  filter: drop-shadow(0 1px 2px rgba(79, 172, 254, 0.2));
+<style scoped>
+.modern-data-table {
+  @apply bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden;
 }
 
 /* Header Section */
 .table-header {
-  @apply px-6 py-4 border-b border-gray-200 bg-blue-50;
+  @apply border-b border-gray-100;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
 .header-content {
-  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4;
+  @apply px-8 py-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6;
 }
 
 .header-left {
   @apply flex-1;
 }
 
+.title-section {
+  @apply flex items-start gap-4;
+}
+
+.title-wrapper {
+  @apply flex items-center gap-4;
+}
+
+.title-icon {
+  @apply w-12 h-12 rounded-xl flex items-center justify-center;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+}
+
+.title-content {
+  @apply flex flex-col;
+}
+
 .page-title {
-  @apply text-xl font-semibold text-gray-900 mb-1;
+  @apply text-2xl font-bold text-gray-900 mb-1;
 }
 
 .page-description {
@@ -458,12 +738,43 @@ background: linear-gradient(135deg, #ffffff 0%, #2563eb 100%);
 }
 
 .header-right {
-  @apply flex flex-col sm:flex-row items-stretch sm:items-center gap-3;
+  @apply flex flex-wrap items-center gap-3;
+}
+
+/* Buttons */
+.filter-toggle-btn,
+.export-btn,
+.add-button {
+  @apply inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200;
+}
+
+.filter-toggle-btn {
+  @apply bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 relative;
+}
+
+.filter-toggle-btn.active {
+  @apply bg-blue-50 border-blue-200 text-blue-700;
+}
+
+.filter-count {
+  @apply absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center;
+}
+
+.export-btn {
+  @apply bg-gray-100 border border-gray-200 text-gray-700 hover:bg-gray-200;
+}
+
+.add-button {
+  @apply bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 shadow-lg hover:shadow-xl;
+}
+
+.btn-icon {
+  @apply w-4 h-4;
 }
 
 /* Search */
 .search-container {
-  @apply flex-1 sm:flex-none;
+  @apply flex-1 lg:flex-none lg:min-w-[320px];
 }
 
 .search-input-wrapper {
@@ -471,64 +782,104 @@ background: linear-gradient(135deg, #ffffff 0%, #2563eb 100%);
 }
 
 .search-icon {
-  @apply absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400;
+  @apply absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400;
 }
 
 .search-input {
-  @apply w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors;
+  @apply w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors placeholder-gray-400;
 }
 
-/* Add Button */
-.add-button {
-  @apply inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors;
+.clear-search-btn {
+  @apply absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 hover:text-gray-600 transition-colors;
 }
 
-.add-icon {
-  @apply h-4 w-4 mr-2;
+/* Filters Panel */
+.filters-panel {
+  @apply border-t border-gray-100 bg-gray-50 p-6;
 }
 
-/* Table Container */
-.table-container {
-  @apply relative;
+.filters-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.filters-title {
+  @apply text-lg font-semibold text-gray-900;
+}
+
+.clear-filters-btn {
+  @apply text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors;
+}
+
+.filters-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+}
+
+.filter-item {
+  @apply flex flex-col;
+}
+
+.filter-label {
+  @apply text-sm font-medium text-gray-700 mb-1;
+}
+
+.filter-input,
+.filter-select {
+  @apply w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors text-sm;
+}
+
+.date-range-filter {
+  @apply flex items-center gap-2;
+}
+
+.date-input {
+  @apply flex-1;
+}
+
+.date-separator {
+  @apply text-gray-400 font-medium;
 }
 
 /* Loading State */
 .loading-state {
-  @apply flex flex-col items-center justify-center py-12;
+  @apply flex flex-col items-center justify-center py-16;
 }
 
 .loading-spinner {
-  @apply animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4;
+  @apply mb-4;
+}
+
+.spinner {
+  @apply animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600;
 }
 
 .loading-text {
-  @apply text-sm text-gray-600;
+  @apply text-gray-600 font-medium;
 }
 
 /* Empty State */
 .empty-state {
-  @apply flex flex-col items-center justify-center py-12;
+  @apply flex flex-col items-center justify-center py-16 px-6;
 }
 
 .empty-icon {
-  @apply h-12 w-12 text-gray-400 mb-4;
+  @apply w-16 h-16 text-gray-300 mb-4;
 }
 
 .empty-title {
-  @apply text-lg font-medium text-gray-900 mb-2;
+  @apply text-xl font-semibold text-gray-900 mb-2;
 }
 
 .empty-description {
-  @apply text-sm text-gray-600 mb-4 text-center;
+  @apply text-gray-600 text-center mb-6 max-w-md;
 }
 
 .empty-add-button {
-  @apply inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors;
+  @apply inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl;
 }
 
 /* Table */
 .table-wrapper {
-  @apply overflow-hidden;
+  @apply flex flex-col;
 }
 
 .table-responsive {
@@ -536,98 +887,170 @@ background: linear-gradient(135deg, #ffffff 0%, #2563eb 100%);
 }
 
 .data-table {
-  @apply min-w-full divide-y divide-gray-200;
+  @apply min-w-full;
+}
+
+.table-header-section {
+  @apply bg-gradient-to-r from-gray-50 to-gray-100;
 }
 
 .table-header-row {
-  @apply bg-gray-50;
+  @apply border-b border-gray-200;
 }
 
 .table-header-cell {
-  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+  @apply px-6 py-4 text-left font-semibold text-gray-900 whitespace-nowrap;
+}
+
+.table-header-cell.center {
+  @apply text-center;
+}
+
+.table-header-cell.right {
+  @apply text-right;
 }
 
 .table-header-cell.sortable {
-  @apply cursor-pointer hover:bg-gray-100 transition-colors;
+  @apply cursor-pointer hover:bg-gray-100 transition-colors select-none;
+}
+
+.table-header-cell.sorted {
+  @apply bg-blue-50 text-blue-700;
 }
 
 .header-cell-content {
   @apply flex items-center gap-2;
 }
 
+.header-cell-content.center {
+  @apply justify-center;
+}
+
+.header-cell-content.right {
+  @apply justify-end;
+}
+
 .header-text {
-  @apply flex-1;
+  @apply font-semibold;
+}
+
+.sort-indicators {
+  @apply flex flex-col;
 }
 
 .sort-icon {
-  @apply h-4 w-4 text-gray-400 transition-transform;
+  @apply w-3 h-3 text-gray-400 transition-colors;
 }
 
-.sort-icon.sort-active {
+.sort-icon.active {
   @apply text-blue-600;
 }
 
+.sort-asc {
+  @apply mb-0.5;
+}
+
 .actions-header {
-  @apply text-right;
+  @apply text-center;
 }
 
 /* Table Body */
 .table-body {
-  @apply bg-white divide-y divide-gray-200;
+  @apply divide-y divide-gray-100;
 }
 
 .table-row {
-  @apply hover:bg-gray-50 transition-colors;
+  @apply hover:bg-gray-50 transition-colors cursor-pointer;
 }
 
 .table-cell {
-  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+  @apply px-6 py-4 whitespace-nowrap;
 }
 
-.cell-text {
-  @apply text-gray-900;
+.table-cell.center {
+  @apply text-center;
 }
 
-.actions-cell {
+.table-cell.right {
   @apply text-right;
 }
 
-/* Action Buttons */
+.cell-content {
+  @apply flex items-center;
+}
+
+.cell-content.center {
+  @apply justify-center;
+}
+
+.cell-content.right {
+  @apply justify-end;
+}
+
+.cell-text {
+  @apply text-gray-900 text-sm;
+}
+
+/* Actions */
+.actions-cell {
+  @apply relative;
+}
+
 .action-buttons {
-  @apply flex items-center justify-end gap-2;
+  @apply flex justify-center;
 }
 
-.action-button {
-  @apply p-1.5 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
+.actions-dropdown {
+  @apply relative;
 }
 
-.view-button {
-  @apply text-blue-600 hover:bg-blue-50 focus:ring-blue-500;
+.actions-trigger {
+  @apply p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors;
 }
 
-.edit-button {
-  @apply text-yellow-600 hover:bg-yellow-50 focus:ring-yellow-500;
+.actions-trigger svg {
+  @apply w-4 h-4;
 }
 
-.delete-button {
-  @apply text-red-600 hover:bg-red-50 focus:ring-red-500;
+.actions-menu {
+  @apply absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-xl z-50 py-2;
 }
 
-.action-button svg {
-  @apply h-5 w-5;
+.action-menu-item {
+  @apply flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors;
+}
+
+.action-menu-item.danger {
+  @apply text-red-600 hover:bg-red-50;
+}
+
+.action-menu-item svg {
+  @apply w-4 h-4;
+}
+
+.action-divider {
+  @apply border-t border-gray-100 my-1;
 }
 
 /* Pagination */
 .pagination {
-  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between px-6 py-4 border-t border-gray-200;
+  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between px-6 py-4 border-t border-gray-100 bg-gray-50;
 }
 
 .pagination-info {
   @apply mb-4 sm:mb-0;
 }
 
-.pagination-text {
-  @apply text-sm text-gray-700;
+.results-info {
+  @apply flex items-center gap-4;
+}
+
+.results-text {
+  @apply text-sm text-gray-700 font-medium;
+}
+
+.items-per-page-select {
+  @apply px-3 py-1 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
 }
 
 .pagination-controls {
@@ -635,51 +1058,86 @@ background: linear-gradient(135deg, #ffffff 0%, #2563eb 100%);
 }
 
 .pagination-button {
-  @apply px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors;
+  @apply px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white;
+}
+
+.pagination-button.page-button {
+  @apply w-10 h-10 flex items-center justify-center;
 }
 
 .pagination-button.active {
-  @apply text-blue-600 bg-blue-50 border-blue-500;
-}
-
-.pagination-button.disabled {
-  @apply opacity-50 cursor-not-allowed hover:bg-white;
+  @apply text-white bg-blue-600 border-blue-600 hover:bg-blue-700;
 }
 
 .pagination-button svg {
-  @apply h-4 w-4;
+  @apply w-4 h-4;
 }
 
 /* Responsive Design */
-@media (max-width: 640px) {
-  .table-header-cell,
-  .table-cell {
-    @apply px-3 py-2;
+@media (max-width: 1024px) {
+  .header-content {
+    @apply flex-col items-stretch;
   }
   
-  .action-buttons {
-    @apply flex-col gap-1;
+  .header-right {
+    @apply flex-col sm:flex-row;
   }
   
-  .action-button {
-    @apply p-1;
-  }
-  
-  .action-button svg {
-    @apply h-3 w-3;
+  .filters-grid {
+    @apply grid-cols-1 sm:grid-cols-2;
   }
 }
 
-/* Screen reader only */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+@media (max-width: 768px) {
+  .modern-data-table {
+    @apply rounded-xl;
+  }
+  
+  .header-content {
+    @apply px-4 py-4;
+  }
+  
+  .filters-panel {
+    @apply p-4;
+  }
+  
+  .table-header-cell,
+  .table-cell {
+    @apply px-3 py-3;
+  }
+  
+  .pagination {
+    @apply px-4 py-3 flex-col items-stretch;
+  }
+  
+  .pagination-controls {
+    @apply justify-center;
+  }
+  
+  .results-info {
+    @apply flex-col sm:flex-row items-start sm:items-center text-center sm:text-left;
+  }
+}
+
+@media (max-width: 640px) {
+  .title-wrapper {
+    @apply flex-col items-start;
+  }
+  
+  .header-right {
+    @apply flex-col;
+  }
+  
+  .search-container {
+    @apply min-w-full;
+  }
+  
+  .filters-grid {
+    @apply grid-cols-1;
+  }
+  
+  .actions-menu {
+    @apply right-auto left-0;
+  }
 }
 </style>
