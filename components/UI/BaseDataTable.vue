@@ -384,7 +384,7 @@ const props = defineProps({
   },
   description: {
     type: String,
-    default: 'Tüm verilerin listesi ve detayları'
+    default: ''
   },
   toolbarIcon: {
     type: String,
@@ -424,7 +424,7 @@ const props = defineProps({
   },
   showExportButton: {
     type: Boolean,
-    default: true
+    default: false
   },
   showAdvancedFilters: {
     type: Boolean,
@@ -436,15 +436,15 @@ const props = defineProps({
   },
   showViewButton: {
     type: Boolean,
-    default: true
+    default: false
   },
   showEditButton: {
     type: Boolean,
-    default: true
+    default: false
   },
   showDeleteButton: {
     type: Boolean,
-    default: true
+    default: false
   },
   showPagination: {
     type: Boolean,

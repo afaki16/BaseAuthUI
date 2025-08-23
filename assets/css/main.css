@@ -1,0 +1,109 @@
+/* Toast Styles */
+.custom-toast-container {
+  z-index: 9999 !important;
+  top: 100px !important;
+  right: 24px !important;
+  position: fixed !important;
+}
+
+.custom-toast {
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  border: none !important;
+  padding: 12px 16px !important;
+  margin-bottom: 8px !important;
+  min-width: 300px !important;
+  max-width: 400px !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+/* Toast Colors */
+.custom-success-toast {
+  background: #22c55e !important;
+  color: white !important;
+}
+
+.custom-error-toast {
+  background: #ef4444 !important;
+  color: white !important;
+}
+
+.custom-warning-toast {
+  background: #f59e0b !important;
+  color: white !important;
+}
+
+.custom-info-toast {
+  background: #3b82f6 !important;
+  color: white !important;
+}
+
+/* Toast Content Layout */
+.custom-toast .Vue-Toastification__toast-body {
+  display: flex !important;
+  align-items: center !important;
+  flex: 1 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+}
+
+/* Toast Icon */
+.custom-toast .Vue-Toastification__icon {
+  margin-right: 12px !important;
+  font-size: 18px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Toast Close Button */
+.custom-toast .Vue-Toastification__close-button {
+  color: white !important;
+  font-size: 16px !important;
+  margin-left: 12px !important;
+  opacity: 0.8 !important;
+  transition: opacity 0.2s ease !important;
+  flex-shrink: 0 !important;
+}
+
+.custom-toast .Vue-Toastification__close-button:hover {
+  opacity: 1 !important;
+}
+
+/* Hide Progress Bar */
+.custom-toast .Vue-Toastification__progress-bar {
+  display: none !important;
+}
+
+/* Toast Animation */
+.custom-toast {
+  animation: slideInRight 0.3s ease-out !important;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive Toast */
+@media (max-width: 768px) {
+  .custom-toast {
+    min-width: 280px !important;
+    max-width: 320px !important;
+    padding: 10px 14px !important;
+    margin-bottom: 6px !important;
+  }
+  
+  .custom-toast-container {
+    top: 80px !important;
+    right: 16px !important;
+  }
+}

@@ -1,5 +1,4 @@
 <template>
-  <div class="permissions-page">
     <!-- Breadcrumb -->
     <div class="mb-6">
       <BreadCrumb :items="[
@@ -12,30 +11,18 @@
       :items="permissions"
       :columns="tableColumns"
       title="İzinler"
-      description="Tüm izinlerin listesi ve detayları"
       toolbar-icon="mdi-key-variant"
       search-placeholder="İzin ara..."
-      add-button-text="Yeni İzin Ekle"
       :loading="isLoading"
       loading-text="İzinler yükleniyor..."
       empty-title="İzin bulunamadı"
       empty-description="Henüz hiç izin tanımlanmamış."
-      :show-add-button="true"
-      :show-export-button="false"
+      :show-add-button="false"
       :show-advanced-filters="true"
-      :show-actions="true"
-      :show-view-button="true"
-      :show-edit-button="true"
-      :show-delete-button="true"
+      :show-actions="false"
       :show-pagination="true"
       :items-per-page="10"
-      @add="createPermission"
-      @view="viewPermission"
-      @edit="editPermission"
-      @delete="deletePermission"
       @search="handleSearch"
-      @sort="handleSort"
-      @filter="handleFilter"
     >
       <!-- Custom cell renderers -->
       <template #cell-resource="{ item, value }">
@@ -65,10 +52,11 @@
         </div>
       </template>
     </BaseDataTable>
-  </div>
+  
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import BaseDataTable from '~/components/UI/BaseDataTable.vue'
 
 // Page metadata - Önemli !!!
@@ -78,6 +66,10 @@ definePageMeta({
   permissions: ['permissions.read']
 })
 
+useHead({
+  title: 'İzin Yönetimi',
+})
+
 // Composables
 const { getPermissions } = usePermissions()
 const toast = useToast()
@@ -85,6 +77,9 @@ const toast = useToast()
 // Reactive data
 const permissions = ref([])
 const isLoading = ref(false)
+
+
+console.log('fakı',permissions)
 
 // Table columns for BaseDataTable
 const tableColumns = [
@@ -102,7 +97,7 @@ const tableColumns = [
     sortable: true,
     filterable: true,
     filterType: 'select',
-    width: '180px'
+    width: '300px'
   },
   { 
     key: 'action',
@@ -110,31 +105,17 @@ const tableColumns = [
     sortable: true,
     filterable: true,
     filterType: 'select',
-    width: '150px'
+    width: '300px'
   },
   { 
     key: 'description',
     label: 'Açıklama',
     sortable: false,
     filterable: true,
-    filterType: 'text'
+    filterType: 'text',
+    width: '300px'
   }
 ]
-
-// Computed properties
-const activePermissionsCount = computed(() => 
-  permissions.value.filter(permission => permission.isActive !== false).length
-)
-
-const uniqueResources = computed(() => 
-  [...new Set(permissions.value.map(permission => permission.resource))]
-)
-
-const uniqueResourcesCount = computed(() => uniqueResources.value.length)
-
-const totalAssignedCount = computed(() => 
-  permissions.value.reduce((total, permission) => total + (permission.assignedCount || 0), 0)
-)
 
 // Methods
 const loadPermissions = async () => {
@@ -209,19 +190,6 @@ const getActionColorClass = (action) => {
   return colorMap[action?.toLowerCase()] || 'action-gray'
 }
 
-const getResourceIconPath = (resource) => {
-  const iconPaths = {
-    'users': 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z',
-    'roles': 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
-    'permissions': 'M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1721 9z',
-    'settings': 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z',
-    'dashboard': 'M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 2v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z',
-    'reports': 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-    'files': 'M9 2a1 1 0 000 2h2a1 1 0 100-2H9z M4 5a2 2 0 012-2v1a1 1 0 001 1h6a1 1 0 001-1V3a2 2 0 012 2v6h-2V5H6v4H4V5z',
-    'system': 'M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z'
-  }
-  return iconPaths[resource?.toLowerCase()] || 'M19 11H5m14-7H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2z'
-}
 
 const getActionIconPath = (action) => {
   const iconPaths = {
@@ -243,61 +211,16 @@ const handleSearch = (query) => {
   // Additional search logic can be implemented here
 }
 
-const handleSort = (sortData) => {
-  console.log('Sort data:', sortData)
-  // Additional sort logic can be implemented here
-}
 
-const handleFilter = (filters) => {
-  console.log('Filter data:', filters)
-  // Additional filter logic can be implemented here
-}
-
-const createPermission = () => {
-  toast.info('İzin oluşturma özelliği yakında eklenecek')
-}
-
-const viewPermission = (permission) => {
-  console.log('View permission:', permission)
-  toast.info('İzin görüntüleme özelliği yakında eklenecek')
-}
-
-const editPermission = (permission) => {
-  console.log('Edit permission:', permission)
-  toast.info('İzin düzenleme özelliği yakında eklenecek')
-}
-
-const deletePermission = async (permission) => {
-  if (confirm(`${permission.name} iznini silmek istediğinizden emin misiniz?`)) {
-    try {
-      // await deletePermissionApi(permission.id)
-      await loadPermissions()
-      toast.success('İzin başarıyla silindi')
-    } catch (error) {
-      console.error('Error deleting permission:', error)
-      toast.error('İzin silinirken hata oluştu')
-    }
-  }
-}
 
 // Load initial data
 onMounted(async () => {
   await loadPermissions()
 })
 
-// SEO
-useHead({
-  title: 'İzin Yönetimi - JTWBaseAuth',
-  meta: [
-    { name: 'description', content: 'Sistem genelinde kullanıcı izinlerini yönetin' }
-  ]
-})
 </script>
 
 <style scoped>
-.permissions-page {
-  @apply p-6;
-}
 
 /* Permission Name Cell */
 .permission-name-cell {
