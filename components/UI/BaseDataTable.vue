@@ -1,48 +1,52 @@
 <template>
-  <div class="base-data-table">
-      
-    <!-- Header Section -->
-    <div class="table-header">
-      <div class="header-content">
-        <div class="header-left">
-          <h2 class="page-title">{{ title }}</h2>
-          <p class="page-description">{{ description }}</p>
-        </div>
-        <div class="header-right">
-          <!-- Search Bar -->
-          <div class="search-container">
-            <div class="search-input-wrapper">
-              <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
+        <div class="sm:flex sm:items-center">
+      <div class="sm:flex-auto">
+       
+      </div>
+      <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none flex items-center space-x-4">
+        <!-- Arama Çubuğu -->
+        <div class="relative">
+          <input
                 type="text"
                 v-model="searchQuery"
                 :placeholder="searchPlaceholder"
-                class="search-input"
+                class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
                 @input="handleSearch"
               />
-            </div>
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </div>
-          
-          <!-- Add Button -->
-          <button
-            v-if="showAddButton"
-            @click="$emit('add')"
+        </div>
+        <button
+        v-if="showAddButton"  
+            type="button"
+           @click="$emit('add')"
             class="add-button"
-          >
-            <svg class="add-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        >
+         <svg class="add-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             {{ addButtonText }}
-          </button>
-        </div>
+        </button>
       </div>
     </div>
-     <v-toolbar flat class="toolbar-section">
-      <v-toolbar-title>
-        <v-icon color="medium-emphasis" :icon="toolbarIcon" size="x-small" start></v-icon>
-        {{ title }}
+       
+      
+        <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none flex items-center space-x-4">
+        <!-- Search Bar -->
+  
+        
+        </div>
+        
+  <div class="base-data-table">
+      
+     
+     <v-toolbar flat class="toolbar-section gradient-toolbar">
+      <v-toolbar-title class="gradient-title">
+        <v-icon :icon="toolbarIcon" size="x-small" start class="gradient-icon"></v-icon>
+        <span class="gradient-text">{{ title }}</span>
       </v-toolbar-title>
       
     </v-toolbar>
@@ -406,6 +410,38 @@ watch(() => props.items, () => {
 <style scoped>
 .base-data-table {
   @apply bg-white rounded-lg shadow-sm border border-gray-200;
+}
+
+/* Modern Gradient Icon */
+.gradient-icon {
+background: linear-gradient(135deg, #ffffff 0%, #2563eb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 4px rgba(79, 172, 254, 0.3));
+}
+
+/* Gradient Toolbar */
+.gradient-toolbar {
+background: linear-gradient(135deg, #ffffff 0%, #2563eb 100%);
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.gradient-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gradient-text {
+ background: linear-gradient(#2563eb);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
+  font-size: 1.125rem;
+  filter: drop-shadow(0 1px 2px rgba(79, 172, 254, 0.2));
 }
 
 /* Header Section */
