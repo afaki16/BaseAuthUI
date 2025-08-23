@@ -1,6 +1,5 @@
 import type { LoginRequest, RegisterRequest, LoginResponse, User } from '~/types'
 import { API_ENDPOINTS } from '~/utils/apiEndpoints'
-import { useToast } from './useToast'
 import { useRouter } from 'nuxt/app'
 import { useAuthStore } from '~/stores/auth'
 import { useApi } from './useApi'
@@ -9,7 +8,6 @@ export const useAuth = () => {
   const api = useApi()
   const authStore = useAuthStore()
   const router = useRouter()
-  const toast = useToast()
 
   // Device ID oluştur
   const generateDeviceId = (): string => {
@@ -83,7 +81,6 @@ export const useAuth = () => {
       
       if (loginData && loginData.accessToken) {
         await authStore.setAuth(loginData)
-        toast.success('Login successful!')
         await router.push('/dashboard')
         return loginData
       } else {
@@ -103,7 +100,6 @@ export const useAuth = () => {
       const response = await api.post<User>(API_ENDPOINTS.AUTH.REGISTER, userData)
       
       if (response.success) {
-        toast.success('Registration successful! Please login.')
         await router.push('/')
         return response.data
       }
@@ -125,7 +121,6 @@ export const useAuth = () => {
       console.error('Logout error:', error)
     } finally {
       authStore.clearAuth()
-      toast.success('Logged out successfully')
       await router.push('/')
     }
   }

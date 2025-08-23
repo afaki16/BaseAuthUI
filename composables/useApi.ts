@@ -2,7 +2,7 @@ import type { ApiResponse } from '~/types'
 
 export const useApi = () => {
   const { $api } = useNuxtApp()
-  const toast = useToast()
+
 
   const handleApiError = (error: any) => {
     console.error('API Error:', error)
@@ -13,22 +13,17 @@ export const useApi = () => {
     if (error.response?.data?.errors) {
       // Multiple validation errors
       error.response.data.errors.forEach((err: string) => {
-        toast.error(err)
+        
       })
     } else if (error.response?.data?.error) {
       // Single error message
-      toast.error(error.response.data.error)
     } else if (error.response?.data?.message) {
       // API error message
-      toast.error(error.response.data.message)
     } else if (error.response?.data) {
       // Any other error data
-      toast.error(JSON.stringify(error.response.data))
     } else if (error.message) {
       // Network or other errors
-      toast.error(error.message)
     } else {
-      toast.error('An unexpected error occurred')
     }
     
     throw error

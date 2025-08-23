@@ -248,50 +248,38 @@
                 <td v-if="showActions" class="table-cell actions-cell">
                   <div class="action-buttons">
                     <slot name="actions" :item="item">
-                      <div class="actions-dropdown">
-                        <button class="actions-trigger" @click="toggleActionsMenu(item.id)">
+                      <div class="actions-inline">
+                        <button
+                          v-if="showViewButton"
+                          @click="$emit('view', item)"
+                          class="action-button view-button"
+                          title="Görüntüle"
+                        >
                           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                           </svg>
                         </button>
-                        <div 
-                          v-if="activeActionsMenu === item.id"
-                          class="actions-menu"
-                          @click.stop
+                        <button
+                          v-if="showEditButton"
+                          @click="$emit('edit', item)"
+                          class="action-button edit-button"
+                          title="Düzenle"
                         >
-                          <button
-                            v-if="showViewButton"
-                            @click="$emit('view', item); closeActionsMenu()"
-                            class="action-menu-item"
-                          >
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            Görüntüle
-                          </button>
-                          <button
-                            v-if="showEditButton"
-                            @click="$emit('edit', item); closeActionsMenu()"
-                            class="action-menu-item"
-                          >
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            Düzenle
-                          </button>
-                          <div v-if="showDeleteButton" class="action-divider"></div>
-                          <button
-                            v-if="showDeleteButton"
-                            @click="$emit('delete', item); closeActionsMenu()"
-                            class="action-menu-item danger"
-                          >
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            Sil
-                          </button>
-                        </div>
+                          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                        <button
+                          v-if="showDeleteButton"
+                          @click="$emit('delete', item)"
+                          class="action-button delete-button"
+                          title="Sil"
+                        >
+                          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
                       </div>
                     </slot>
                   </div>
@@ -483,7 +471,6 @@ const currentPage = ref(1)
 const itemsPerPageLocal = ref(props.itemsPerPage)
 const showFilters = ref(false)
 const columnFilters = ref({})
-const activeActionsMenu = ref(null)
 
 // Computed properties
 const filterableColumns = computed(() => {
@@ -647,14 +634,6 @@ const clearAllFilters = () => {
   applyFilters()
 }
 
-const toggleActionsMenu = (itemId) => {
-  activeActionsMenu.value = activeActionsMenu.value === itemId ? null : itemId
-}
-
-const closeActionsMenu = () => {
-  activeActionsMenu.value = null
-}
-
 const goToPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page
@@ -664,22 +643,6 @@ const goToPage = (page) => {
 const changeItemsPerPage = () => {
   currentPage.value = 1
 }
-
-// Close actions menu when clicking outside
-const handleClickOutside = (event) => {
-  if (!event.target.closest('.actions-dropdown')) {
-    closeActionsMenu()
-  }
-}
-
-// Lifecycle
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
 
 // Watch for items changes
 watch(() => props.items, () => {
@@ -993,43 +956,35 @@ watch(() => props.itemsPerPage, (newValue) => {
 
 /* Actions */
 .actions-cell {
-  @apply relative;
+  @apply text-center;
 }
 
 .action-buttons {
   @apply flex justify-center;
 }
 
-.actions-dropdown {
-  @apply relative;
+.actions-inline {
+  @apply flex items-center gap-2;
 }
 
-.actions-trigger {
-  @apply p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors;
+.action-button {
+  @apply p-2 rounded-lg transition-all duration-200 hover:scale-105;
 }
 
-.actions-trigger svg {
+.action-button svg {
   @apply w-4 h-4;
 }
 
-.actions-menu {
-  @apply absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-xl z-50 py-2;
+.view-button {
+  @apply text-blue-600 hover:bg-blue-50 hover:text-blue-700;
 }
 
-.action-menu-item {
-  @apply flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors;
+.edit-button {
+  @apply text-yellow-600 hover:bg-yellow-50 hover:text-yellow-700;
 }
 
-.action-menu-item.danger {
-  @apply text-red-600 hover:bg-red-50;
-}
-
-.action-menu-item svg {
-  @apply w-4 h-4;
-}
-
-.action-divider {
-  @apply border-t border-gray-100 my-1;
+.delete-button {
+  @apply text-red-600 hover:bg-red-50 hover:text-red-700;
 }
 
 /* Pagination */

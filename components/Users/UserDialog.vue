@@ -189,7 +189,7 @@ const emit = defineEmits(['update:modelValue', 'saved'])
 // Composables
 const { createUser, updateUser } = useUsers()
 const { getRoles } = useRoles()
-const toast = useToast()
+
 
 // Reactive data
 const form = ref(null)
@@ -253,7 +253,6 @@ const loadRoles = async () => {
     roles.value = response || []
   } catch (error) {
     console.error('Error loading roles:', error)
-    toast.error('Roller yüklenirken hata oluştu')
   } finally {
     loadingRoles.value = false
   }
@@ -301,17 +300,14 @@ const saveUser = async () => {
     
     if (props.mode === 'create') {
       await createUser(formData.value)
-      toast.success('Kullanıcı başarıyla oluşturuldu')
     } else if (props.mode === 'edit') {
       await updateUser(props.user.id, formData.value)
-      toast.success('Kullanıcı başarıyla güncellendi')
     }
     
     emit('saved')
     closeDialog()
   } catch (error) {
     console.error('Error saving user:', error)
-    toast.error('Kullanıcı kaydedilirken hata oluştu')
   } finally {
     isLoading.value = false
   }

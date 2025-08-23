@@ -25,8 +25,8 @@
       :show-advanced-filters="true"
       :show-actions="true"
       :show-view-button="true"
-      :show-edit-button="false"
-      :show-delete-button="false"
+      :show-edit-button="true"
+      :show-delete-button="true"
       :show-pagination="true"
       :items-per-page="10"
       @add="createPermission"
@@ -39,30 +39,49 @@
     >
       <!-- Custom cell renderers -->
       <template #cell-name="{ item, value }">
-        <div class="flex items-center">
-          <svg class="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-          </svg>
-          <span class="font-medium text-gray-900">{{ value }}</span>
+        <div class="permission-name-cell">
+          <div class="permission-icon">
+            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1721 9z" />
+            </svg>
+          </div>
+          <div class="permission-info">
+            <span class="permission-title">{{ value }}</span>
+            <span v-if="item.code" class="permission-code">{{ item.code }}</span>
+          </div>
         </div>
       </template>
 
       <template #cell-resource="{ item, value }">
-        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-          {{ value }}
-        </span>
+        <div class="resource-cell">
+          <div class="resource-badge" :class="getResourceColorClass(value)">
+            <div class="resource-icon">
+              <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getResourceIconPath(value)" />
+              </svg>
+            </div>
+            <span class="resource-name">{{ formatResourceName(value) }}</span>
+          </div>
+        </div>
       </template>
 
       <template #cell-action="{ item, value }">
-        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" :class="getActionColorClass(value)">
-          {{ value }}
-        </span>
+        <div class="action-cell">
+          <span class="action-badge" :class="getActionColorClass(value)">
+            <svg class="action-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getActionIconPath(value)" />
+            </svg>
+            {{ formatActionName(value) }}
+          </span>
+        </div>
       </template>
 
       <template #cell-description="{ item, value }">
-        <span class="text-sm text-gray-600">
-          {{ value || 'Açıklama yok' }}
-        </span>
+        <div class="description-cell">
+          <p class="description-text" :title="value">
+            {{ value || 'Açıklama bulunmuyor' }}
+          </p>
+        </div>
       </template>
     </BaseDataTable>
   </div>
@@ -93,21 +112,24 @@ const tableColumns = [
     label: 'İzin Adı', 
     sortable: true,
     filterable: true,
-    filterType: 'text'
+    filterType: 'text',
+    width: '300px'
   },
   { 
     key: 'resource',
     label: 'Kaynak', 
     sortable: true,
     filterable: true,
-    filterType: 'select'
+    filterType: 'select',
+    width: '180px'
   },
   { 
     key: 'action',
     label: 'İşlem', 
     sortable: true,
     filterable: true,
-    filterType: 'select'
+    filterType: 'select',
+    width: '150px'
   },
   { 
     key: 'description',
@@ -156,16 +178,93 @@ const loadPermissions = async () => {
   }
 }
 
-const getActionColorClass = (action) => {
-  const colorClasses = {
-    'create': 'bg-green-100 text-green-800',
-    'read': 'bg-blue-100 text-blue-800',
-    'update': 'bg-yellow-100 text-yellow-800',
-    'delete': 'bg-red-100 text-red-800',
-    'list': 'bg-purple-100 text-purple-800',
-    'export': 'bg-gray-100 text-gray-800'
+// Formatting methods
+const formatResourceName = (resource) => {
+  const resourceNames = {
+    'users': 'Kullanıcılar',
+    'roles': 'Roller',
+    'permissions': 'İzinler',
+    'settings': 'Ayarlar',
+    'dashboard': 'Dashboard',
+    'reports': 'Raporlar',
+    'files': 'Dosyalar',
+    'system': 'Sistem'
   }
-  return colorClasses[action?.toLowerCase()] || 'bg-gray-100 text-gray-800'
+  return resourceNames[resource?.toLowerCase()] || resource
+}
+
+const formatActionName = (action) => {
+  const actionNames = {
+    'create': 'Oluştur',
+    'read': 'Oku',
+    'update': 'Güncelle',
+    'delete': 'Sil',
+    'view': 'Görüntüle',
+    'manage': 'Yönet',
+    'export': 'Dışa Aktar',
+    'import': 'İçe Aktar',
+    'list': 'Listele'
+  }
+  return actionNames[action?.toLowerCase()] || action
+}
+
+// Style methods
+const getResourceColorClass = (resource) => {
+  const colorMap = {
+    'users': 'resource-blue',
+    'roles': 'resource-purple',
+    'permissions': 'resource-green',
+    'settings': 'resource-orange',
+    'dashboard': 'resource-indigo',
+    'reports': 'resource-pink',
+    'files': 'resource-yellow',
+    'system': 'resource-red'
+  }
+  return colorMap[resource?.toLowerCase()] || 'resource-gray'
+}
+
+const getActionColorClass = (action) => {
+  const colorMap = {
+    'create': 'action-green',
+    'read': 'action-blue',
+    'update': 'action-yellow',
+    'delete': 'action-red',
+    'view': 'action-indigo',
+    'manage': 'action-purple',
+    'export': 'action-orange',
+    'import': 'action-pink',
+    'list': 'action-purple'
+  }
+  return colorMap[action?.toLowerCase()] || 'action-gray'
+}
+
+const getResourceIconPath = (resource) => {
+  const iconPaths = {
+    'users': 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z',
+    'roles': 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+    'permissions': 'M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1721 9z',
+    'settings': 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z',
+    'dashboard': 'M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 2v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z',
+    'reports': 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+    'files': 'M9 2a1 1 0 000 2h2a1 1 0 100-2H9z M4 5a2 2 0 012-2v1a1 1 0 001 1h6a1 1 0 001-1V3a2 2 0 012 2v6h-2V5H6v4H4V5z',
+    'system': 'M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z'
+  }
+  return iconPaths[resource?.toLowerCase()] || 'M19 11H5m14-7H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2z'
+}
+
+const getActionIconPath = (action) => {
+  const iconPaths = {
+    'create': 'M12 4v16m8-8H4',
+    'read': 'M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z',
+    'update': 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z',
+    'delete': 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16',
+    'view': 'M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z',
+    'manage': 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z',
+    'export': 'M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+    'import': 'M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10',
+    'list': 'M4 6h16M4 10h16M4 14h16M4 18h16'
+  }
+  return iconPaths[action?.toLowerCase()] || 'M13 10V3L4 14h7v7l9-11h-7z'
 }
 
 const handleSearch = (query) => {
@@ -228,7 +327,79 @@ useHead({
 .permissions-page {
   @apply p-6;
 }
--indigo { @apply bg-indigo-100 text-indigo-800; }
+
+/* Permission Name Cell */
+.permission-name-cell {
+  @apply flex items-center gap-3;
+}
+
+.permission-icon {
+  @apply w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0;
+}
+
+.permission-icon .icon {
+  @apply w-4 h-4 text-blue-600;
+}
+
+.permission-info {
+  @apply flex flex-col;
+}
+
+.permission-title {
+  @apply font-semibold text-gray-900 text-sm;
+}
+
+.permission-code {
+  @apply text-xs text-gray-500 font-mono;
+}
+
+/* Resource Cell */
+.resource-cell {
+  @apply flex items-center;
+}
+
+.resource-badge {
+  @apply inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium;
+}
+
+.resource-icon {
+  @apply w-3 h-3;
+}
+
+.resource-icon .icon {
+  @apply w-3 h-3;
+}
+
+/* Resource Colors */
+.resource-blue { @apply bg-blue-100 text-blue-800; }
+.resource-purple { @apply bg-purple-100 text-purple-800; }
+.resource-green { @apply bg-green-100 text-green-800; }
+.resource-orange { @apply bg-orange-100 text-orange-800; }
+.resource-indigo { @apply bg-indigo-100 text-indigo-800; }
+.resource-pink { @apply bg-pink-100 text-pink-800; }
+.resource-yellow { @apply bg-yellow-100 text-yellow-800; }
+.resource-red { @apply bg-red-100 text-red-800; }
+.resource-gray { @apply bg-gray-100 text-gray-800; }
+
+/* Action Cell */
+.action-cell {
+  @apply flex items-center;
+}
+
+.action-badge {
+  @apply inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium;
+}
+
+.action-icon {
+  @apply w-3 h-3;
+}
+
+/* Action Colors */
+.action-green { @apply bg-green-100 text-green-800; }
+.action-blue { @apply bg-blue-100 text-blue-800; }
+.action-yellow { @apply bg-yellow-100 text-yellow-800; }
+.action-red { @apply bg-red-100 text-red-800; }
+.action-indigo { @apply bg-indigo-100 text-indigo-800; }
 .action-purple { @apply bg-purple-100 text-purple-800; }
 .action-orange { @apply bg-orange-100 text-orange-800; }
 .action-pink { @apply bg-pink-100 text-pink-800; }
@@ -243,97 +414,6 @@ useHead({
   @apply text-sm text-gray-600 truncate;
 }
 
-/* Status Cell */
-.status-cell {
-  @apply flex justify-center;
-}
-
-.status-indicator {
-  @apply inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium;
-}
-
-.status-dot {
-  @apply w-2 h-2 rounded-full;
-}
-
-/* Status Colors */
-.status-active {
-  @apply bg-green-100 text-green-800;
-}
-.status-active .status-dot {
-  @apply bg-green-500;
-}
-
-.status-inactive {
-  @apply bg-gray-100 text-gray-800;
-}
-.status-inactive .status-dot {
-  @apply bg-gray-500;
-}
-
-.status-pending {
-  @apply bg-yellow-100 text-yellow-800;
-}
-.status-pending .status-dot {
-  @apply bg-yellow-500;
-}
-
-.status-deprecated {
-  @apply bg-red-100 text-red-800;
-}
-.status-deprecated .status-dot {
-  @apply bg-red-500;
-}
-
-.status-unknown {
-  @apply bg-gray-100 text-gray-600;
-}
-.status-unknown .status-dot {
-  @apply bg-gray-400;
-}
-
-/* Date Cell */
-.date-cell {
-  @apply flex flex-col text-center;
-}
-
-.date-text {
-  @apply text-sm font-medium text-gray-900;
-}
-
-.time-text {
-  @apply text-xs text-gray-500;
-}
-
-/* Custom Actions */
-.custom-actions {
-  @apply flex items-center justify-center gap-1;
-}
-
-.action-button {
-  @apply p-2 rounded-lg transition-colors;
-}
-
-.action-button svg {
-  @apply w-4 h-4;
-}
-
-.view-btn {
-  @apply text-blue-600 hover:bg-blue-50;
-}
-
-.edit-btn {
-  @apply text-yellow-600 hover:bg-yellow-50;
-}
-
-.delete-btn {
-  @apply text-red-600 hover:bg-red-50;
-}
-
-.system-btn {
-  @apply text-gray-400 bg-gray-50 cursor-not-allowed;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .permission-name-cell {
@@ -343,10 +423,6 @@ useHead({
   .resource-badge,
   .action-badge {
     @apply px-2 py-0.5;
-  }
-  
-  .custom-actions {
-    @apply flex-col gap-0.5;
   }
 }
 </style>
