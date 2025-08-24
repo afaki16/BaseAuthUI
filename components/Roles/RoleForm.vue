@@ -1,18 +1,11 @@
 <template>
-  <div class="role-form-container">
-    <!-- Header -->
-    <div class="form-header">
-      <div class="header-content">
-        <div class="header-icon">
-          <v-icon size="32" color="primary">mdi-shield-account</v-icon>
-        </div>
-        <div class="header-text">
-          <h2 class="title">{{ role ? 'Rol Düzenle' : 'Yeni Rol Oluştur' }}</h2>
-          <p class="subtitle">Sistem rollerini ve izinlerini yönetin</p>
-        </div>
-      </div>
-    </div>
-
+  <div >
+    <PageHeader
+      :title="role ? 'Rol Düzenle' : 'Yeni Rol Oluştur'"
+      subtitle="Sistem rollerini ve izinlerini yönetin"
+      icon="mdi-shield-account"
+    />
+      
     <v-form ref="form" v-model="isValid" @submit.prevent="handleSubmit">
       <div class="form-content">
         <!-- Rol Bilgileri Card -->
@@ -109,79 +102,59 @@
                 </v-btn>
               </div>
 
-              <!-- Permissions Tree -->
-              <div class="permissions-list">
+              <!-- Simple Collapsible List -->
+              <div class="permissions-simple-tree">
                 <div
                   v-for="(perms, resource) in filteredPermissions"
                   :key="resource"
-                  class="permission-group"
+                  class="resource-group"
                 >
-                  <!-- Resource Header -->
+                  <!-- Resource Header - With Group Checkbox -->
                   <div 
-                    class="resource-header"
+                    class="resource-row"
                     @click="toggleResource(resource)"
                   >
-                    <div class="resource-content">
-                      <v-checkbox
-                        :model-value="isResourceFullySelected(resource)"
-                        :indeterminate="isResourcePartiallySelected(resource)"
-                        @update:model-value="toggleResourcePermissions(resource, $event)"
-                        @click.stop
-                        color="primary"
-                        hide-details
-                        class="resource-checkbox"
-                      />
-                      
-                      <div class="resource-info">
-                        <div class="resource-icon">
-                          <v-icon :icon="getResourceIcon(resource)" size="20" />
-                        </div>
-                        <div class="resource-details">
-                          <span class="resource-name">{{ formatResourceName(resource) }}</span>
-                          <span class="resource-count">{{ perms.length }} izin</span>
-                        </div>
-                      </div>
-
-                      <v-icon 
-                        class="expand-icon"
-                        :class="{ 'expanded': expandedResources.includes(resource) }"
-                      >
-                        mdi-chevron-down
-                      </v-icon>
-                    </div>
+                    <v-icon 
+                      class="chevron-icon"
+                      :class="{ 'expanded': expandedResources.includes(resource) }"
+                    >
+                      mdi-chevron-right
+                    </v-icon>
+                    <v-checkbox
+                      :model-value="isResourceFullySelected(resource)"
+                      :indeterminate="isResourcePartiallySelected(resource)"
+                      @update:model-value="toggleResourcePermissions(resource, $event)"
+                      @click.stop
+                      color="primary"
+                      hide-details
+                      density="compact"
+                      class="resource-group-checkbox"
+                    />
+                    <span class="resource-title">{{ resource }} ({{ perms.length }})</span>
                   </div>
 
-                  <!-- Permissions List -->
-                  <v-expand-transition>
-                    <div 
-                      v-show="expandedResources.includes(resource)"
-                      class="permissions-container"
+                  <!-- Permissions List - Simple Checkboxes -->
+                  <div 
+                    v-show="expandedResources.includes(resource)"
+                    class="permissions-simple-container"
+                  >
+                    <div
+                      v-for="permission in perms"
+                      :key="permission.id"
+                      class="permission-simple-item"
                     >
-                      <div class="permissions-grid">
-                        <div
-                          v-for="permission in perms"
-                          :key="permission.id"
-                          class="permission-item"
-                        >
-                          <v-checkbox
-                            v-model="formData.permissionIds"
-                            :value="permission.id"
-                            :disabled="loading"
-                            color="primary"
-                            hide-details
-                            class="permission-checkbox"
-                          />
-                          
-                          <div class="permission-info">
-                            <span class="permission-name">{{ permission.name }}</span>
-                            <span v-if="permission.description" class="permission-desc">
-                              {{ permission.description }}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
+                      <v-checkbox
+                        v-model="formData.permissionIds"
+                        :value="permission.id"
+                        :disabled="loading"
+                        color="primary"
+                        hide-details
+                        density="compact"
+                        class="permission-simple-checkbox"
+                        :label="permission.name"
+                      />
                     </div>
-                  </v-expand-transition>
+                  </div>
                 </div>
               </div>
             </div>
@@ -227,6 +200,7 @@
 
 <script setup lang="ts">
 import type { Role, Permission, CreateRoleRequest, UpdateRoleRequest } from '~/types'
+import PageHeader from '~/components/UI/PageHeader.vue'
 
 // Props
 const props = defineProps<{
@@ -334,34 +308,6 @@ const clearAllPermissions = () => {
   formData.permissionIds = []
 }
 
-const getResourceIcon = (resource: string) => {
-  const iconMap: Record<string, string> = {
-    'users': 'mdi-account-group',
-    'roles': 'mdi-shield-account',
-    'permissions': 'mdi-key-variant',
-    'settings': 'mdi-cog',
-    'dashboard': 'mdi-view-dashboard',
-    'reports': 'mdi-chart-line',
-    'files': 'mdi-file-multiple',
-    'system': 'mdi-server'
-  }
-  return iconMap[resource.toLowerCase()] || 'mdi-folder'
-}
-
-const formatResourceName = (resource: string) => {
-  const nameMap: Record<string, string> = {
-    'users': 'Kullanıcılar',
-    'roles': 'Roller',
-    'permissions': 'İzinler',
-    'settings': 'Ayarlar',
-    'dashboard': 'Dashboard',
-    'reports': 'Raporlar',
-    'files': 'Dosyalar',
-    'system': 'Sistem'
-  }
-  return nameMap[resource.toLowerCase()] || resource
-}
-
 const handleSubmit = async () => {
   const validation = await form.value.validate()
   if (!validation.valid) return
@@ -408,13 +354,7 @@ defineExpose({
 </script>
 
 <style scoped>
-.role-form-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 24px;
-  background: #f8fafc;
-  min-height: 100vh;
-}
+
 
 /* Header */
 .form-header {
@@ -532,133 +472,80 @@ defineExpose({
 .permissions-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-}
-
-/* Permission Group */
-.permission-group {
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  overflow: hidden;
-  background: white;
-}
-
-.resource-header {
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: #ffffff;
-}
-
-.resource-header:hover {
-  background: #f8fafc;
-}
-
-.resource-content {
-  display: flex;
-  align-items: center;
-  padding: 16px 20px;
-  gap: 16px;
-}
-
-.resource-checkbox {
-  margin: 0;
-}
-
-.resource-info {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.resource-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #ddd6fe 0%, #c7d2fe 100%);
-  color: #6366f1;
-}
-
-.resource-details {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.resource-name {
-  font-weight: 600;
-  color: #1e293b;
-  font-size: 0.9rem;
-}
-
-.resource-count {
-  font-size: 0.75rem;
-  color: #64748b;
-}
-
-.expand-icon {
-  color: #94a3b8;
-  transition: transform 0.3s ease;
-}
-
-.expand-icon.expanded {
-  transform: rotate(180deg);
-}
-
-/* Permissions Container */
-.permissions-container {
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
-  padding: 20px;
-}
-
-.permissions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 12px;
-}
-
-.permission-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 8px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  transition: all 0.2s ease;
-}
-
-.permission-item:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
-}
-
-.permission-checkbox {
-  margin: 0;
-  flex-shrink: 0;
-}
-
-.permission-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
   gap: 4px;
 }
 
-.permission-name {
+/* Simple Tree Style */
+.permissions-simple-tree {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  overflow: hidden;
+}
+
+.resource-group {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.resource-group:last-child {
+  border-bottom: none;
+}
+
+.resource-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  user-select: none;
+}
+
+.resource-row:hover {
+  background: #f8fafc;
+}
+
+.chevron-icon {
+  color: #64748b;
+  transition: transform 0.2s ease;
+  font-size: 16px;
+}
+
+.chevron-icon.expanded {
+  transform: rotate(90deg);
+}
+
+.folder-icon {
+  color: #64748b;
+}
+
+.resource-group-checkbox {
+  margin: 0 !important;
+}
+
+.resource-group-checkbox :deep(.v-selection-control) {
+  min-height: auto !important;
+}
+
+.resource-title {
   font-weight: 500;
   color: #1e293b;
   font-size: 0.875rem;
 }
 
-.permission-desc {
-  font-size: 0.75rem;
-  color: #64748b;
-  line-height: 1.4;
+.permissions-simple-container {
+  padding: 8px 16px 16px 40px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.permission-simple-item {
+  padding: 2px 0;
+}
+
+.permission-simple-checkbox :deep(.v-label) {
+  font-size: 0.875rem !important;
+  color: #374151 !important;
 }
 
 /* Empty State */
@@ -691,7 +578,6 @@ defineExpose({
   padding: 24px;
   background: white;
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
 }
 
 .cancel-btn, .submit-btn {

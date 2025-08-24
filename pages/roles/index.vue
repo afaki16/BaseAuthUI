@@ -6,6 +6,7 @@
         { text: 'Roller' }
       ]" />
     </div>
+
      <!-- DataTable -->
      <BaseDataTable
       :items="roles"
@@ -27,9 +28,9 @@
       :show-pagination="true"
       :items-per-page="10"
       @add="openCreateDialog"
-      @view="viewPermission"
-      @edit="editPermission"
-      @delete="deletePermission"
+      @view="openCreateDialog"
+      @edit="openCreateDialog"
+      @delete="openDeleteDialog"
       @search="handleSearch"
     >
        <!-- For RoleName -->
@@ -43,6 +44,7 @@
     {{ value }}
   </v-chip>
 </template>
+
     <!-- For isSystemRole -->
   <template #cell-isSystemRole="{ item, value }">
   <v-chip
@@ -53,14 +55,12 @@
     {{ value == true ? 'Sistem' : 'Özel' }}
   </v-chip>
 </template>
-     </BaseDataTable>
 
-   
+     </BaseDataTable>
 
     <!-- Create Role Dialog -->
     <v-dialog v-model="showCreateDialog" max-width="700">
       <v-card>
-        <v-card-title class="font-weight-bold">Yeni Rol Oluştur</v-card-title>
         <v-card-text>
           <RoleForm
             :permissions="permissions"
@@ -70,40 +70,18 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="outlined" @click="showCreateDialog = false">İptal</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <!-- Confirm Delete Dialog -->
-    <v-dialog v-model="showDeleteDialog" max-width="400">
-      <v-card>
-        <v-card-title class="text-h6">
-          Rolü Sil
-        </v-card-title>
-        <v-card-text>
-          <p class="text-body-1">
-            Bu rolü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
-          </p>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            variant="outlined"
-            @click="showDeleteDialog = false"
-          >
-            İptal
-          </v-btn>
-          <v-btn
-            color="error"
-            @click="confirmDelete"
-            :loading="isDeleting"
-          >
-            Sil
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+   
+     <ConfirmDialog
+  v-model="showDeleteDialog"
+  title="İşlemi Onayla"
+  message="Bu işlemi gerçekleştirmek istediğinizden emin misiniz?"
+  @confirm="confirmDelete"
+/>
   
 </template>
 
@@ -123,6 +101,7 @@ useHead({
   title: 'Roller',
 })
 
+//DataTable Header
 const tableColumns = [
   
   { 
@@ -181,7 +160,6 @@ const loadRoles = async () => {
       roles.value = []
     }
   } catch (error) {
-    console.error('Error loading roles:', error)
     toast.error('Roller yüklenirken hata oluştu')
   } finally {
     isLoading.value = false
@@ -193,7 +171,6 @@ const loadPermissions = async () => {
     const response = await getPermissions()
     permissions.value = response || []
   } catch (error) {
-    console.error('Error loading permissions:', error)
     permissions.value = []
   }
 }
@@ -205,6 +182,11 @@ const handleSearch = () => {
 const openCreateDialog = () => {
   showCreateDialog.value = true
 }
+
+const openDeleteDialog = () => {
+  showDeleteDialog.value = true
+}
+
 
 const handleCreateRole = async (roleData) => {
   try {
@@ -238,32 +220,8 @@ const confirmDelete = async () => {
   }
 }
 
-
 // Load initial data
 onMounted(async () => {
   await Promise.all([loadRoles(), loadPermissions()])
 })
 </script>
-
-<style scoped>
-.v-data-table {
-  border-radius: 8px;
-}
-
-.v-data-table :deep(.v-data-table-header) {
-  background-color: #f8f9fa;
-}
-
-.v-data-table :deep(.v-data-table-header th) {
-  font-weight: 600;
-  color: #374151;
-}
-
-.v-data-table :deep(.v-data-table__td) {
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.v-data-table :deep(.v-data-table__tr:hover) {
-  background-color: #f9fafb;
-}
-</style> 
