@@ -118,7 +118,7 @@ const tableColumns = [
     sortable: true,
     filterable: true,
     filterType: 'select',
-    width: '250px'
+    width: '300px'
   },
    { 
     label: 'Rol Açıklaması', 

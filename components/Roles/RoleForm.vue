@@ -354,46 +354,6 @@ defineExpose({
 </script>
 
 <style scoped>
-
-
-/* Header */
-.form-header {
-  margin-bottom: 32px;
-}
-
-.header-content {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: white;
-  padding: 24px;
-  border-radius: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.header-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 16px;
-  color: white;
-}
-
-.title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0;
-}
-
-.subtitle {
-  color: #64748b;
-  margin: 4px 0 0 0;
-}
-
 /* Form Content */
 .form-content {
   display: flex;
@@ -574,17 +534,18 @@ defineExpose({
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 16px;
-  padding: 24px;
-  background: white;
-  border-radius: 16px;
+  gap: 12px;
+  padding: 16px 24px; /* padding düzeltildi */
+  margin: 0; /* margin sıfırlandı */
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-top: 1px solid #e2e8f0;
+  bottom: 0;
+  z-index: 10;
+  flex-direction: column-reverse;
 }
 
 .cancel-btn, .submit-btn {
-  min-width: 120px;
-  border-radius: 12px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.5px;
+  @apply inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200;
 }
 
 .submit-btn {
@@ -607,9 +568,7 @@ defineExpose({
     grid-template-columns: 1fr;
   }
   
-  .form-actions {
-    flex-direction: column-reverse;
-  }
+ 
   
   .cancel-btn, .submit-btn {
     width: 100%;
