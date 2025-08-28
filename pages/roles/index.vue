@@ -77,10 +77,10 @@
     <!-- Confirm Delete Dialog -->
    
      <ConfirmDialog
-  v-model="showDeleteDialog"
-  title="İşlemi Onayla"
-  message="Bu işlemi gerçekleştirmek istediğinizden emin misiniz?"
-  @confirm="confirmDelete"
+      v-model="showDeleteDialog"
+      title="İşlemi Onayla"
+      message="Bu işlemi gerçekleştirmek istediğinizden emin misiniz?"
+      @confirm="confirmDelete"
 />
   
 </template>

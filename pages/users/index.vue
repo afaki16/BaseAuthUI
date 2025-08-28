@@ -26,7 +26,7 @@
       :show-delete-button="true"
       :show-pagination="true"
       :items-per-page="10"
-      @add="createPermission"
+      @add="openCreateDialog"
       @view="viewPermission"
       @edit="editPermission"
       @delete="deletePermission"
@@ -59,12 +59,26 @@
 </template>
   </BaseDataTable>
 
+<!-- Create User Dialog -->
+<v-dialog v-model="showCreateDialog" max-width="800" scrollable>
+  <v-card class="dialog-card">
+    <UserForm
+      :roles="roles"
+      :loading="isLoading"
+      @submit="handleCreateUser"
+      @cancel="showCreateDialog = false"
+    />
+  </v-card>
+</v-dialog>
+
+
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { dateTimeFormatLong } from '~/utils/datesFormat.ts'
 import BaseDataTable from '~/components/UI/BaseDataTable.vue'
+import UserForm from '~/components/Users/UserForm.vue'
 
 // Page metadata
 definePageMeta({
@@ -76,13 +90,6 @@ definePageMeta({
 useHead({
   title: 'Kullanıcılar',
 })
-// Composables
-const { getUsers } = useUsers()
-const toast = useToast()
-
-// Reactive data
-const users = ref([])
-const isLoading = ref(false)
 
 // Table columns for BaseDataTable
 const tableColumns = [
@@ -120,6 +127,30 @@ const tableColumns = [
   },
 ]
 
+// Composables
+const { getUsers } = useUsers()
+const toast = useToast()
+
+// Reactive data
+const roles = ref([]) 
+const users = ref([])
+const isLoading = ref(false)
+
+// Dialog states
+const showCreateDialog = ref(false)
+const showDeleteDialog = ref(false)
+const roleToDelete = ref(null)
+
+const loadRoles = async () => {
+  try {
+    // API'den rolleri çekin
+    const response = await $fetch('/api/roles')
+    roles.value = response.data || response
+  } catch (error) {
+    console.error('Roles yüklenirken hata:', error)
+  }
+}
+
 // Methods
 const loadUsers = async () => {
   try {
@@ -146,8 +177,8 @@ const loadUsers = async () => {
 const handleSearch = () => {
   loadUsers()
 }
-const createPermission = () => {
-  toast.info('İzin oluşturma özelliği yakında eklenecek')
+const openCreateDialog = () => {
+  showCreateDialog.value = true
 }
 
 const viewPermission = (permission) => {
@@ -172,6 +203,21 @@ const deletePermission = async (permission) => {
     }
   }
 }
+
+const handleCreateUser = async (userData) => {
+  try {
+    isLoading.value = true
+    await roles.createRole(userData)
+    toast.success('Kullanıcı başarıyla oluşturuldu!')
+    showCreateDialog.value = false
+    await loadRoles()
+  } catch (error) {
+    toast.error('Kullanıcı oluşturulurken hata oluştu')
+  } finally {
+    isLoading.value = false
+  }
+}
+
 
 // Load initial data
 onMounted(async () => {

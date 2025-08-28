@@ -14,6 +14,7 @@ export default defineNuxtConfig({
     '@mdi/font/css/materialdesignicons.min.css',
     '~/assets/scss/main.scss',
     '~/assets/css/main.css',
+    '~/assets/css/global-admin.css',
     'flag-icons/css/flag-icons.min.css'
   ],
   
