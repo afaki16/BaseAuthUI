@@ -129,6 +129,7 @@ const tableColumns = [
 
 // Composables
 const { getUsers } = useUsers()
+const { getRoles } = useRoles()
 const toast = useToast()
 
 // Reactive data
@@ -141,13 +142,14 @@ const showCreateDialog = ref(false)
 const showDeleteDialog = ref(false)
 const roleToDelete = ref(null)
 
+
 const loadRoles = async () => {
   try {
-    // API'den rolleri çekin
-    const response = await $fetch('/api/roles')
-    roles.value = response.data || response
+    const response = await getRoles()
+    roles.value = response || []
+    console.log('Alperen',roles.value);
   } catch (error) {
-    console.error('Roles yüklenirken hata:', error)
+    roles.value = []
   }
 }
 
@@ -156,7 +158,6 @@ const loadUsers = async () => {
   try {
     isLoading.value = true
     const response = await getUsers()
-    debugger
     // Handle different response formats
     if (Array.isArray(response)) {
       users.value = response
@@ -221,7 +222,7 @@ const handleCreateUser = async (userData) => {
 
 // Load initial data
 onMounted(async () => {
-  await Promise.all([loadUsers()])
+  await Promise.all([loadUsers(),loadRoles()])
 })
 </script>
 

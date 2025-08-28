@@ -16,9 +16,9 @@
       search-placeholder="Rol ara..."
       add-button-text="Yeni Rol Ekle"
       :loading="isLoading"
-      loading-text="Kullanıcılar yükleniyor..."
-      empty-title="Kullanıcı bulunamadı"
-      empty-description="Henüz hiç kullanıcı tanımlanmamış."
+      loading-text="Roller yükleniyor..."
+      empty-title="Roller bulunamadı"
+      empty-description="Henüz hiç rol tanımlanmamış."
       :show-add-button="true"
       :show-advanced-filters="true"
       :show-actions="true"
@@ -48,7 +48,7 @@
     <!-- For isSystemRole -->
   <template #cell-isSystemRole="{ item, value }">
   <v-chip
-    :color="value == true ? 'warning' : 'info'"
+    :color="value == true ? 'warning' : 'success '"
     size="small"
     variant="tonal"
   >
@@ -76,12 +76,15 @@
 
     <!-- Confirm Delete Dialog -->
    
-     <ConfirmDialog
+    <ConfirmDialog
       v-model="showDeleteDialog"
       title="İşlemi Onayla"
       message="Bu işlemi gerçekleştirmek istediğinizden emin misiniz?"
-      @confirm="confirmDelete"
-/>
+      type="error"
+      confirm-text="Sil"
+      @confirm="confirmDelete()"
+      @cancel="showDeleteDialog = false"
+    />
   
 </template>
 
@@ -89,8 +92,9 @@
 import { ref, onMounted } from 'vue'
 import RoleForm from '~/components/Roles/RoleForm.vue'
 import BaseDataTable from '~/components/UI/BaseDataTable.vue'
+import ConfirmDialog from '~/components/UI/ConfirmDialog.vue'
 
-// Page metadata
+//#region Page Metadata
 definePageMeta({
   title: 'Roller',
   requiresAuth: true,
@@ -100,8 +104,9 @@ definePageMeta({
 useHead({
   title: 'Roller',
 })
+//#endregion
 
-//DataTable Header
+//#region DataTable Header
 const tableColumns = [
   
   { 
@@ -129,8 +134,10 @@ const tableColumns = [
   }
 ]
 
+//#endregion
+
 // Composables
-const { getRoles, deleteRole: deleteRoleApi } = useRoles()
+const { getRoles,createRole,deleteRole } = useRoles()
 const { getPermissions } = usePermissions()
 const toast = useToast()
 
@@ -191,7 +198,7 @@ const openDeleteDialog = () => {
 const handleCreateRole = async (roleData) => {
   try {
     isLoading.value = true
-    await roles.createRole(roleData)
+    await createRole(roleData)
     toast.success('Rol başarıyla oluşturuldu!')
     showCreateDialog.value = false
     await loadRoles()
@@ -203,11 +210,11 @@ const handleCreateRole = async (roleData) => {
 }
 
 const confirmDelete = async () => {
-  if (!roleToDelete.value) return
 
   try {
+    debugger
     isDeleting.value = true
-    await deleteRoleApi(roleToDelete.value.id)
+    await deleteRole(roleToDelete.value.id)
     await loadRoles()
     toast.success('Rol başarıyla silindi')
   } catch (error) {
