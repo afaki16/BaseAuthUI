@@ -1,11 +1,9 @@
 import type { Role, CreateRoleRequest, UpdateRoleRequest } from '~/types'
 import { API_ENDPOINTS } from '~/utils/apiEndpoints'
 import { useApi } from './useApi'
-import { useToast } from 'vue-toastification'
 
 export const useRoles = () => {
   const api = useApi()
-  const toast = useToast()
 
   const getRoles = async () => {
     try {
@@ -31,7 +29,6 @@ export const useRoles = () => {
     try {
       const response = await api.post<Role>(API_ENDPOINTS.ROLES.CREATE, roleData)
       if (response.success) {
-        toast.success('Role created successfully!')
         return response.data
       }
     } catch (error) {
@@ -44,7 +41,6 @@ export const useRoles = () => {
     try {
       const response = await api.put<Role>(API_ENDPOINTS.ROLES.UPDATE(id), roleData)
       if (response.success) {
-        toast.success('Role updated successfully!')
         return response.data
       }
     } catch (error) {
@@ -56,7 +52,6 @@ export const useRoles = () => {
   const deleteRole = async (id: string) => {
     try {
       await api.delete(API_ENDPOINTS.ROLES.DELETE(id))
-      toast.success('Role deleted successfully!')
       return true
     } catch (error) {
       console.error('Delete role error:', error)

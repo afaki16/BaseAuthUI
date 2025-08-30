@@ -1,9 +1,9 @@
 import type { User, CreateUserRequest, UpdateUserRequest } from '~/types'
 import { API_ENDPOINTS, getPaginatedEndpoint } from '~/utils/apiEndpoints'
+import { useApi } from './useApi'
 
 export const useUsers = () => {
   const api = useApi()
-  const toast = useToast()
 
   const getUsers = async (page = 1, pageSize = 10, searchTerm = '') => {
     try {
@@ -30,7 +30,6 @@ export const useUsers = () => {
     try {
       const response = await api.post<User>(API_ENDPOINTS.USERS.CREATE, userData)
       if (response.success) {
-        toast.success('User created successfully!')
         return response.data
       }
     } catch (error) {
@@ -43,7 +42,6 @@ export const useUsers = () => {
     try {
       const response = await api.put<User>(API_ENDPOINTS.USERS.UPDATE(id), userData)
       if (response.success) {
-        toast.success('User updated successfully!')
         return response.data
       }
     } catch (error) {
@@ -55,7 +53,6 @@ export const useUsers = () => {
   const deleteUser = async (id: string) => {
     try {
       await api.delete(API_ENDPOINTS.USERS.DELETE(id))
-      toast.success('User deleted successfully!')
       return true
     } catch (error) {
       console.error('Delete user error:', error)

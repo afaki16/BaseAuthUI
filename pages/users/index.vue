@@ -128,9 +128,8 @@ const tableColumns = [
 ]
 
 // Composables
-const { getUsers } = useUsers()
+const { getUsers, createUser } = useUsers()
 const { getRoles } = useRoles()
-const toast = useToast()
 
 // Reactive data
 const roles = ref([]) 
@@ -168,7 +167,6 @@ const loadUsers = async () => {
     }
   } catch (error) {
     console.error('Error loading users:', error)
-    toast.error('Kullanıcılar yüklenirken hata oluştu')
     users.value = []
   } finally {
     isLoading.value = false
@@ -184,23 +182,19 @@ const openCreateDialog = () => {
 
 const viewPermission = (permission) => {
   console.log('View permission:', permission)
-  toast.info('İzin görüntüleme özelliği yakında eklenecek')
 }
 
 const editPermission = (permission) => {
   console.log('Edit permission:', permission)
-  toast.info('İzin düzenleme özelliği yakında eklenecek')
 }
 
 const deletePermission = async (permission) => {
   if (confirm(`${permission.name} iznini silmek istediğinizden emin misiniz?`)) {
     try {
       // await deletePermissionApi(permission.id)
-      await loadPermissions()
-      toast.success('İzin başarıyla silindi')
+      console.log('Permission deleted:', permission.name)
     } catch (error) {
       console.error('Error deleting permission:', error)
-      toast.error('İzin silinirken hata oluştu')
     }
   }
 }
@@ -208,12 +202,11 @@ const deletePermission = async (permission) => {
 const handleCreateUser = async (userData) => {
   try {
     isLoading.value = true
-    await roles.createRole(userData)
-    toast.success('Kullanıcı başarıyla oluşturuldu!')
+    await createUser(userData)
     showCreateDialog.value = false
-    await loadRoles()
+    await loadUsers()
   } catch (error) {
-    toast.error('Kullanıcı oluşturulurken hata oluştu')
+    console.error('Error creating user:', error)
   } finally {
     isLoading.value = false
   }

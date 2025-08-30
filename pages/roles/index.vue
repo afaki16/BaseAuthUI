@@ -136,10 +136,13 @@ const tableColumns = [
 
 //#endregion
 
-// Composables
+//#region Composables
+
 const { getRoles,createRole,deleteRole } = useRoles()
 const { getPermissions } = usePermissions()
 const toast = useToast()
+
+//#endregion
 
 // Reactive data
 const roles = ref([])

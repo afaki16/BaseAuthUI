@@ -113,7 +113,7 @@ interface ApiResponse<T> {
 - 401 hatalarında otomatik logout işlemi yapılır
 
 ### Error Handling
-- API hataları otomatik olarak toast mesajları ile gösterilir
+- API hataları console'a loglanır
 - Validation hataları kullanıcı dostu mesajlar olarak gösterilir
 - Network hataları uygun şekilde handle edilir
 

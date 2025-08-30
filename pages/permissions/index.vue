@@ -61,7 +61,6 @@ useHead({
 
 // Composables
 const { getPermissions } = usePermissions()
-const toast = useToast()
 
 // Reactive data
 const permissions = ref([])
@@ -113,7 +112,6 @@ const loadPermissions = async () => {
     }
   } catch (error) {
     console.error('Error loading permissions:', error)
-    toast.error('İzinler yüklenirken hata oluştu')
     permissions.value = []
   } finally {
     isLoading.value = false
