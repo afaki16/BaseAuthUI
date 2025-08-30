@@ -17,30 +17,30 @@
             </div>
           </div>
         </div>
-<!-- Search -->
-          <div class="header-right-search">
-            <div class="search-input-wrapper">
-              <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <!-- Search -->
+        <div class="header-right-search">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              v-model="searchQuery"
+              :placeholder="searchPlaceholder"
+              class="search-input"
+              @input="handleSearch"
+            />
+            <button
+              v-if="searchQuery"
+              @click="clearSearch"
+              class="clear-search-btn"
+            >
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
-              <input
-                type="text"
-                v-model="searchQuery"
-                :placeholder="searchPlaceholder"
-                class="search-input"
-                @input="handleSearch"
-              />
-              <button
-                v-if="searchQuery"
-                @click="clearSearch"
-                class="clear-search-btn"
-              >
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+            </button>
           </div>
+        </div>
         <!-- Actions Section -->
         <div class="header-right">
           <!-- Advanced Filters Toggle -->
@@ -56,8 +56,6 @@
             Filtreler
             <span v-if="activeFiltersCount" class="filter-count">{{ activeFiltersCount }}</span>
           </button>
-
-         
 
           <!-- Export Button -->
           <button
@@ -98,51 +96,56 @@
           <div
             v-for="column in filterableColumns"
             :key="column.key"
-            class="filter-item"
+            class="filter-item mb-3"
           >
             <label class="filter-label">{{ column.label }}</label>
             
             <!-- Text Filter -->
-            <input
+            <v-text-field
               v-if="column.filterType === 'text' || !column.filterType"
               v-model="columnFilters[column.key]"
-              type="text"
               :placeholder="`${column.label} filtrele...`"
+              variant="outlined"
+              density="compact"
+              hide-details
               class="filter-input"
-              @input="applyFilters"
+              @update:model-value="debouncedApplyFilters"
             />
             
             <!-- Select Filter -->
-            <select
+            <v-select
               v-else-if="column.filterType === 'select'"
               v-model="columnFilters[column.key]"
+              :items="getColumnSelectOptions(column.key)"
+              variant="outlined"
+              density="compact"
+              hide-details
+              clearable
+              placeholder="Tümü"
               class="filter-select"
-              @change="applyFilters"
-            >
-              <option value="">Tümü</option>
-              <option
-                v-for="option in getColumnOptions(column.key)"
-                :key="option"
-                :value="option"
-              >
-                {{ option }}
-              </option>
-            </select>
+              @update:model-value="applyFilters"
+            />
             
             <!-- Date Range Filter -->
             <div v-else-if="column.filterType === 'date'" class="date-range-filter">
-              <input
+              <v-text-field
                 v-model="columnFilters[column.key + '_start']"
                 type="date"
+                variant="outlined"
+                density="compact"
+                hide-details
                 class="filter-input date-input"
-                @change="applyFilters"
+                @update:model-value="debouncedApplyFilters"
               />
               <span class="date-separator">-</span>
-              <input
+              <v-text-field
                 v-model="columnFilters[column.key + '_end']"
                 type="date"
+                variant="outlined"
+                density="compact"
+                hide-details
                 class="filter-input date-input"
-                @change="applyFilters"
+                @update:model-value="debouncedApplyFilters"
               />
             </div>
           </div>
@@ -169,7 +172,6 @@
         </div>
         <h3 class="empty-title">{{ emptyTitle }}</h3>
         <p class="empty-description">{{ emptyDescription }}</p>
-      
       </div>
 
       <!-- Data Table -->
@@ -281,7 +283,7 @@
         </div>
 
         <!-- Pagination -->
-        <div  class="pagination">
+        <div class="pagination">
           <div class="pagination-info">
             <div class="results-info">
               <span class="results-text">{{ paginationInfo }}</span>
@@ -580,16 +582,32 @@ const formatCellValue = (value, column) => {
   return value || '-'
 }
 
-const getColumnOptions = (columnKey) => {
+const getColumnSelectOptions = (columnKey) => {
   const values = props.items
     .map(item => getNestedValue(item, columnKey))
-    .filter(val => val)
-  return [...new Set(values)]
+    .filter(val => val !== null && val !== undefined && val !== '')
+  const uniqueValues = [...new Set(values)]
+  
+  return uniqueValues.map(value => ({
+    title: value.toString(),
+    value: value
+  }))
+}
+
+// Debounced filter function to prevent excessive API calls
+let filterTimeout = null
+const debouncedApplyFilters = () => {
+  if (filterTimeout) {
+    clearTimeout(filterTimeout)
+  }
+  
+  filterTimeout = setTimeout(() => {
+    applyFilters()
+  }, 500) // 500ms delay
 }
 
 const handleSearch = () => {
   currentPage.value = 1
-  emit('search', searchQuery.value)
 }
 
 const clearSearch = () => {
@@ -694,8 +712,9 @@ watch(() => props.itemsPerPage, (newValue) => {
 }
 
 .header-right-search {
- @apply flex flex-wrap items-center gap-9 pl-4 ;
+  @apply flex flex-wrap items-center gap-9 pl-4;
 }
+
 /* Buttons */
 .filter-toggle-btn,
 .export-btn,
@@ -770,17 +789,23 @@ watch(() => props.itemsPerPage, (newValue) => {
   @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
 }
 
+/* Filter Item Styles */
 .filter-item {
-  @apply flex flex-col;
+  @apply flex flex-col mb-3;
 }
 
 .filter-label {
-  @apply text-sm font-medium text-gray-700 mb-1;
+  @apply text-sm font-medium text-gray-700 mb-2;
 }
 
-.filter-input,
-.filter-select {
-  @apply w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors text-sm;
+.filter-input :deep(.v-field),
+.filter-select :deep(.v-field) {
+  @apply bg-white border border-gray-200 rounded-lg transition-colors;
+}
+
+.filter-input :deep(.v-field--focused),
+.filter-select :deep(.v-field--focused) {
+  @apply ring-2 ring-blue-500 border-blue-500;
 }
 
 .date-range-filter {
@@ -792,7 +817,7 @@ watch(() => props.itemsPerPage, (newValue) => {
 }
 
 .date-separator {
-  @apply text-gray-400 font-medium;
+  @apply text-gray-400 font-medium px-2;
 }
 
 /* Loading State */
