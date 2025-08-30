@@ -145,7 +145,7 @@
                     >
                       <v-checkbox
                         v-model="formData.permissionIds"
-                        :value="permission.id"
+                        :value="String(permission.id)"
                         :disabled="loading"
                         color="primary"
                         hide-details
@@ -201,6 +201,7 @@
 <script setup lang="ts">
 import type { Role, Permission, CreateRoleRequest, UpdateRoleRequest } from '~/types'
 import PageHeader from '~/components/UI/PageHeader.vue'
+import { onMounted, watch, watchEffect } from 'vue';
 
 // Props
 const props = defineProps<{
@@ -263,13 +264,13 @@ const filteredPermissions = computed(() => {
 const isResourceFullySelected = (resource: string) => {
   const resourcePermissions = groupedPermissions.value[resource] || []
   return resourcePermissions.length > 0 && 
-    resourcePermissions.every(p => formData.permissionIds.includes(p.id))
+    resourcePermissions.every(p => formData.permissionIds.includes(String(p.id)))
 }
 
 const isResourcePartiallySelected = (resource: string) => {
   const resourcePermissions = groupedPermissions.value[resource] || []
   const selectedCount = resourcePermissions.filter(p => 
-    formData.permissionIds.includes(p.id)
+    formData.permissionIds.includes(String(p.id))
   ).length
   
   return selectedCount > 0 && selectedCount < resourcePermissions.length
@@ -289,19 +290,20 @@ const toggleResourcePermissions = (resource: string, selected: boolean) => {
   
   if (selected) {
     resourcePermissions.forEach(permission => {
-      if (!formData.permissionIds.includes(permission.id)) {
-        formData.permissionIds.push(permission.id)
+      const permissionId = String(permission.id)
+      if (!formData.permissionIds.includes(permissionId)) {
+        formData.permissionIds.push(permissionId)
       }
     })
   } else {
     formData.permissionIds = formData.permissionIds.filter(id =>
-      !resourcePermissions.some(p => p.id === id)
+      !resourcePermissions.some(p => String(p.id) === id)
     )
   }
 }
 
 const selectAllPermissions = () => {
-  formData.permissionIds = props.permissions.map(p => p.id)
+  formData.permissionIds = props.permissions.map(p => String(p.id))
 }
 
 const clearAllPermissions = () => {
@@ -314,6 +316,7 @@ const handleSubmit = async () => {
   
   const submitData = {
     ...formData,
+    // Submit sırasında number'a çevir
     permissionIds: formData.permissionIds.map(id => Number(id))
   }
   
@@ -335,7 +338,15 @@ watchEffect(() => {
     Object.assign(formData, {
       name: props.role.name,
       description: props.role.description || '',
-      permissionIds: props.role.permissions.map(p => p.id)
+      // Permission ID'leri string olarak tut (checkbox v-model için)
+      permissionIds: props.role.permissions?.map(p => String(p.id)) || []
+    })
+  } else {
+    // Reset form when not editing
+    Object.assign(formData, {
+      name: '',
+      description: '',
+      permissionIds: []
     })
   }
 })
@@ -535,8 +546,8 @@ defineExpose({
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  padding: 16px 24px; /* padding düzeltildi */
-  margin: 0; /* margin sıfırlandı */
+  padding: 16px 24px;
+  margin: 0;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   border-top: 1px solid #e2e8f0;
   bottom: 0;
@@ -567,8 +578,6 @@ defineExpose({
   .permissions-grid {
     grid-template-columns: 1fr;
   }
-  
- 
   
   .cancel-btn, .submit-btn {
     width: 100%;

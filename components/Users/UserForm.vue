@@ -120,8 +120,8 @@
           </v-card-text>
         </v-card>
 
-        <!-- Kullanıcı Durumu Card -->
-        <v-card class="status-card" elevation="0">
+        <!-- Kullanıcı Durumu Card (Sadece edit modunda) -->
+        <v-card v-if="user" class="status-card" elevation="0">
           <v-card-title class="card-title">
             <v-icon class="title-icon">mdi-account-check</v-icon>
             Kullanıcı Durumu
@@ -220,11 +220,11 @@
                   v-for="role in filteredRoles"
                   :key="role.id"
                   class="role-item"
-                  :class="{ 'selected': formData.roleIds.includes(role.id) }"
+                  :class="{ 'selected': formData.roleIds.includes(String(role.id)) }"
                 >
                   <v-checkbox
                     v-model="formData.roleIds"
-                    :value="role.id"
+                    :value="String(role.id)"
                     :disabled="loading"
                     color="primary"
                     hide-details
@@ -311,6 +311,8 @@
 <script setup lang="ts">
 import type { User, Role, CreateUserRequest, UpdateUserRequest } from '~/types'
 import PageHeader from '~/components/UI/PageHeader.vue'
+import { useValidators } from '~/composables/useValidators';
+import { computed, reactive, ref } from 'vue';
 
 // Props
 const props = defineProps<{
@@ -359,7 +361,7 @@ const filteredRoles = computed(() => {
 
 // Methods
 const selectAllRoles = () => {
-  formData.roleIds = props.roles.map(r => r.id)
+  formData.roleIds = props.roles.map(r => String(r.id))
 }
 
 const clearAllRoles = () => {
@@ -377,6 +379,7 @@ const handleSubmit = async () => {
     email: formData.email,
     phoneNumber: formData.phoneNumber,
     status: formData.status,
+    // Submit sırasında number'a çevir
     roleIds: formData.roleIds.map(id => Number(id))
   }
   
@@ -406,7 +409,20 @@ watchEffect(() => {
       email: props.user.email,
       phoneNumber: props.user.phoneNumber || '',
       status: props.user.status ?? 1,
-      roleIds: props.user.roles?.map(r => r.id) || [],
+      // Role ID'leri string olarak tut (checkbox v-model için)
+      roleIds: props.user.roles?.map(r => String(r.id)) || [],
+      password: '',
+      confirmPassword: ''
+    })
+  } else {
+    // Reset form when not editing
+    Object.assign(formData, {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phoneNumber: '',
+      status: 1,
+      roleIds: [],
       password: '',
       confirmPassword: ''
     })

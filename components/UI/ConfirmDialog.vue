@@ -22,13 +22,6 @@
         </div>
       </div>
 
-      <!-- Warning Alert -->
-      <div v-if="type === 'error'" class="warning-section">
-        <div class="warning-content">
-          <v-icon class="warning-icon" size="20">mdi-alert-triangle</v-icon>
-          <span class="warning-text">Bu işlem geri alınamaz</span>
-        </div>
-      </div>
 
       <!-- Actions -->
       <div class="confirm-actions">

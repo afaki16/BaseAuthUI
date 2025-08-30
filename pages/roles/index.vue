@@ -28,8 +28,8 @@
       :show-pagination="true"
       :items-per-page="10"
       @add="openCreateDialog"
-      @view="openCreateDialog"
-      @edit="openCreateDialog"
+      @view="openViewDialog"
+      @edit="openEditDialog"
       @delete="openDeleteDialog"
       @search="handleSearch"
     >
@@ -58,32 +58,31 @@
 
      </BaseDataTable>
 
-    <!-- Create Role Dialog -->
+    <!-- Create/Edit Role Dialog -->
     <v-dialog v-model="showCreateDialog" max-width="700">
       <v-card>
         <v-card-text>
           <RoleForm
+            :role="selectedRole"
             :permissions="permissions"
             :loading="isLoading"
-            @submit="handleCreateRole"
+            @submit="handleSubmitRole"
+            @cancel="closeCreateDialog"
           />
         </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-        </v-card-actions>
       </v-card>
     </v-dialog>
 
     <!-- Confirm Delete Dialog -->
-   
     <ConfirmDialog
       v-model="showDeleteDialog"
-      title="İşlemi Onayla"
-      message="Bu işlemi gerçekleştirmek istediğinizden emin misiniz?"
+      title="Rolü Sil"
+      :message="`'${roleToDelete?.name}' rolünü silmek istediğinizden emin misiniz?`"
       type="error"
       confirm-text="Sil"
-      @confirm="confirmDelete()"
-      @cancel="showDeleteDialog = false"
+      :loading="isDeleting"
+      @confirm="confirmDelete"
+      @cancel="closeDeleteDialog"
     />
   
 </template>
@@ -108,7 +107,6 @@ useHead({
 
 //#region DataTable Header
 const tableColumns = [
-  
   { 
     label: 'Rol Adı', 
     key: 'name', 
@@ -133,17 +131,14 @@ const tableColumns = [
     width: '300px'
   }
 ]
-
 //#endregion
 
 //#region Composables
-
-const { getRoles,createRole,deleteRole } = useRoles()
+const { getRoles, createRole, updateRole, deleteRole } = useRoles()
 const { getPermissions } = usePermissions()
-
 //#endregion
 
-// Reactive data
+//#region Reactive Data
 const roles = ref([])
 const permissions = ref([])
 const isLoading = ref(false)
@@ -152,10 +147,12 @@ const isDeleting = ref(false)
 // Dialog states
 const showCreateDialog = ref(false)
 const showDeleteDialog = ref(false)
+const selectedRole = ref(null)
 const roleToDelete = ref(null)
+const isEditMode = ref(false)
+//#endregion
 
-
-// Methods
+//#region Methods
 const loadRoles = async () => {
   try {
     isLoading.value = true
@@ -169,7 +166,7 @@ const loadRoles = async () => {
       roles.value = []
     }
   } catch (error) {
-
+    console.error('Error loading roles:', error)
   } finally {
     isLoading.value = false
   }
@@ -180,6 +177,7 @@ const loadPermissions = async () => {
     const response = await getPermissions()
     permissions.value = response || []
   } catch (error) {
+    console.error('Error loading permissions:', error)
     permissions.value = []
   }
 }
@@ -187,47 +185,86 @@ const loadPermissions = async () => {
 const handleSearch = () => {
   loadRoles()
 }
+//#endregion
 
+//#region Dialog Operations
 const openCreateDialog = () => {
+  selectedRole.value = null
+  isEditMode.value = false
   showCreateDialog.value = true
 }
 
-const openDeleteDialog = () => {
+const openViewDialog = (item) => {
+  selectedRole.value = { ...item }
+  isEditMode.value = false
+  showCreateDialog.value = true
+}
+
+const openEditDialog = (item) => {
+  selectedRole.value = { ...item }
+  isEditMode.value = true
+  showCreateDialog.value = true
+}
+
+const closeCreateDialog = () => {
+  showCreateDialog.value = false
+  selectedRole.value = null
+  isEditMode.value = false
+}
+
+const openDeleteDialog = (item) => {
+  roleToDelete.value = item
   showDeleteDialog.value = true
 }
 
+const closeDeleteDialog = () => {
+  showDeleteDialog.value = false
+  roleToDelete.value = null
+}
+//#endregion
 
-const handleCreateRole = async (roleData) => {
+//#region CRUD Operations
+const handleSubmitRole = async (roleData) => {
   try {
     isLoading.value = true
-    await createRole(roleData)
-    showCreateDialog.value = false
+    
+    if (isEditMode.value && selectedRole.value) {
+      // Update existing role
+      await updateRole(selectedRole.value.id, roleData)
+    } else {
+      // Create new role
+      await createRole(roleData)
+    }
+    
+    closeCreateDialog()
     await loadRoles()
   } catch (error) {
-
+    console.error('Error submitting role:', error)
   } finally {
     isLoading.value = false
   }
 }
 
 const confirmDelete = async () => {
-
+  if (!roleToDelete.value) return
+  
   try {
-    debugger
     isDeleting.value = true
     await deleteRole(roleToDelete.value.id)
     await loadRoles()
+    closeDeleteDialog()
   } catch (error) {
     console.error('Error deleting role:', error)
   } finally {
     isDeleting.value = false
-    roleToDelete.value = null
-    showDeleteDialog.value = false
   }
 }
+//#endregion
 
+//#region Lifecycle
 // Load initial data
 onMounted(async () => {
   await Promise.all([loadRoles(), loadPermissions()])
 })
+//#endregion
 </script>
