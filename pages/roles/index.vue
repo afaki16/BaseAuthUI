@@ -140,7 +140,6 @@ const tableColumns = [
 
 const { getRoles,createRole,deleteRole } = useRoles()
 const { getPermissions } = usePermissions()
-const toast = useToast()
 
 //#endregion
 
@@ -170,7 +169,7 @@ const loadRoles = async () => {
       roles.value = []
     }
   } catch (error) {
-    toast.error('Roller yüklenirken hata oluştu')
+
   } finally {
     isLoading.value = false
   }
@@ -202,11 +201,10 @@ const handleCreateRole = async (roleData) => {
   try {
     isLoading.value = true
     await createRole(roleData)
-    toast.success('Rol başarıyla oluşturuldu!')
     showCreateDialog.value = false
     await loadRoles()
   } catch (error) {
-    toast.error('Rol oluşturulurken hata oluştu')
+
   } finally {
     isLoading.value = false
   }
@@ -219,10 +217,8 @@ const confirmDelete = async () => {
     isDeleting.value = true
     await deleteRole(roleToDelete.value.id)
     await loadRoles()
-    toast.success('Rol başarıyla silindi')
   } catch (error) {
     console.error('Error deleting role:', error)
-    toast.error('Rol silinirken hata oluştu')
   } finally {
     isDeleting.value = false
     roleToDelete.value = null
