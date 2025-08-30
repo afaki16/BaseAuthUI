@@ -2,7 +2,7 @@
    GLOBAL FORM STYLES - Admin Panel
    ======================================== */
 
-   /* Modal From */
+/* Modal From */
 
 
 /* Container */
@@ -466,49 +466,3 @@
   }
 }
 
-/* Dark Mode Support (Optional) */
-@media (prefers-color-scheme: dark) {
-  .form-container {
-    background: #1e293b;
-    border-color: #ef4444;
-  }
-  
-  .form-card {
-    background: #334155 !important;
-    border-color: #475569 !important;
-  }
-  
-  .form-card-title {
-    background: linear-gradient(135deg, #334155 0%, #475569 100%);
-    color: #f1f5f9;
-    border-color: #475569;
-  }
-  
-  .modern-input:deep(.v-field) {
-    background: #334155;
-    color: #f1f5f9;
-  }
-  
-  .selection-item {
-    background: #334155;
-    border-color: #475569;
-  }
-  
-  .selection-item--selected {
-    background: #1e3a8a;
-    border-color: #3b82f6;
-  }
-  
-  .tree-container {
-    background: #334155;
-    border-color: #475569;
-  }
-  
-  .tree-group-header:hover {
-    background: #475569;
-  }
-  
-  .tree-items-container {
-    background: #2d3748;
-  }
-}

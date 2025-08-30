@@ -34,7 +34,7 @@
       @search="handleSearch"
     >
        <!-- For RoleName -->
-    <template #cell-name="{ item, value }">
+    <template #cell-name="{ value }">
   <v-chip
     color="primary"
     variant="tonal"
@@ -46,7 +46,7 @@
 </template>
 
     <!-- For isSystemRole -->
-  <template #cell-isSystemRole="{ item, value }">
+  <template #cell-isSystemRole="{ value }">
   <v-chip
     :color="value == true ? 'warning' : 'success '"
     size="small"

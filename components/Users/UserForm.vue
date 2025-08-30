@@ -9,7 +9,7 @@
     <v-form ref="form" v-model="isValid" @submit.prevent="handleSubmit">
       <div class="form-content">
         <!-- Kişisel Bilgiler Card -->
-        <v-card class="info-card" elevation="0">
+        <v-card class="form-card" elevation="0">
           <v-card-title class="card-title">
             <v-icon class="title-icon">mdi-account</v-icon>
             Kişisel Bilgiler
@@ -445,13 +445,7 @@ defineExpose({
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
 }
 
-/* Form Content */
-.form-content {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  margin-bottom: 32px;
-}
+
 
 /* Cards */
 .info-card, 
