@@ -17,25 +17,8 @@
             </div>
           </div>
         </div>
-
-        <!-- Actions Section -->
-        <div class="header-right">
-          <!-- Advanced Filters Toggle -->
-          <button
-            v-if="showAdvancedFilters"
-            @click="toggleAdvancedFilters"
-            class="filter-toggle-btn"
-            :class="{ 'active': showFilters }"
-          >
-            <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 2v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-            </svg>
-            Filtreler
-            <span v-if="activeFiltersCount" class="filter-count">{{ activeFiltersCount }}</span>
-          </button>
-
-          <!-- Search -->
-          <div class="search-container">
+<!-- Search -->
+          <div class="header-right-search">
             <div class="search-input-wrapper">
               <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -58,6 +41,23 @@
               </button>
             </div>
           </div>
+        <!-- Actions Section -->
+        <div class="header-right">
+          <!-- Advanced Filters Toggle -->
+          <button
+            v-if="showAdvancedFilters"
+            @click="toggleAdvancedFilters"
+            class="filter-toggle-btn"
+            :class="{ 'active': showFilters }"
+          >
+            <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 2v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            Filtreler
+            <span v-if="activeFiltersCount" class="filter-count">{{ activeFiltersCount }}</span>
+          </button>
+
+         
 
           <!-- Export Button -->
           <button
@@ -149,7 +149,7 @@
         </div>
       </div>
     </div>
-
+ 
     <!-- Table Container -->
     <div class="table-container">
       <!-- Loading State -->
@@ -702,6 +702,9 @@ watch(() => props.itemsPerPage, (newValue) => {
   @apply flex flex-wrap items-center gap-3;
 }
 
+.header-right-search {
+ @apply flex flex-wrap items-center gap-9 pl-4 ;
+}
 /* Buttons */
 .filter-toggle-btn,
 .export-btn,
@@ -747,7 +750,8 @@ watch(() => props.itemsPerPage, (newValue) => {
 }
 
 .search-input {
-  @apply w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors placeholder-gray-400;
+  @apply w-full pl-10 pr-10 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors placeholder-gray-400;
+  border: 2px solid #9ca3af !important;
 }
 
 .clear-search-btn {
