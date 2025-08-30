@@ -22,10 +22,10 @@
         </div>
       </div>
 
-
       <!-- Actions -->
-      <div class="confirm-actions">
+      <div class="confirm-actions" :class="`confirm-actions--${type}`">
         <v-btn
+          v-if="type === 'error' || type === 'info'"
           variant="outlined"
           size="large"
           :disabled="loading"
@@ -43,7 +43,7 @@
           class="confirm-btn"
           :class="`confirm-btn--${type}`"
         >
-          {{ confirmText }}
+          {{ type === 'warning' || type === 'success' ? 'Tamam' : confirmText }}
         </v-btn>
       </div>
     </v-card>
@@ -88,15 +88,6 @@ const icon = computed(() => {
     case 'error': return 'mdi-alert-circle'
     case 'success': return 'mdi-check-circle'
     default: return 'mdi-help-circle'
-  }
-})
-
-const iconColor = computed(() => {
-  switch (props.type) {
-    case 'warning': return 'warning'
-    case 'error': return 'error'
-    case 'success': return 'success'
-    default: return 'info'
   }
 })
 
@@ -259,38 +250,21 @@ const confirmColor = computed(() => {
   line-height: 1.5;
 }
 
-/* Warning Section */
-.warning-section {
-  padding: 0 32px 8px 32px;
-}
-
-.warning-content {
-  background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
-  border: 1px solid #f59e0b;
-  border-radius: 12px;
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.warning-icon {
-  color: #d97706;
-  flex-shrink: 0;
-}
-
-.warning-text {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #92400e;
-}
-
 /* Actions */
 .confirm-actions {
   padding: 24px 32px 32px 32px;
   display: flex;
-  justify-content: flex-end;
   gap: 16px;
+}
+
+.confirm-actions--error,
+.confirm-actions--info {
+  justify-content: space-between;
+}
+
+.confirm-actions--warning,
+.confirm-actions--success {
+  justify-content: flex-end;
 }
 
 .cancel-btn {
@@ -366,14 +340,20 @@ const confirmColor = computed(() => {
     font-size: 0.9rem;
   }
   
-  .warning-section {
-    padding: 0 24px 8px 24px;
-  }
-  
   .confirm-actions {
     padding: 20px 24px 24px 24px;
     flex-direction: column-reverse;
     gap: 12px;
+  }
+  
+  .confirm-actions--error,
+  .confirm-actions--info {
+    justify-content: stretch;
+  }
+  
+  .confirm-actions--warning,
+  .confirm-actions--success {
+    justify-content: stretch;
   }
   
   .cancel-btn,
@@ -386,10 +366,6 @@ const confirmColor = computed(() => {
 @media (max-width: 480px) {
   .confirm-header {
     padding: 20px 20px 16px 20px;
-  }
-  
-  .warning-section {
-    padding: 0 20px 8px 20px;
   }
   
   .confirm-actions {
