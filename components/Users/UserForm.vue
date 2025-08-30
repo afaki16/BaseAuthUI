@@ -1,5 +1,5 @@
 <template>
-  <div class="user-form-container">
+  <div class="form-container">
     <PageHeader
       :title="user ? 'Kullanıcı Düzenle' : 'Yeni Kullanıcı Oluştur'"
       subtitle="Sistem kullanıcılarını ve rollerini yönetin"
@@ -10,12 +10,12 @@
       <div class="form-content">
         <!-- Kişisel Bilgiler Card -->
         <v-card class="form-card" elevation="0">
-          <v-card-title class="card-title">
-            <v-icon class="title-icon">mdi-account</v-icon>
+          <v-card-title class="form-card-title">
+            <v-icon class="form-card-title-icon">mdi-account</v-icon>
             Kişisel Bilgiler
           </v-card-title>
           
-          <v-card-text class="card-content">
+          <v-card-text class="form-card-content">
             <div class="input-group">
               <div class="input-row">
                 <v-text-field
@@ -77,13 +77,13 @@
         </v-card>
 
         <!-- Şifre Bilgileri Card (Sadece yeni kullanıcı oluştururken) -->
-        <v-card v-if="!user" class="password-card" elevation="0">
-          <v-card-title class="card-title">
-            <v-icon class="title-icon">mdi-lock</v-icon>
+        <v-card v-if="!user" class="form-card" elevation="0">
+          <v-card-title class="form-card-title">
+            <v-icon class="form-card-title-icon">mdi-lock</v-icon>
             Şifre Bilgileri
           </v-card-title>
           
-          <v-card-text class="card-content">
+          <v-card-text class="form-card-content">
             <div class="input-group">
               <v-text-field
                 v-model="formData.password"
@@ -121,13 +121,13 @@
         </v-card>
 
         <!-- Kullanıcı Durumu Card (Sadece edit modunda) -->
-        <v-card v-if="user" class="status-card" elevation="0">
-          <v-card-title class="card-title">
-            <v-icon class="title-icon">mdi-account-check</v-icon>
+        <v-card v-if="user" class="form-card" elevation="0">
+          <v-card-title class="form-card-title">
+            <v-icon class="form-card-title-icon">mdi-account-check</v-icon>
             Kullanıcı Durumu
           </v-card-title>
           
-          <v-card-text class="card-content">
+          <v-card-text class="form-card-content">
             <v-switch
               v-model="formData.status"
               :true-value="1"
@@ -161,9 +161,9 @@
         </v-card>
 
         <!-- Roller Card -->
-        <v-card class="roles-card" elevation="0">
-          <v-card-title class="card-title">
-            <v-icon class="title-icon">mdi-shield-account</v-icon>
+        <v-card class="form-card" elevation="0">
+          <v-card-title class="form-card-title">
+            <v-icon class="form-card-title-icon">mdi-shield-account</v-icon>
             Roller
             <v-chip 
               v-if="formData.roleIds.length" 
@@ -436,76 +436,6 @@ defineExpose({
 </script>
 
 <style scoped>
-/* Container */
-.user-form-container {
-  padding-top: 8px;
-  border-radius: 20px;
-  margin: 16px;
-  background: white;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
-}
-
-
-
-/* Cards */
-.info-card, 
-.password-card, 
-.status-card, 
-.roles-card {
-  border-radius: 16px !important;
-  border: 1px solid #e2e8f0 !important;
-  overflow: hidden;
-}
-
-.info-card :deep(.v-card),
-.password-card :deep(.v-card),
-.status-card :deep(.v-card),
-.roles-card :deep(.v-card) {
-  border-radius: 16px !important;
-}
-
-.card-title {
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  padding: 20px 24px !important;
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 600;
-  color: #1e293b;
-  border-radius: 16px !important;
-}
-
-.title-icon {
-  color: #3b82f6;
-}
-
-.card-content {
-  padding: 24px !important;
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.input-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-/* Modern Input Styling */
-:deep(.modern-input .v-field) {
-  border-radius: 12px;
-  background: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-:deep(.modern-input .v-field--focused) {
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
 
 /* Status Card */
 .status-switch {
@@ -658,17 +588,7 @@ defineExpose({
 }
 
 /* Actions */
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 16px 24px;
-  margin: 0;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-top: 1px solid #e2e8f0;
-  bottom: 0;
-  z-index: 10;
-}
+
 
 .cancel-btn, .submit-btn {
   min-width: 120px;
@@ -680,22 +600,9 @@ defineExpose({
 
 /* Responsive */
 @media (max-width: 768px) {
-  .user-form-container {
-    padding: 4px 12px 0 12px;
-  }
+ 
   
-  .form-content {
-    gap: 16px;
-  }
-  
-  .card-title {
-    padding: 16px 20px !important;
-  }
-  
-  .card-content {
-    padding: 20px !important;
-  }
-  
+ 
   .input-row {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -705,10 +612,7 @@ defineExpose({
     grid-template-columns: 1fr;
   }
   
-  .form-actions {
-    flex-direction: column-reverse;
-    padding: 16px 20px;
-  }
+ 
   
   .cancel-btn, .submit-btn {
     width: 100%;
@@ -717,9 +621,7 @@ defineExpose({
 }
 
 @media (max-width: 640px) {
-  .user-form-container {
-    padding: 4px 8px 0 8px;
-  }
+ 
   
   .role-item {
     padding: 12px;

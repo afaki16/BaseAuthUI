@@ -2,13 +2,10 @@
    GLOBAL FORM STYLES - Admin Panel
    ======================================== */
 
-/* Modal From */
-
 
 /* Container */
 .form-container {
   padding-top: 8px;
-  border: 2px solid #ef4444;
   border-radius: 20px;
   margin: 16px;
   background: white;
@@ -49,7 +46,10 @@
   gap: 12px;
   font-weight: 600;
   color: #1e293b;
+  border-radius: 16px !important;
+
 }
+
 
 .form-card-title-icon {
   color: #3b82f6;

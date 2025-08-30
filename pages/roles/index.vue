@@ -59,7 +59,7 @@
      </BaseDataTable>
 
     <!-- Create/Edit Role Dialog -->
-    <v-dialog v-model="showCreateDialog" max-width="700">
+    <v-dialog v-model="showCreateDialog" max-width="800" scrollable>
       <v-card>
         <v-card-text>
           <RoleForm

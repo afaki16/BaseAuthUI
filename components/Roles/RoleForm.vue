@@ -1,5 +1,5 @@
 <template>
-  <div >
+  <div class="form-container">
     <PageHeader
       :title="role ? 'Rol Düzenle' : 'Yeni Rol Oluştur'"
       subtitle="Sistem rollerini ve izinlerini yönetin"
@@ -9,13 +9,13 @@
     <v-form ref="form" v-model="isValid" @submit.prevent="handleSubmit">
       <div class="form-content">
         <!-- Rol Bilgileri Card -->
-        <v-card class="info-card" elevation="0">
-          <v-card-title class="card-title">
-            <v-icon class="title-icon">mdi-information</v-icon>
+        <v-card class="form-card" elevation="0">
+          <v-card-title class="form-card-title">
+            <v-icon class="form-card-title-icon">mdi-information</v-icon>
             Rol Bilgileri
           </v-card-title>
           
-          <v-card-text class="card-content">
+          <v-card-text class="form-card-content">
             <div class="input-group">
               <v-text-field
                 v-model="formData.name"
@@ -50,8 +50,8 @@
 
         <!-- İzinler Card -->
         <v-card class="permissions-card" elevation="0">
-          <v-card-title class="card-title">
-            <v-icon class="title-icon">mdi-key-variant</v-icon>
+          <v-card-title class="form-card-title">
+            <v-icon class="form-card-title-icon">mdi-key-variant</v-icon>
             İzinler
             <v-chip 
               v-if="formData.permissionIds.length" 
@@ -201,7 +201,8 @@
 <script setup lang="ts">
 import type { Role, Permission, CreateRoleRequest, UpdateRoleRequest } from '~/types'
 import PageHeader from '~/components/UI/PageHeader.vue'
-import { onMounted, watch, watchEffect } from 'vue';
+import { onMounted, watch, watchEffect, computed, reactive, ref } from 'vue';
+import { useValidators } from '~/composables/useValidators';
 
 // Props
 const props = defineProps<{
@@ -261,13 +262,13 @@ const filteredPermissions = computed(() => {
 })
 
 // Methods
-const isResourceFullySelected = (resource: string) => {
+const isResourceFullySelected = (resource: string): boolean => {
   const resourcePermissions = groupedPermissions.value[resource] || []
   return resourcePermissions.length > 0 && 
     resourcePermissions.every(p => formData.permissionIds.includes(String(p.id)))
 }
 
-const isResourcePartiallySelected = (resource: string) => {
+const isResourcePartiallySelected = (resource: string): boolean => {
   const resourcePermissions = groupedPermissions.value[resource] || []
   const selectedCount = resourcePermissions.filter(p => 
     formData.permissionIds.includes(String(p.id))
@@ -312,15 +313,21 @@ const clearAllPermissions = () => {
 
 const handleSubmit = async () => {
   const validation = await form.value.validate()
-  if (!validation.valid) return
+  if (!validation?.valid) return
   
   const submitData = {
-    ...formData,
-    // Submit sırasında number'a çevir
-    permissionIds: formData.permissionIds.map(id => Number(id))
+    name: formData.name,
+    description: formData.description,
+    permissionIds: formData.permissionIds
   }
   
-  emit('submit', submitData)
+  if (props.role) {
+    // Update role
+    emit('submit', { ...submitData, id: props.role.id } as UpdateRoleRequest)
+  } else {
+    // Create role
+    emit('submit', submitData as CreateRoleRequest)
+  }
 }
 
 const submit = () => {
@@ -365,55 +372,17 @@ defineExpose({
 </script>
 
 <style scoped>
-/* Form Content */
-.form-content {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  margin-bottom: 32px;
-}
 
 /* Cards */
-.info-card, .permissions-card {
+.form-card, .permissions-card {
   border-radius: 16px !important;
   border: 1px solid #e2e8f0 !important;
   overflow: hidden;
 }
 
-.card-title {
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  padding: 20px 24px !important;
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.title-icon {
-  color: #3b82f6;
-}
-
-.card-content {
-  padding: 24px !important;
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* Modern Input Styling */
-:deep(.modern-input .v-field) {
-  border-radius: 12px;
-  background: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-:deep(.modern-input .v-field--focused) {
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+.form-card :deep(.v-card),
+.permissions-card :deep(.v-card) {
+  border-radius: 16px !important;
 }
 
 /* Permissions */
@@ -542,21 +511,9 @@ defineExpose({
 }
 
 /* Actions */
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 16px 24px;
-  margin: 0;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-top: 1px solid #e2e8f0;
-  bottom: 0;
-  z-index: 10;
-  flex-direction: column-reverse;
-}
 
 .cancel-btn, .submit-btn {
-  @apply inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200;
+  min-width: 120px;
 }
 
 .submit-btn {
@@ -565,22 +522,31 @@ defineExpose({
 
 /* Responsive */
 @media (max-width: 768px) {
-  .role-form-container {
-    padding: 16px;
-  }
+ 
   
-  .header-content {
-    flex-direction: column;
-    text-align: center;
-    gap: 12px;
-  }
+  
+ 
+  
+  
   
   .permissions-grid {
     grid-template-columns: 1fr;
   }
   
+  
+  
   .cancel-btn, .submit-btn {
     width: 100%;
+    min-width: auto;
+  }
+}
+
+@media (max-width: 640px) {
+ 
+  
+  
+  .permission-simple-item {
+    padding: 1px 0;
   }
 }
 </style>
