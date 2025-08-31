@@ -8,7 +8,7 @@
     </div>
 
   <BaseDataTable
-      :items="users"
+      :items="items"
       :columns="tableColumns"
       title="Kullanıcılar"
       toolbar-icon="mdi-account"
@@ -26,9 +26,9 @@
       :show-pagination="true"
       :items-per-page="10"
       @add="openCreateDialog"
-      @view="viewPermission"
-      @edit="editPermission"
-      @delete="deletePermission"
+      @view="openViewDialog"
+      @edit="openEditDialog"
+      @delete="openDeleteDialog"
       @search="handleSearch"
     >
     <!-- For FullName -->
@@ -47,7 +47,7 @@
 </template>
 
 <!-- For Status -->
-  <template #cell-status="{ item, value }">
+  <template #cell-status="{ value }">
   <v-chip
     :color="value == 1 ? 'success' : 'error'"
     size="small"
@@ -58,18 +58,32 @@
 </template>
   </BaseDataTable>
 
-<!-- Create User Dialog -->
-<v-dialog v-model="showCreateDialog" max-width="800" scrollable>
-  <v-card class="dialog-card">
+<!-- Create/Edit User Dialog -->
+<v-dialog v-model="dialogs.create" max-width="800" scrollable>
+  <v-card>
+    <v-card-text>
     <UserForm
+      :user="selectedItem"
       :roles="roles"
       :loading="isLoading"
-      @submit="handleCreateUser"
-      @cancel="showCreateDialog = false"
+      @submit="handleSubmit"
+      @cancel="closeCreateDialog"
     />
+    </v-card-text>
   </v-card>
 </v-dialog>
 
+<!-- Confirm Delete Dialog -->
+<ConfirmDialog
+  v-model="dialogs.delete"
+  title="Kullanıcıyı Sil"
+  :message="`'${itemToDelete?.fullName || itemToDelete?.email}' kullanıcısını silmek istediğinizden emin misiniz?`"
+  type="error"
+  confirm-text="Sil"
+  :loading="isDeleting"
+  @confirm="confirmDelete"
+  @cancel="closeDeleteDialog"
+/>
 
 </template>
 
@@ -78,8 +92,9 @@ import { ref, onMounted } from 'vue'
 import { dateTimeFormatLong } from '~/utils/datesFormat.ts'
 import BaseDataTable from '~/components/UI/BaseDataTable.vue'
 import UserForm from '~/components/Users/UserForm.vue'
+import ConfirmDialog from '~/components/UI/ConfirmDialog.vue'
 
-// Page metadata
+//#region Page Metadata
 definePageMeta({
   title: 'Kullanıcılar',
   requiresAuth: true,
@@ -89,8 +104,9 @@ definePageMeta({
 useHead({
   title: 'Kullanıcılar',
 })
+//#endregion
 
-// Table columns for BaseDataTable
+//#region DataTable Columns
 const tableColumns = [
   { 
     label: 'Ad Soyad', 
@@ -106,7 +122,7 @@ const tableColumns = [
     sortable: true,
     filterable: true,
     filterType: 'text',
-    width: '250px'
+    width: '300px'
   },
   { 
     label: 'Durum', 
@@ -114,106 +130,69 @@ const tableColumns = [
     sortable: true,
     filterable: true,
     filterType: 'select',
-    width: '120px'
+    width: '300px'
   },
   { 
     label: 'Son Giriş Tarihi', 
     key: 'lastLoginDate',
     sortable: true,
     filterable: false,
-    width: '180px',
+    width: '300px',
     formatter: dateTimeFormatLong
   },
 ]
+//#endregion
 
-// Composables
-const { getUsers } = useUsers()
+//#region Composables
+const { getUsers, createUser, updateUser, deleteUser } = useUsers()
 const { getRoles } = useRoles()
 
-// Reactive data
-const roles = ref([]) 
-const users = ref([])
-const isLoading = ref(false)
+// CRUD Operations with Dialog Manager
+const {
+  items,
+  isLoading,
+  isDeleting,
+  dialogs,
+  selectedItem,
+  itemToDelete,
+  isEditMode,
+  openCreateDialog,
+  openViewDialog,
+  openEditDialog,
+  openDeleteDialog,
+  closeCreateDialog,
+  closeDeleteDialog,
+  handleSubmit,
+  confirmDelete,
+  handleSearch,
+  loadItemsData
+} = useCrudOperations({
+  loadItems: getUsers,
+  createItem: createUser,
+  updateItem: updateUser,
+  deleteItem: deleteUser,
+  itemName: 'kullanıcı'
+})
 
-// Dialog states
-const showCreateDialog = ref(false)
-const showDeleteDialog = ref(false)
-const roleToDelete = ref(null)
+//#endregion
 
+//#region Additional Data
+const roles = ref([])
 
 const loadRoles = async () => {
   try {
     const response = await getRoles()
     roles.value = response || []
-    console.log('Alperen',roles.value);
   } catch (error) {
+    console.error('Error loading roles:', error)
     roles.value = []
   }
 }
+//#endregion
 
-// Methods
-const loadUsers = async () => {
-  try {
-    isLoading.value = true
-    const response = await getUsers()
-    // Handle different response formats
-    if (Array.isArray(response)) {
-      users.value = response
-    } else if (response && response.data) {
-      users.value = response.data.items || response.data
-    } else {
-      users.value = []
-    }
-  } catch (error) {
-    console.error('Error loading users:', error)
-    users.value = []
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const handleSearch = () => {
-  loadUsers()
-}
-const openCreateDialog = () => {
-  showCreateDialog.value = true
-}
-
-const viewPermission = (permission) => {
-  console.log('View permission:', permission)
-}
-
-const editPermission = (permission) => {
-  console.log('Edit permission:', permission)
-}
-
-const deletePermission = async (permission) => {
-  if (confirm(`${permission.name} iznini silmek istediğinizden emin misiniz?`)) {
-    try {
-      // await deletePermissionApi(permission.id)
-      console.log('Permission deleted:', permission.name)
-    } catch (error) {
-      console.error('Error deleting permission:', error)
-    }
-  }
-}
-
-const handleCreateUser = async (userData) => {
-  try {
-    isLoading.value = true
-    await createUser(userData)
-    showCreateDialog.value = false
-    await loadUsers()
-  } catch (error) {
-    console.error('Error creating user:', error)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-
-// Load initial data
+//#region Lifecycle
 onMounted(async () => {
-  await Promise.all([loadUsers(),loadRoles()])
+  await Promise.all([loadItemsData(), loadRoles()])
 })
+//#endregion
 </script>

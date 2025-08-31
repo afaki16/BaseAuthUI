@@ -9,7 +9,7 @@
 
      <!-- DataTable -->
      <BaseDataTable
-      :items="roles"
+      :items="items"
       :columns="tableColumns"
       title="Roller"
       toolbar-icon="mdi-shield-account"
@@ -58,14 +58,14 @@
      </BaseDataTable>
 
     <!-- Create/Edit Role Dialog -->
-    <v-dialog v-model="showCreateDialog" max-width="800" scrollable>
+    <v-dialog v-model="dialogs.create" max-width="800" scrollable>
       <v-card>
         <v-card-text>
           <RoleForm
-            :role="selectedRole"
+            :role="selectedItem"
             :permissions="permissions"
             :loading="isLoading"
-            @submit="handleSubmitRole"
+            @submit="handleSubmit"
             @cancel="closeCreateDialog"
           />
         </v-card-text>
@@ -74,9 +74,9 @@
 
     <!-- Confirm Delete Dialog -->
     <ConfirmDialog
-      v-model="showDeleteDialog"
+      v-model="dialogs.delete"
       title="Rolü Sil"
-      :message="`'${roleToDelete?.name}' rolünü silmek istediğinizden emin misiniz?`"
+      :message="`'${itemToDelete?.name}' rolünü silmek istediğinizden emin misiniz?`"
       type="error"
       confirm-text="Sil"
       :loading="isDeleting"
@@ -104,7 +104,7 @@ useHead({
 })
 //#endregion
 
-//#region DataTable Header
+//#region DataTable Columns
 const tableColumns = [
   { 
     label: 'Rol Adı', 
@@ -135,41 +135,38 @@ const tableColumns = [
 //#region Composables
 const { getRoles, createRole, updateRole, deleteRole } = useRoles()
 const { getPermissions } = usePermissions()
+
+// CRUD Operations with Dialog Manager
+const {
+  items,
+  isLoading,
+  isDeleting,
+  dialogs,
+  selectedItem,
+  itemToDelete,
+  isEditMode,
+  openCreateDialog,
+  openViewDialog,
+  openEditDialog,
+  openDeleteDialog,
+  closeCreateDialog,
+  closeDeleteDialog,
+  handleSubmit,
+  confirmDelete,
+  handleSearch,
+  loadItemsData
+} = useCrudOperations({
+  loadItems: getRoles,
+  createItem: createRole,
+  updateItem: updateRole,
+  deleteItem: deleteRole,
+  itemName: 'rol'
+})
+
 //#endregion
 
-//#region Reactive Data
-const roles = ref([])
+//#region Additional Data
 const permissions = ref([])
-const isLoading = ref(false)
-const isDeleting = ref(false)
-
-// Dialog states
-const showCreateDialog = ref(false)
-const showDeleteDialog = ref(false)
-const selectedRole = ref(null)
-const roleToDelete = ref(null)
-const isEditMode = ref(false)
-//#endregion
-
-//#region Methods
-const loadRoles = async () => {
-  try {
-    isLoading.value = true
-    const response = await getRoles()
-    // Handle different response formats
-    if (Array.isArray(response)) {
-      roles.value = response
-    } else if (response && response.data) {
-      roles.value = response.data.items || response.data
-    } else {
-      roles.value = []
-    }
-  } catch (error) {
-    console.error('Error loading roles:', error)
-  } finally {
-    isLoading.value = false
-  }
-}
 
 const loadPermissions = async () => {
   try {
@@ -180,90 +177,11 @@ const loadPermissions = async () => {
     permissions.value = []
   }
 }
-
-const handleSearch = () => {
-  loadRoles()
-}
-//#endregion
-
-//#region Dialog Operations
-const openCreateDialog = () => {
-  selectedRole.value = null
-  isEditMode.value = false
-  showCreateDialog.value = true
-}
-
-const openViewDialog = (item) => {
-  selectedRole.value = { ...item }
-  isEditMode.value = false
-  showCreateDialog.value = true
-}
-
-const openEditDialog = (item) => {
-  selectedRole.value = { ...item }
-  isEditMode.value = true
-  showCreateDialog.value = true
-}
-
-const closeCreateDialog = () => {
-  showCreateDialog.value = false
-  selectedRole.value = null
-  isEditMode.value = false
-}
-
-const openDeleteDialog = (item) => {
-  roleToDelete.value = item
-  showDeleteDialog.value = true
-}
-
-const closeDeleteDialog = () => {
-  showDeleteDialog.value = false
-  roleToDelete.value = null
-}
-//#endregion
-
-//#region CRUD Operations
-const handleSubmitRole = async (roleData) => {
-  try {
-    isLoading.value = true
-    
-    if (isEditMode.value && selectedRole.value) {
-      // Update existing role
-      await updateRole(selectedRole.value.id, roleData)
-    } else {
-      // Create new role
-      await createRole(roleData)
-    }
-    
-    closeCreateDialog()
-    await loadRoles()
-  } catch (error) {
-    console.error('Error submitting role:', error)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const confirmDelete = async () => {
-  if (!roleToDelete.value) return
-  
-  try {
-    isDeleting.value = true
-    await deleteRole(roleToDelete.value.id)
-    await loadRoles()
-    closeDeleteDialog()
-  } catch (error) {
-    console.error('Error deleting role:', error)
-  } finally {
-    isDeleting.value = false
-  }
-}
 //#endregion
 
 //#region Lifecycle
-// Load initial data
 onMounted(async () => {
-  await Promise.all([loadRoles(), loadPermissions()])
+  await Promise.all([loadItemsData(), loadPermissions()])
 })
 //#endregion
 </script>

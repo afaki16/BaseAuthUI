@@ -45,19 +45,19 @@
                 />
               </div>
               
-              <v-text-field
-                v-model="formData.email"
-                label="E-posta"
-                placeholder="ornek@email.com"
-                :rules="[rules.required, rules.email]"
-                variant="outlined"
-                :disabled="loading || (user && user.email)"
-                prepend-inner-icon="mdi-email"
-                color="primary"
-                class="modern-input"
-                hide-details="auto"
-                type="email"
-              />
+                             <v-text-field
+                 v-model="formData.email"
+                 label="E-posta"
+                 placeholder="ornek@email.com"
+                 :rules="[rules.required, rules.email]"
+                 variant="outlined"
+                 :disabled="loading || !!user"
+                 prepend-inner-icon="mdi-email"
+                 color="primary"
+                 class="modern-input"
+                 hide-details="auto"
+                 type="email"
+               />
               
               <v-text-field
                 v-model="formData.phoneNumber"
@@ -312,7 +312,7 @@
 import type { User, Role, CreateUserRequest, UpdateUserRequest } from '~/types'
 import PageHeader from '~/components/UI/PageHeader.vue'
 import { useValidators } from '~/composables/useValidators';
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watch, watchEffect } from 'vue';
 
 // Props
 const props = defineProps<{
@@ -338,7 +338,7 @@ const searchQuery = ref('')
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 
-const formData = reactive<CreateUserRequest>({
+const formData = reactive({
   firstName: '',
   lastName: '',
   email: '',
@@ -346,7 +346,7 @@ const formData = reactive<CreateUserRequest>({
   password: '',
   confirmPassword: '',
   status: 1, // Varsayılan olarak aktif
-  roleIds: []
+  roleIds: [] as string[]
 })
 
 // Computed
@@ -373,7 +373,7 @@ const handleSubmit = async () => {
   if (!validation.valid) return
   
   // API için sadece gerekli alanları gönder
-  const submitData = {
+  const submitData: any = {
     firstName: formData.firstName,
     lastName: formData.lastName,
     email: formData.email,
