@@ -10,7 +10,7 @@
       icon: 'mdi-view-dashboard',
       to: '/dashboard',
      permission: 'Permissions.Read'
-        },
+        }
         
       ]
     },

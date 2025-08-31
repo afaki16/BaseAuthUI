@@ -2,9 +2,8 @@
   <div class="min-h-screen bg-gray-100">
     <!-- Sidebar -->
     <aside class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out" :class="{ '-translate-x-full': !isSidebarOpen }">
-      <div class="flex items-center justify-center h-16 border-b">
-        <img src="/images/tooth-icon.svg" class="w-8 h-8 text-indigo-600" alt="Logo" />
-        <span class="ml-2 text-xl font-semibold text-gray-800">BaseAuth</span>
+      <div class="flex items-center justify-center h-7 border-b">
+        
       </div>
       
       <nav class="mt-5 px-2 space-y-6">
@@ -44,12 +43,20 @@
     <!-- Main content -->
     <div class="flex flex-col min-h-screen transition-all duration-300" :class="{ 'pl-64': isSidebarOpen, 'pl-0': !isSidebarOpen }">
       <!-- Top navbar -->
-      <header class="fixed top-0 right-0 left-0 shadow-sm z-10 gradient-navbar" :class="{ 'left-64': isSidebarOpen, 'left-0': !isSidebarOpen }">
+      <header 
+        class="fixed top-0 right-0 left-0 shadow-sm z-10" 
+        :class="{ 'left-64': isSidebarOpen, 'left-0': !isSidebarOpen }"
+        :style="{ background: appData?.theme?.gradients?.navbar || 'linear-gradient(135deg, #ffffff 0%, #2563eb 100%)' }"
+      >
         <div class="flex items-center justify-between h-16 px-4">
           <div class="flex items-center">
             <div class="flex items-center">
-              <img src="/images/tooth-icon.svg" class="w-8 h-8 text-indigo-600" alt="Logo" />
-              <span class="ml-2 text-xl font-semibold text-gray-800">BaseAuth</span>
+              <img 
+                :src="appData?.app?.logo?.src" 
+                :class="`w-${appData?.app?.logo?.width || '8'} h-${appData?.app?.logo?.height || '8'} text-indigo-600`" 
+                :alt="appData?.app?.logo?.alt || 'Logo'" 
+              />
+              <span class="ml-2 text-xl font-semibold text-gray-800">{{ appData?.app?.brand?.text || 'BaseAuth' }}</span>
             </div>
             <v-btn icon @click="toggleSidebar" class="ml-4">
               <v-icon>mdi-menu</v-icon>
@@ -111,12 +118,16 @@
 <script setup>
 import { navigationItems, filterNavigationByPermissions } from '~/composables/useNavigation'
 import { useAuth } from '~/composables/useAuth'
+import { useAppData } from '~/composables/useAppData'
 
 const isSidebarOpen = ref(true)
 const showUserMenu = ref(false)
 const auth = useAuthStore()
 const authUtils = useAuth() // <-- asıl yetki fonksiyonları burada
 const router = useRouter()
+
+// App data
+const { loadAppData, appData } = useAppData()
 
 // Kullanıcı bilgileri
 const userInfo = ref({
@@ -158,7 +169,10 @@ const handleSettingsClick = () => {
 }
 
 // Dışarı tıklandığında menüyü kapat
-onMounted(() => {
+onMounted(async () => {
+  // Load app data
+  await loadAppData()
+  
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.relative')) {
       showUserMenu.value = false
@@ -168,12 +182,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Gradient Navbar */
-.gradient-navbar {
-  background: linear-gradient(135deg, #ffffff 0%, #2563eb 100%);
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
+/* Navbar styles */
 
 /* Navbar içindeki text renklerini ayarla */
 .gradient-navbar .text-gray-800 {

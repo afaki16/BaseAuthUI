@@ -1,5 +1,5 @@
 <template>
-  <div class="login-container">
+  <div class="login-container" :style="{ background: themeGradients?.login || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }">
     <!-- 3D Background with rotating images -->
     <div class="background-container">
       <div 
@@ -8,19 +8,31 @@
         :class="['background-image', { active: currentImageIndex === index }]"
         :style="{ backgroundImage: `url(${image})` }"
       />
-      <div class="background-overlay"></div>
+      <div 
+        class="background-overlay"
+        :style="{ background: loginConfig?.overlay?.color || 'rgba(0, 0, 0, 0.4)' }"
+      ></div>
     </div>
 
     <!-- 3D Login Card -->
     <div class="login-card-container">
-      <div class="login-card">
+      <div 
+        class="login-card"
+        :style="{
+          background: loginConfig?.card?.background || 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: loginConfig?.card?.backdropFilter || 'blur(20px)',
+          borderRadius: loginConfig?.card?.borderRadius || '20px',
+          border: loginConfig?.card?.border || '1px solid rgba(255, 255, 255, 0.2)',
+          boxShadow: loginConfig?.card?.shadow || '0 25px 45px rgba(0, 0, 0, 0.2)'
+        }"
+      >
         <div class="card-content">
           <div class="logo-section">
             <div class="logo-icon">
               <v-icon size="64" color="white">mdi-shield-account</v-icon>
             </div>
-            <h1 class="welcome-text">Welcome Back</h1>
-            <p class="subtitle-text">Sign in to your account</p>
+            <h1 class="welcome-text">{{ loginConfig?.texts?.welcome || 'Welcome Back' }}</h1>
+            <p class="subtitle-text">{{ loginConfig?.texts?.subtitle || 'Sign in to your account' }}</p>
           </div>
 
           <!-- Expired session alert -->
@@ -35,10 +47,10 @@
           </v-alert>
 
           <v-form ref="loginForm" v-model="isFormValid" @submit.prevent="handleLogin">
-            <div class="input-group">
+                        <div class="input-group">
               <v-text-field
                 v-model="form.email"
-                label="Email Address"
+                :label="loginConfig?.texts?.emailLabel || 'Email Address'"
                 type="email"
                 prepend-inner-icon="mdi-email"
                 :rules="[validationRules.required, validationRules.email]"
@@ -55,7 +67,7 @@
               <v-text-field
                 v-model="form.password"
                 :type="showPassword ? 'text' : 'password'"
-                label="Password"
+                :label="loginConfig?.texts?.passwordLabel || 'Password'"
                 prepend-inner-icon="mdi-lock"
                 :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 :rules="[validationRules.required]"
@@ -71,7 +83,7 @@
             <div class="options-row">
               <v-checkbox
                 v-model="form.rememberMe"
-                label="Remember me"
+                :label="loginConfig?.texts?.rememberMe || 'Remember me'"
                 density="compact"
                 hide-details
                 color="white"
@@ -83,7 +95,7 @@
                 size="small"
                 @click="$router.push('/auth/forgot-password')"
               >
-                Forgot password?
+                {{ loginConfig?.texts?.forgotPassword || 'Forgot password?' }}
               </v-btn>
             </div>
 
@@ -97,19 +109,19 @@
               class="login-btn mb-4"
               elevation="8"
             >
-              <span class="btn-text">Sign In</span>
+              <span class="btn-text">{{ loginConfig?.texts?.signIn || 'Sign In' }}</span>
             </v-btn>
           </v-form>
 
           <div class="divider-section">
             <div class="divider-line"></div>
-            <span class="divider-text">or</span>
+            <span class="divider-text">{{ loginConfig?.texts?.divider || 'or' }}</span>
             <div class="divider-line"></div>
           </div>
 
           <div class="register-section">
             <p class="register-text">
-              Don't have an account?
+              {{ loginConfig?.texts?.noAccount || 'Don\'t have an account?' }}
             </p>
             <v-btn
               variant="outlined"
@@ -117,7 +129,7 @@
               @click="$router.push('/auth/register')"
               class="register-btn"
             >
-              Create Account
+              {{ loginConfig?.texts?.createAccount || 'Create Account' }}
             </v-btn>
           </div>
         </div>
@@ -152,14 +164,13 @@ const isFormValid = ref(false)
 const showPassword = ref(false)
 const currentImageIndex = ref(0)
 
-// Background images (using high-quality placeholder images)
-const backgroundImages = [
-  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-  'https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2074&q=80',
-  'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=2126&q=80',
-  'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2125&q=80',
-  'https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'
-]
+// App data
+const { loadAppData, getBackgroundImages, getLoginConfig, getThemeGradients } = useAppData()
+
+// Background images from data.json
+const backgroundImages = computed(() => getBackgroundImages.value || [])
+const loginConfig = computed(() => getLoginConfig.value)
+const themeGradients = computed(() => getThemeGradients.value)
 
 const form = reactive<LoginRequest>({
   email: '',
@@ -202,7 +213,9 @@ const getParticleStyle = (index: number) => {
 let imageInterval: NodeJS.Timeout
 
 // Lifecycle
-onMounted(() => {
+onMounted(async () => {
+  // Load app data
+  await loadAppData()
   // Pre-fill email from registration if available
   const registeredEmail = route.query.email as string
   if (registeredEmail) {
@@ -238,8 +251,8 @@ onMounted(() => {
 
   // Start background image rotation
   imageInterval = setInterval(() => {
-    currentImageIndex.value = (currentImageIndex.value + 1) % backgroundImages.length
-  }, 3000)
+    currentImageIndex.value = (currentImageIndex.value + 1) % backgroundImages.value.length
+  }, loginConfig.value?.rotationInterval || 3000)
 })
 
 onUnmounted(() => {
@@ -265,7 +278,6 @@ useHead({
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .background-container {
@@ -311,13 +323,8 @@ useHead({
 }
 
 .login-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
   padding: 40px;
   width: 400px;
-  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .card-content {
@@ -381,7 +388,6 @@ useHead({
 }
 
 .login-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   border-radius: 12px !important;
   height: 50px !important;
   font-weight: 600 !important;
