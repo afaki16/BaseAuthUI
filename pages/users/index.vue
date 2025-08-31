@@ -17,7 +17,6 @@
       :loading="isLoading"
       loading-text="Kullanıcılar yükleniyor..."
       empty-title="Kullanıcı bulunamadı"
-      empty-description="Henüz hiç kullanıcı tanımlanmamış."
       :show-add-button="true"
       :show-advanced-filters="true"
       :show-actions="true"
@@ -218,9 +217,3 @@ onMounted(async () => {
   await Promise.all([loadUsers(),loadRoles()])
 })
 </script>
-
-<style scoped>
-.v-data-table {
-  border-radius: 8px;
-}
-</style> 

@@ -2,7 +2,9 @@
    GLOBAL FORM STYLES - Admin Panel
    ======================================== */
 
-
+/* ========================================
+   CONTAINER & LAYOUT
+   ======================================== */
 /* Container */
 .form-container {
   padding-top: 8px;
@@ -26,6 +28,9 @@
   margin-bottom: 32px;
 }
 
+/* ========================================
+   CARDS & COMPONENTS
+   ======================================== */
 /* Cards - Base Styling */
 .form-card {
   border-radius: 16px !important;
@@ -47,9 +52,7 @@
   font-weight: 600;
   color: #1e293b;
   border-radius: 16px !important;
-
 }
-
 
 .form-card-title-icon {
   color: #3b82f6;
@@ -59,6 +62,9 @@
   padding: 24px !important;
 }
 
+/* ========================================
+   INPUT FIELDS & GROUPS
+   ======================================== */
 /* Input Groups */
 .input-group {
   display: flex;
@@ -95,6 +101,9 @@
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
+/* ========================================
+   SEARCH & QUICK ACTIONS
+   ======================================== */
 /* Search Components */
 .search-container {
   margin-bottom: 20px;
@@ -120,6 +129,9 @@
   justify-content: flex-end;
 }
 
+/* ========================================
+   GRID LAYOUTS
+   ======================================== */
 /* Grid Layouts */
 .selection-grid {
   display: grid;
@@ -135,6 +147,9 @@
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
 }
 
+/* ========================================
+   SELECTION ITEMS
+   ======================================== */
 /* Selection Items */
 .selection-item {
   border: 2px solid #e2e8f0;
@@ -199,6 +214,9 @@
   gap: 6px;
 }
 
+/* ========================================
+   STATUS COMPONENTS
+   ======================================== */
 /* Status Components */
 .status-switch {
   margin-bottom: 12px;
@@ -226,6 +244,9 @@
   line-height: 1.5;
 }
 
+/* ========================================
+   TREE COMPONENTS
+   ======================================== */
 /* Tree Components */
 .tree-container {
   border: 1px solid #e2e8f0;
@@ -295,6 +316,9 @@
   color: #374151 !important;
 }
 
+/* ========================================
+   EMPTY STATES
+   ======================================== */
 /* Empty States */
 .empty-state {
   text-align: center;
@@ -317,6 +341,9 @@
   margin: 0;
 }
 
+/* ========================================
+   FORM ACTIONS & BUTTONS
+   ======================================== */
 /* Form Actions */
 .form-actions {
   display: flex;
@@ -359,6 +386,9 @@
   background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
 }
 
+/* ========================================
+   CHIPS & TAGS
+   ======================================== */
 /* Chips and Tags */
 .form-chip {
   font-size: 0.75rem !important;
@@ -368,6 +398,9 @@
   color: #64748b !important;
 }
 
+/* ========================================
+   DIALOG MODIFICATIONS
+   ======================================== */
 /* Dialog Modifications */
 .form-dialog-content {
   padding: 0 !important;
@@ -379,6 +412,9 @@
   box-shadow: none;
 }
 
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
 /* Responsive Design */
 @media (max-width: 1024px) {
   .input-row--triple {

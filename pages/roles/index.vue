@@ -18,7 +18,6 @@
       :loading="isLoading"
       loading-text="Roller yükleniyor..."
       empty-title="Roller bulunamadı"
-      empty-description="Henüz hiç rol tanımlanmamış."
       :show-add-button="true"
       :show-advanced-filters="true"
       :show-actions="true"

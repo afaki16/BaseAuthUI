@@ -49,7 +49,7 @@
         </v-card>
 
         <!-- İzinler Card -->
-        <v-card class="permissions-card" elevation="0">
+        <v-card class="form-card" elevation="0">
           <v-card-title class="form-card-title">
             <v-icon class="form-card-title-icon">mdi-key-variant</v-icon>
             İzinler
@@ -178,7 +178,7 @@
           size="large"
           @click="$emit('cancel')"
           :disabled="loading"
-          class="cancel-btn"
+          class="btn-cancel"
         >
           İptal
         </v-btn>
@@ -188,7 +188,7 @@
           size="large"
           :loading="loading"
           type="submit"
-          class="submit-btn"
+          class="btn-submit"
           prepend-icon="mdi-check"
         >
           {{ role ? 'Güncelle' : 'Oluştur' }}
@@ -373,18 +373,6 @@ defineExpose({
 
 <style scoped>
 
-/* Cards */
-.form-card, .permissions-card {
-  border-radius: 16px !important;
-  border: 1px solid #e2e8f0 !important;
-  overflow: hidden;
-}
-
-.form-card :deep(.v-card),
-.permissions-card :deep(.v-card) {
-  border-radius: 16px !important;
-}
-
 /* Permissions */
 .permissions-content {
   padding: 0 !important;
@@ -488,62 +476,16 @@ defineExpose({
   color: #374151 !important;
 }
 
-/* Empty State */
-.empty-state {
-  text-align: center;
-  padding: 60px 24px;
-}
-
-.empty-icon {
-  margin-bottom: 16px;
-}
-
-.empty-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0 0 8px 0;
-}
-
-.empty-text {
-  color: #64748b;
-  margin: 0;
-}
-
-/* Actions */
-
-.cancel-btn, .submit-btn {
-  min-width: 120px;
-}
-
-.submit-btn {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
- 
-  
-  
- 
-  
-  
   
   .permissions-grid {
     grid-template-columns: 1fr;
   }
   
-  
-  
-  .cancel-btn, .submit-btn {
-    width: 100%;
-    min-width: auto;
-  }
 }
 
 @media (max-width: 640px) {
- 
-  
   
   .permission-simple-item {
     padding: 1px 0;
