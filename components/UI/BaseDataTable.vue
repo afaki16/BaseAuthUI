@@ -286,7 +286,7 @@
         <div class="pagination">
           <div class="pagination-info">
             <div class="results-info">
-              <span class="results-text">{{ paginationInfo }}</span>
+              <span class="results-text">Result per page</span>
               <select v-model="itemsPerPageLocal" @change="changeItemsPerPage" class="items-per-page-select">
                 <option :value="5">5</option>
                 <option :value="10">10</option>
@@ -294,6 +294,7 @@
                 <option :value="50">50</option>
                 <option :value="100">100</option>
               </select>
+              <span class="total-count">{{ (currentPage - 1) * itemsPerPageLocal + 1 }}-{{ Math.min(currentPage * itemsPerPageLocal, totalItems) }} of {{ totalItems }}</span>
             </div>
           </div>
           <div class="pagination-controls">
@@ -1007,7 +1008,7 @@ watch(() => props.itemsPerPage, (newValue) => {
 
 /* Pagination */
 .pagination {
-  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between px-6 py-4 border-t border-gray-100 bg-gray-50;
+  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between px-6 py-4 border-t border-gray-100 bg-white;
 }
 
 .pagination-info {
@@ -1015,15 +1016,19 @@ watch(() => props.itemsPerPage, (newValue) => {
 }
 
 .results-info {
-  @apply flex items-center gap-4;
+  @apply flex items-center gap-3;
 }
 
 .results-text {
-  @apply text-sm text-gray-700 font-bold;
+  @apply text-sm text-gray-900 ;
 }
 
 .items-per-page-select {
-  @apply px-3 py-1 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  @apply px-3 py-2 border border-gray-200 rounded-md text-sm bg-white text-gray-900 font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors;
+}
+
+.total-count {
+  @apply text-sm text-gray-600 font-medium;
 }
 
 .pagination-controls {
