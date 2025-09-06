@@ -119,21 +119,22 @@
 import { navigationItems, filterNavigationByPermissions } from '~/composables/useNavigation'
 import { useAuth } from '~/composables/useAuth'
 import { useAppData } from '~/composables/useAppData'
+import { useAuthStore } from '~/stores/auth'
 
 const isSidebarOpen = ref(true)
 const showUserMenu = ref(false)
-const auth = useAuthStore()
+const authStore = useAuthStore()
 const authUtils = useAuth() // <-- asıl yetki fonksiyonları burada
 const router = useRouter()
 
 // App data
 const { loadAppData, appData } = useAppData()
 
-// Kullanıcı bilgileri
-const userInfo = ref({
-  name: 'Dr. Ahmet Yılmaz',
-  email: 'ahmet.yilmaz@dentbook.com'
-})
+// Kullanıcı bilgileri - auth store'dan al
+const userInfo = computed(() => ({
+  name: authStore.userFullName || 'Kullanıcı',
+  email: authStore.user?.email || ''
+}))
 
 // Yetkiye göre menüleri filtrele
 const visibleMenus = computed(() => {
@@ -150,8 +151,8 @@ const toggleSidebar = () => {
 
 const logout = async () => {
   try {
-    await auth.logout()
-    router.push('/login')
+    await authUtils.logout()
+    showUserMenu.value = false
   } catch (error) {
     console.error('Çıkış yapılırken bir hata oluştu:', error)
   }
