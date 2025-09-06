@@ -71,7 +71,7 @@
 
           <!-- Add Button -->
           <button
-            v-if="showAddButton"
+            v-if="canCreate"
             @click="$emit('add')"
             class="add-button"
           >
@@ -243,7 +243,7 @@
                     <slot name="actions" :item="item">
                       <div class="actions-inline">
                         <button
-                          v-if="showViewButton"
+                          v-if="canRead"
                           @click="$emit('view', item)"
                           class="action-button view-button"
                           title="Görüntüle"
@@ -254,7 +254,7 @@
                           </svg>
                         </button>
                         <button
-                          v-if="showEditButton"
+                          v-if="canUpdate"
                           @click="$emit('edit', item)"
                           class="action-button edit-button"
                           title="Düzenle"
@@ -264,7 +264,7 @@
                           </svg>
                         </button>
                         <button
-                          v-if="showDeleteButton"
+                          v-if="canDelete"
                           @click="$emit('delete', item)"
                           class="action-button delete-button"
                           title="Sil"
@@ -456,6 +456,51 @@ const props = defineProps({
 const emit = defineEmits([
   'add', 'view', 'edit', 'delete', 'export', 'search', 'sort', 'row-click', 'filter'
 ])
+
+// Composables
+const { hasPermission } = useAuth()
+const route = useRoute()
+
+// Auto-detect resource from route path
+const getResourceFromRoute = () => {
+  const path = route.path
+  // Extract resource from path like /users -> users, /roles -> roles
+  const segments = path.split('/').filter(Boolean)
+  return segments[0] || 'unknown'
+}
+
+// Auto-generate permission names based on resource
+const getPermissionName = (action) => {
+  const resource = getResourceFromRoute()
+  // Convert to PascalCase and add action
+  const resourceName = resource.charAt(0).toUpperCase() + resource.slice(1)
+  return `${resourceName}.${action}`
+}
+
+// Permission control functions - Auto-detect from route
+const canCreate = computed(() => {
+  if (!props.showAddButton) return false
+  const permission = getPermissionName('Create')
+  return hasPermission(permission)
+})
+
+const canRead = computed(() => {
+  if (!props.showViewButton) return false
+  const permission = getPermissionName('Read')
+  return hasPermission(permission)
+})
+
+const canUpdate = computed(() => {
+  if (!props.showEditButton) return false
+  const permission = getPermissionName('Update')
+  return hasPermission(permission)
+})
+
+const canDelete = computed(() => {
+  if (!props.showDeleteButton) return false
+  const permission = getPermissionName('Delete')
+  return hasPermission(permission)
+})
 
 // Reactive data
 const searchQuery = ref('')
