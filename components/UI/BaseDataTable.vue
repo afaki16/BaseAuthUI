@@ -98,10 +98,9 @@
             :key="column.key"
             class="filter-item mb-3"
           >
-            <label class="filter-label">{{ column.label }}</label>
-            
             <!-- Text Filter -->
             <v-text-field
+            :label="column.label"
               v-if="column.filterType === 'text' || !column.filterType"
               v-model="columnFilters[column.key]"
               :placeholder="`${column.label} filtrele...`"
@@ -114,6 +113,7 @@
             
             <!-- Select Filter -->
             <v-select
+            :label="column.label"
               v-else-if="column.filterType === 'select'"
               v-model="columnFilters[column.key]"
               :items="getColumnSelectOptions(column.key)"
@@ -129,6 +129,7 @@
             <!-- Date Range Filter -->
             <div v-else-if="column.filterType === 'date'" class="date-range-filter">
               <v-text-field
+              :label="column.label"
                 v-model="columnFilters[column.key + '_start']"
                 type="date"
                 variant="outlined"
@@ -849,10 +850,7 @@ watch(() => props.itemsPerPage, (newValue) => {
   @apply bg-white border border-gray-200 rounded-lg transition-colors;
 }
 
-.filter-input :deep(.v-field--focused),
-.filter-select :deep(.v-field--focused) {
-  @apply ring-2 ring-blue-500 border-blue-500;
-}
+
 
 .date-range-filter {
   @apply flex items-center gap-2;

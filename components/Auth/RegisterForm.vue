@@ -1,6 +1,5 @@
 <template>
   <v-form ref="form" v-model="isValid" @submit.prevent="$emit('submit', formData)" :class="formClass">
-    <div class="input-row">
       <div class="input-group">
         <BaseTextBox
           v-model="formData.firstName"
@@ -26,7 +25,6 @@
           :class="inputClass"
         />
       </div>
-    </div>
 
     <div class="input-group">
       <BaseTextBox
