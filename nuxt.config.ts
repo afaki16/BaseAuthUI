@@ -86,5 +86,16 @@ export default defineNuxtConfig({
   
   imports: {
     dirs: ['composables/**', 'stores/**', 'utils/**']
+  },
+  
+  components: {
+    dirs: [
+      '~/components',
+      '~/components/UI',
+      '~/components/Auth',
+      '~/components/Users',
+      '~/components/Roles',
+      '~/components/Dashboard'
+    ]
   }
 })

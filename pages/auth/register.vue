@@ -38,93 +38,79 @@
           <v-form ref="registerForm" v-model="isFormValid" @submit.prevent="handleRegister">
             <div class="input-row">
               <div class="input-group">
-                <v-text-field
+                <UIBaseInput
                   v-model="form.firstName"
                   :label="registerConfig?.texts?.firstNameLabel || 'First Name'"
                   prepend-inner-icon="mdi-account"
                   :rules="[validationRules.required, validationRules.minLength(2)]"
-                  variant="outlined"
+                  type="text"
+                  required
+                  min-length="2"
                   autofocus
-                  bg-color="rgba(255, 255, 255, 0.1)"
-                  color="white"
-                  hide-details="auto"
                 />
               </div>
               <div class="input-group">
-                <v-text-field
+                <UIBaseInput
                   v-model="form.lastName"
                   :label="registerConfig?.texts?.lastNameLabel || 'Last Name'"
                   :rules="[validationRules.required, validationRules.minLength(2)]"
-                  variant="outlined"
-                  bg-color="rgba(255, 255, 255, 0.1)"
-                  color="white"
-                  hide-details="auto"
+                  type="text"
+                  required
+                  min-length="2"
                 />
               </div>
             </div>
 
             <div class="input-group">
-              <v-text-field
+              <UIBaseInput
                 v-model="form.email"
                 :label="registerConfig?.texts?.emailLabel || 'Email Address'"
                 type="email"
                 prepend-inner-icon="mdi-email"
                 :rules="[validationRules.required, validationRules.email]"
-                variant="outlined"
+                required
                 class="mb-4"
-                bg-color="rgba(255, 255, 255, 0.1)"
-                color="white"
-                hide-details="auto"
               />
             </div>
 
             <div class="input-group">
-              <v-text-field
+              <UIBaseInput
                 v-model="form.phoneNumber"
                 :label="registerConfig?.texts?.phoneLabel || 'Phone Number (Optional)'"
                 type="tel"
                 prepend-inner-icon="mdi-phone"
                 :rules="[validationRules.phone]"
-                variant="outlined"
                 class="mb-4"
-                bg-color="rgba(255, 255, 255, 0.1)"
-                color="white"
-                hide-details="auto"
                 hint="Format: +1234567890"
               />
             </div>
 
             <div class="input-group">
-              <v-text-field
+              <UIBaseInput
                 v-model="form.password"
-                :type="showPassword ? 'text' : 'password'"
                 :label="registerConfig?.texts?.passwordLabel || 'Password'"
+                type="password"
                 prepend-inner-icon="mdi-lock"
-                :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 :rules="[validationRules.password]"
-                variant="outlined"
+                required
+                min-length="8"
+                require-uppercase
+                require-lowercase
+                require-number
+                require-special-character
                 class="mb-4"
-                bg-color="rgba(255, 255, 255, 0.1)"
-                color="white"
-                hide-details="auto"
-                @click:append-inner="showPassword = !showPassword"
               />
             </div>
 
             <div class="input-group">
-              <v-text-field
+              <UIBaseInput
                 v-model="form.confirmPassword"
-                :type="showConfirmPassword ? 'text' : 'password'"
                 :label="registerConfig?.texts?.confirmPasswordLabel || 'Confirm Password'"
+                type="password"
                 prepend-inner-icon="mdi-lock-check"
-                :append-inner-icon="showConfirmPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 :rules="[validationRules.required, validationRules.confirmPassword(form.password)]"
-                variant="outlined"
+                required
                 class="mb-4"
-                bg-color="rgba(255, 255, 255, 0.1)"
-                color="white"
-                hide-details="auto"
-                @click:append-inner="showConfirmPassword = !showConfirmPassword"
               />
             </div>
 
@@ -211,6 +197,7 @@
 
 <script setup lang="ts">
 import type { RegisterRequest } from '~/types'
+import UIBaseInput from '~/components/UI/BaseTextBox.vue'
 
 // Meta
 definePageMeta({
@@ -226,8 +213,6 @@ const { validationRules } = useValidators()
 // Reactive data
 const registerForm = ref()
 const isFormValid = ref(false)
-const showPassword = ref(false)
-const showConfirmPassword = ref(false)
 const acceptTerms = ref(false)
 const currentImageIndex = ref(0)
 
