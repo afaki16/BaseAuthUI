@@ -1,3 +1,5 @@
+import { ref, computed, readonly } from 'vue'
+
 interface AppData {
   app: {
     name: string
@@ -83,6 +85,40 @@ interface AppData {
       createAccount: string
     }
   }
+  register: {
+    backgroundImages: string[]
+    rotationInterval: number
+    overlay: {
+      opacity: number
+      color: string
+    }
+    card: {
+      background: string
+      backdropFilter: string
+      borderRadius: string
+      border: string
+      shadow: string
+    }
+    texts: {
+      welcome: string
+      subtitle: string
+      firstNameLabel: string
+      lastNameLabel: string
+      emailLabel: string
+      phoneLabel: string
+      passwordLabel: string
+      confirmPasswordLabel: string
+      passwordStrength: string
+      agreeTo: string
+      terms: string
+      and: string
+      privacy: string
+      createAccount: string
+      divider: string
+      alreadyHaveAccount: string
+      signIn: string
+    }
+  }
   navigation: {
     sidebar: {
       width: string
@@ -145,12 +181,13 @@ export const useAppData = () => {
   const getAppInfo = computed(() => appData.value?.app || null)
   const getTheme = computed(() => appData.value?.theme || null)
   const getLoginConfig = computed(() => appData.value?.login || null)
+  const getRegisterConfig = computed(() => appData.value?.register || null)
   const getNavigationConfig = computed(() => appData.value?.navigation || null)
   const getUIConfig = computed(() => appData.value?.ui || null)
 
   const getLogo = computed(() => appData.value?.app.logo || null)
   const getBrandText = computed(() => appData.value?.app.brand.text || 'BaseAuth')
-  const getBackgroundImages = computed(() => appData.value?.login.backgroundImages || [])
+  const getBackgroundImages = computed(() => appData.value?.login.backgroundImages || appData.value?.register.backgroundImages || [])
   const getThemeColors = computed(() => appData.value?.theme.colors || null)
   const getThemeGradients = computed(() => appData.value?.theme.gradients || null)
 
@@ -162,6 +199,7 @@ export const useAppData = () => {
     getAppInfo,
     getTheme,
     getLoginConfig,
+    getRegisterConfig,
     getNavigationConfig,
     getUIConfig,
     getLogo,

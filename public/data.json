@@ -53,6 +53,7 @@
     "gradients": {
       "navbar": "linear-gradient(135deg, #ffffff 0%, #2563eb 100%)",
       "login": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      "register": "linear-gradient(135deg, #764ba2 0%, #667eea 100%)",
       "button": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
     }
   },
@@ -87,6 +88,46 @@
       "divider": "or",
       "noAccount": "Don't have an account?",
       "createAccount": "Create Account"
+    }
+  },
+  "register": {
+    "backgroundImages": [
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+      "https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2074&q=80",
+      "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=2126&q=80",
+      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2125&q=80",
+      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+    ],
+    "rotationInterval": 3000,
+    "overlay": {
+      "opacity": 0.4,
+      "color": "rgba(0, 0, 0, 0.4)"
+    },
+    "card": {
+      "background": "rgba(255, 255, 255, 0.1)",
+      "backdropFilter": "blur(20px)",
+      "borderRadius": "20px",
+      "border": "1px solid rgba(255, 255, 255, 0.2)",
+      "shadow": "0 25px 45px rgba(0, 0, 0, 0.2)"
+    },
+    "texts": {
+      "welcome": "Create Account",
+      "subtitle": "Join us today and get started",
+      "firstNameLabel": "First Name",
+      "lastNameLabel": "Last Name",
+      "emailLabel": "Email Address",
+      "phoneLabel": "Phone Number (Optional)",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm Password",
+      "passwordStrength": "Password Strength",
+      "agreeTo": "I agree to the",
+      "terms": "Terms of Service",
+      "and": "and",
+      "privacy": "Privacy Policy",
+      "createAccount": "Create Account",
+      "divider": "or",
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign In"
     }
   },
   "navigation": {
