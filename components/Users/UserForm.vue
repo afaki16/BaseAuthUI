@@ -137,6 +137,7 @@
               :disabled="loading"
               hide-details
               class="status-switch"
+              @update:model-value="(value) => { debugger; console.log('Status changed to:', value); formData.status = value; }"
             >
               <template #label>
                 <div class="status-label">
@@ -379,12 +380,16 @@ const handleSubmit = async () => {
     email: formData.email,
     phoneNumber: formData.phoneNumber,
     status: formData.status,
+    profileImageUrl: props.user?.profileImageUrl || "",
     // Submit sırasında number'a çevir
     roleIds: formData.roleIds.map(id => Number(id))
   }
   
-  // Yeni kullanıcı oluştururken şifre ekle
-  if (!props.user) {
+  // Edit modunda id ekle
+  if (props.user) {
+    submitData.id = Number(props.user.id)
+  } else {
+    // Yeni kullanıcı oluştururken şifre ekle
     submitData.password = formData.password
   }
   
