@@ -2,7 +2,7 @@
   <div :style="`width: ${width}px`">
     <v-text-field
       v-bind="computedAttrs"
-      :type="isPasswordVisible ? 'text' : type"
+      :type="(type === 'password' && (isPasswordVisible || showPassword)) ? 'text' : type"
       :label="label"
       :counter="counter ? maxLength : counter"
       :clearable="clearable"
@@ -12,7 +12,6 @@
       :persistent-hint="persistentHint"
       rounded="true"
       v-model="model"
-      @update:modelValue="updateModelValue"
       :rules="computedRules"
       variant="outlined"
       :required="required"
@@ -20,6 +19,10 @@
       hide-spin-buttons
       :onkeydown="handleKeyDown"
       :step="step"
+      :prepend-inner-icon="prependInnerIcon"
+      :append-inner-icon="appendInnerIcon"
+      @click:prepend-inner="emit('click:prepend-inner')"
+      @click:append-inner="emit('click:append-inner')"
     >
       <template v-slot:message="{ message }">
         <div v-if="type != 'password'" class="d-flex align-center">
@@ -39,12 +42,12 @@
           </div>
         </div>
       </template>
-      <template v-if="type == 'password'" #append-inner>
+      <template v-if="type == 'password' && !appendInnerIcon" #append-inner>
         <v-btn
           :flat="true"
           variant="plain"
           :ripple="false"
-          :icon="isPasswordVisible ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
+          :icon="(isPasswordVisible || showPassword) ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
           @click.prevent="togglePssword"
         ></v-btn>
       </template>
@@ -89,7 +92,12 @@ const props = defineProps({
   prependImg: { type: String, default: null },
   prependClass: { type: String, default: null },
   step: { type: [String, Number] },
+  prependInnerIcon: { type: String, default: null },
+  appendInnerIcon: { type: String, default: null },
+  showPassword: { type: Boolean, default: false },
 })
+
+const emit = defineEmits(['update:modelValue', 'click:prepend-inner', 'click:append-inner'])
 
 const model = ref()
 const isPasswordVisible = ref(false)
@@ -104,12 +112,14 @@ const passwordSteps = ref({
 })
 const passwordHint = ref('')
 
-const emit = defineEmits(['update:modelValue'])
 
-watch(props, (newVal) => {
-  model.value = newVal.modelValue
+watch(() => props.modelValue, (newVal) => {
+  model.value = newVal
+  validatePassword(newVal)
+}, { immediate: true })
 
-  validatePassword(newVal.modelValue)
+watch(model, (newVal) => {
+  emit('update:modelValue', newVal)
 })
 
 watch(
@@ -349,9 +359,6 @@ const computedRules = computed<Function[]>(() => {
   return rules
 })
 
-function updateModelValue(e: string) {
-  emit('update:modelValue', e)
-}
 
 function togglePssword() {
   isPasswordVisible.value = !isPasswordVisible.value

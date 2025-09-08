@@ -35,135 +35,38 @@
             <p class="subtitle-text">{{ registerConfig?.texts?.subtitle || 'Join us today and get started' }}</p>
           </div>
 
-          <v-form ref="registerForm" v-model="isFormValid" @submit.prevent="handleRegister">
-            <div class="input-row">
-              <div class="input-group">
-                <UIBaseInput
-                  v-model="form.firstName"
-                  :label="registerConfig?.texts?.firstNameLabel || 'First Name'"
-                  prepend-inner-icon="mdi-account"
-                  :rules="[validationRules.required, validationRules.minLength(2)]"
-                  type="text"
-                  required
-                  min-length="2"
-                  autofocus
-                />
+          <!-- Register Form Component -->
+          <AuthRegisterForm
+            ref="registerFormRef"
+            :loading="authStore.isLoading"
+            @submit="handleRegister"
+          >
+            <template #terms>
+              <!-- Terms and conditions -->
+              <div class="terms-section mb-4">
+                <v-checkbox
+                  v-model="acceptTerms"
+                  :rules="[v => !!v || 'You must accept the terms and conditions']"
+                  density="compact"
+                  color="white"
+                  hide-details
+                >
+                  <template #label>
+                    <span class="terms-text">
+                      {{ registerConfig?.texts?.agreeTo || 'I agree to the' }}
+                      <a href="/terms" target="_blank" class="terms-link">{{ registerConfig?.texts?.terms || 'Terms of Service' }}</a>
+                      {{ registerConfig?.texts?.and || 'and' }}
+                      <a href="/privacy" target="_blank" class="terms-link">{{ registerConfig?.texts?.privacy || 'Privacy Policy' }}</a>
+                    </span>
+                  </template>
+                </v-checkbox>
               </div>
-              <div class="input-group">
-                <UIBaseInput
-                  v-model="form.lastName"
-                  :label="registerConfig?.texts?.lastNameLabel || 'Last Name'"
-                  :rules="[validationRules.required, validationRules.minLength(2)]"
-                  type="text"
-                  required
-                  min-length="2"
-                />
-              </div>
-            </div>
+            </template>
 
-            <div class="input-group">
-              <UIBaseInput
-                v-model="form.email"
-                :label="registerConfig?.texts?.emailLabel || 'Email Address'"
-                type="email"
-                prepend-inner-icon="mdi-email"
-                :rules="[validationRules.required, validationRules.email]"
-                required
-                class="mb-4"
-              />
-            </div>
-
-            <div class="input-group">
-              <UIBaseInput
-                v-model="form.phoneNumber"
-                :label="registerConfig?.texts?.phoneLabel || 'Phone Number (Optional)'"
-                type="tel"
-                prepend-inner-icon="mdi-phone"
-                :rules="[validationRules.phone]"
-                class="mb-4"
-                hint="Format: +1234567890"
-              />
-            </div>
-
-            <div class="input-group">
-              <UIBaseInput
-                v-model="form.password"
-                :label="registerConfig?.texts?.passwordLabel || 'Password'"
-                type="password"
-                prepend-inner-icon="mdi-lock"
-                :rules="[validationRules.password]"
-                required
-                min-length="8"
-                require-uppercase
-                require-lowercase
-                require-number
-                require-special-character
-                class="mb-4"
-              />
-            </div>
-
-            <div class="input-group">
-              <UIBaseInput
-                v-model="form.confirmPassword"
-                :label="registerConfig?.texts?.confirmPasswordLabel || 'Confirm Password'"
-                type="password"
-                prepend-inner-icon="mdi-lock-check"
-                :rules="[validationRules.required, validationRules.confirmPassword(form.password)]"
-                required
-                class="mb-4"
-              />
-            </div>
-
-            <!-- Password strength indicator -->
-            <div class="password-strength mb-4">
-              <div class="strength-header">
-                <span class="strength-label">{{ registerConfig?.texts?.passwordStrength || 'Password Strength' }}:</span>
-                <span class="strength-text" :class="passwordStrengthColor">
-                  {{ passwordStrengthText }}
-                </span>
-              </div>
-              <v-progress-linear
-                :model-value="passwordStrength"
-                :color="passwordStrengthColor"
-                height="4"
-                rounded
-                class="strength-bar"
-              />
-            </div>
-
-            <!-- Terms and conditions -->
-            <div class="terms-section mb-4">
-              <v-checkbox
-                v-model="acceptTerms"
-                :rules="[v => !!v || 'You must accept the terms and conditions']"
-                density="compact"
-                color="white"
-                hide-details
-              >
-                <template #label>
-                  <span class="terms-text">
-                    {{ registerConfig?.texts?.agreeTo || 'I agree to the' }}
-                    <a href="/terms" target="_blank" class="terms-link">{{ registerConfig?.texts?.terms || 'Terms of Service' }}</a>
-                    {{ registerConfig?.texts?.and || 'and' }}
-                    <a href="/privacy" target="_blank" class="terms-link">{{ registerConfig?.texts?.privacy || 'Privacy Policy' }}</a>
-                  </span>
-                </template>
-              </v-checkbox>
-            </div>
-
-            <v-btn
-              type="submit"
-              color="white"
-              size="large"
-              block
-              :loading="authStore.isLoading"
-              :disabled="!isFormValid || !acceptTerms"
-              class="register-btn mb-4"
-              elevation="8"
-            >
+            <template #submit-text>
               <span class="btn-text">{{ registerConfig?.texts?.createAccount || 'Create Account' }}</span>
-            </v-btn>
-          </v-form>
+            </template>
+          </AuthRegisterForm>
 
           <div class="divider-section">
             <div class="divider-line"></div>
@@ -197,7 +100,7 @@
 
 <script setup lang="ts">
 import type { RegisterRequest } from '~/types'
-import UIBaseInput from '~/components/UI/BaseTextBox.vue'
+import AuthRegisterForm from '~/components/Auth/RegisterForm.vue'
 
 // Meta
 definePageMeta({
@@ -208,11 +111,9 @@ definePageMeta({
 // Composables
 const authStore = useAuthStore()
 const auth = useAuth()
-const { validationRules } = useValidators()
 
 // Reactive data
-const registerForm = ref()
-const isFormValid = ref(false)
+const registerFormRef = ref()
 const acceptTerms = ref(false)
 const currentImageIndex = ref(0)
 
@@ -224,56 +125,12 @@ const backgroundImages = computed(() => getBackgroundImages.value || [])
 const registerConfig = computed(() => getRegisterConfig.value)
 const themeGradients = computed(() => getThemeGradients.value)
 
-const form = reactive<RegisterRequest>({
-  firstName: '',
-  lastName: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-  phoneNumber: ''
-})
-
-// Password strength computation
-const passwordStrength = computed(() => {
-  const password = form.password
-  if (!password) return 0
-  
-  let strength = 0
-  
-  // Length check
-  if (password.length >= 8) strength += 25
-  
-  // Character variety checks
-  if (/[a-z]/.test(password)) strength += 25
-  if (/[A-Z]/.test(password)) strength += 25
-  if (/\d/.test(password)) strength += 15
-  if (/[^A-Za-z0-9]/.test(password)) strength += 10
-  
-  return Math.min(strength, 100)
-})
-
-const passwordStrengthText = computed(() => {
-  const strength = passwordStrength.value
-  if (strength < 25) return 'Weak'
-  if (strength < 50) return 'Fair'
-  if (strength < 75) return 'Good'
-  return 'Strong'
-})
-
-const passwordStrengthColor = computed(() => {
-  const strength = passwordStrength.value
-  if (strength < 25) return 'error'
-  if (strength < 50) return 'warning'
-  if (strength < 75) return 'info'
-  return 'success'
-})
-
 // Methods
-const handleRegister = async () => {
-  if (!isFormValid.value || !acceptTerms.value) return
+const handleRegister = async (formData: RegisterRequest) => {
+  if (!acceptTerms.value) return
 
   try {
-    await auth.register(form)
+    await auth.register(formData)
   } catch (error) {
     console.error('Registration failed:', error)
   }
@@ -410,62 +267,6 @@ useHead({
   margin-bottom: 0;
 }
 
-.input-row {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.input-row .input-group {
-  flex: 1;
-}
-
-.input-group {
-  margin-bottom: 20px;
-}
-
-.input-group :deep(.v-field) {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  border-radius: 12px !important;
-}
-
-.input-group :deep(.v-field__input) {
-  color: white !important;
-}
-
-.input-group :deep(.v-field__label) {
-  color: rgba(255, 255, 255, 0.8) !important;
-}
-
-.input-group :deep(.v-icon) {
-  color: rgba(255, 255, 255, 0.8) !important;
-}
-
-.password-strength {
-  text-align: left;
-}
-
-.strength-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.strength-label {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.875rem;
-}
-
-.strength-text {
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.strength-bar {
-  border-radius: 2px;
-}
 
 .terms-section {
   text-align: left;
@@ -597,11 +398,6 @@ useHead({
   
   .welcome-text {
     font-size: 2rem;
-  }
-
-  .input-row {
-    flex-direction: column;
-    gap: 0;
   }
 }
 

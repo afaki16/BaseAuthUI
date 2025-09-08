@@ -1,82 +1,95 @@
 <template>
-  <v-form ref="form" v-model="isValid" @submit.prevent="$emit('submit', formData)">
-    <v-row>
-      <v-col cols="6">
-        <v-text-field
+  <v-form ref="form" v-model="isValid" @submit.prevent="$emit('submit', formData)" :class="formClass">
+    <div class="input-row">
+      <div class="input-group">
+        <BaseTextBox
           v-model="formData.firstName"
-          label="First Name"
+          :label="config?.texts?.firstNameLabel || 'First Name'"
           prepend-inner-icon="mdi-account"
           :rules="[rules.required, rules.minLength(2)]"
-          variant="outlined"
+          type="text"
+          required
+          min-length="2"
           :disabled="loading"
+          :class="inputClass"
         />
-      </v-col>
-      <v-col cols="6">
-        <v-text-field
+      </div>
+      <div class="input-group">
+        <BaseTextBox
           v-model="formData.lastName"
-          label="Last Name"
+          :label="config?.texts?.lastNameLabel || 'Last Name'"
           :rules="[rules.required, rules.minLength(2)]"
-          variant="outlined"
+          type="text"
+          required
+          min-length="2"
           :disabled="loading"
+          :class="inputClass"
         />
-      </v-col>
-    </v-row>
+      </div>
+    </div>
 
-    <v-text-field
-      v-model="formData.email"
-      label="Email Address"
-      type="email"
-      prepend-inner-icon="mdi-email"
-      :rules="[rules.required, rules.email]"
-      variant="outlined"
-      class="mb-3"
-      :disabled="loading"
-    />
+    <div class="input-group">
+      <BaseTextBox
+        v-model="formData.email"
+        :label="config?.texts?.emailLabel || 'Email Address'"
+        type="email"
+        prepend-inner-icon="mdi-email"
+        :rules="[rules.required, rules.email]"
+        required
+        :disabled="loading"
+        :class="inputClass"
+      />
+    </div>
 
-    <v-text-field
-      v-model="formData.phoneNumber"
-      label="Phone Number (Optional)"
-      type="tel"
-      prepend-inner-icon="mdi-phone"
-      :rules="[rules.phone]"
-      variant="outlined"
-      class="mb-3"
-      :disabled="loading"
-      hint="Format: +1234567890"
-    />
+    <div class="input-group">
+      <BaseTextBox
+        v-model="formData.phoneNumber"
+        :label="config?.texts?.phoneLabel || 'Phone Number (Optional)'"
+        type="tel"
+        prepend-inner-icon="mdi-phone"
+        :rules="[rules.phone]"
+        :disabled="loading"
+        hint="Format: +1234567890"
+        :class="inputClass"
+      />
+    </div>
 
-    <v-text-field
-      v-model="formData.password"
-      :type="showPassword ? 'text' : 'password'"
-      label="Password"
-      prepend-inner-icon="mdi-lock"
-      :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-      :rules="[rules.password]"
-      variant="outlined"
-      class="mb-3"
-      :disabled="loading"
-      @click:append-inner="showPassword = !showPassword"
-    />
+    <div class="input-group">
+        <BaseTextBox
+          v-model="formData.password"
+          :label="config?.texts?.passwordLabel || 'Password'"
+          type="password"
+          prepend-inner-icon="mdi-lock"
+          :rules="[rules.password]"
+          required
+          min-length="8"
+          require-uppercase
+          require-lowercase
+          require-number
+          require-special-character
+          :disabled="loading"
+          :class="inputClass"
+        />
+    </div>
 
-    <v-text-field
-      v-model="formData.confirmPassword"
-      :type="showConfirmPassword ? 'text' : 'password'"
-      label="Confirm Password"
-      prepend-inner-icon="mdi-lock-check"
-      :append-inner-icon="showConfirmPassword ? 'mdi-eye' : 'mdi-eye-off'"
-      :rules="[rules.required, rules.confirmPassword(formData.password)]"
-      variant="outlined"
-      class="mb-3"
-      :disabled="loading"
-      @click:append-inner="showConfirmPassword = !showConfirmPassword"
-    />
+    <div class="input-group">
+      <BaseTextBox
+        v-model="formData.confirmPassword"
+        :label="config?.texts?.confirmPasswordLabel || 'Confirm Password'"
+        type="password"
+        prepend-inner-icon="mdi-lock-check"
+        :rules="[rules.required, rules.confirmPassword(formData.password)]"
+        required
+        :disabled="loading"
+        :class="inputClass"
+      />
+    </div>
 
     <!-- Password strength indicator -->
-    <div class="mb-4">
-      <div class="d-flex align-center mb-2">
-        <span class="text-caption text-grey-600">Password Strength:</span>
-        <v-spacer />
-        <span class="text-caption" :class="passwordStrengthColor">
+    <div class="password-strength mb-4">
+      <div class="strength-header">
+        <span class="strength-label">{{ config?.texts?.passwordStrength || 'Password Strength' }}:</span>
+        <span class="strength-text" :class="passwordStrengthColor">
           {{ passwordStrengthText }}
         </span>
       </div>
@@ -85,6 +98,7 @@
         :color="passwordStrengthColor"
         height="4"
         rounded
+        class="strength-bar"
       />
     </div>
 
@@ -92,11 +106,13 @@
 
     <v-btn
       type="submit"
-      color="primary"
+      :color="submitButtonColor"
       size="large"
       block
       :loading="loading"
       :disabled="!isValid"
+      :class="submitButtonClass"
+      elevation="8"
     >
       <slot name="submit-text">Create Account</slot>
     </v-btn>
@@ -105,10 +121,16 @@
 
 <script setup lang="ts">
 import type { RegisterRequest } from '~/types'
+import BaseTextBox from '~/components/UI/BaseTextBox.vue'
 
 // Props & Emits
 const props = defineProps<{
   loading?: boolean
+  config?: any
+  formClass?: string
+  inputClass?: string
+  submitButtonColor?: string
+  submitButtonClass?: string
 }>()
 
 const emit = defineEmits<{
@@ -121,8 +143,6 @@ const { validationRules: rules } = useValidators()
 // Reactive data
 const form = ref()
 const isValid = ref(false)
-const showPassword = ref(false)
-const showConfirmPassword = ref(false)
 
 const formData = reactive<RegisterRequest>({
   firstName: '',
@@ -185,10 +205,78 @@ const reset = () => {
   })
 }
 
+
 // Expose methods
 defineExpose({
   validateForm,
   reset,
   formData
 })
-</script> 
+</script>
+
+<style scoped>
+.input-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.input-row .input-group {
+  flex: 1;
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group :deep(.v-field) {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 12px !important;
+}
+
+.input-group :deep(.v-field__input) {
+  color: white !important;
+}
+
+.input-group :deep(.v-field__label) {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.input-group :deep(.v-icon) {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.password-strength {
+  text-align: left;
+}
+
+.strength-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.strength-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+}
+
+.strength-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.strength-bar {
+  border-radius: 2px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .input-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+</style> 
