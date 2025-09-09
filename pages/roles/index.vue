@@ -19,7 +19,7 @@
       loading-text="Roller yükleniyor..."
       empty-title="Roller bulunamadı"
       :show-add-button="true"
-      :show-advanced-filters="true"
+      :show-advanced-filters="false"
       :show-actions="true"
       :show-view-button="true"
       :show-edit-button="true"
@@ -118,7 +118,7 @@ const tableColumns = [
     label: 'Rol Tipi', 
     key: 'isSystemRole',
     sortable: true,
-    filterable: true,
+    filterable: false,
     filterType: 'select',
     width: '300px'
   },

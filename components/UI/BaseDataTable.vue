@@ -107,6 +107,7 @@
               variant="outlined"
               density="compact"
               hide-details
+              clearable
               class="filter-input"
               @update:model-value="debouncedApplyFilters"
             />
@@ -117,6 +118,8 @@
               v-else-if="column.filterType === 'select'"
               v-model="columnFilters[column.key]"
               :items="getColumnSelectOptions(column.key)"
+              item-title="title"
+              item-value="value"
               variant="outlined"
               density="compact"
               hide-details
@@ -135,6 +138,7 @@
                 variant="outlined"
                 density="compact"
                 hide-details
+                 clearable
                 class="filter-input date-input"
                 @update:model-value="debouncedApplyFilters"
               />
@@ -635,10 +639,21 @@ const getColumnSelectOptions = (columnKey) => {
     .filter(val => val !== null && val !== undefined && val !== '')
   const uniqueValues = [...new Set(values)]
   
-  return uniqueValues.map(value => ({
-    title: value.toString(),
-    value: value
-  }))
+  return uniqueValues.map(value => {
+    // Özel değerler için metin dönüşümü
+    let displayText = value.toString()
+    
+    // Boolean değerler için
+    if (value === 0 || value === '0') {
+      displayText = 'Pasif'
+    } else if (value === 1 || value === '1') {
+      displayText = 'Aktif'
+    }
+    return {
+      title: displayText,
+      value: value
+    }
+  })
 }
 
 // Debounced filter function to prevent excessive API calls
@@ -680,7 +695,22 @@ const toggleAdvancedFilters = () => {
 
 const applyFilters = () => {
   currentPage.value = 1
-  emit('filter', columnFilters.value)
+  
+  // Select filter'lar için değer dönüşümü yap
+  const processedFilters = { ...columnFilters.value }
+  
+  // Her column için select filter varsa, display text'i gerçek değere çevir
+  props.columns.forEach(column => {
+    if (column.filterType === 'select' && processedFilters[column.key]) {
+      const selectOptions = getColumnSelectOptions(column.key)
+      const selectedOption = selectOptions.find(option => option.title === processedFilters[column.key])
+      if (selectedOption) {
+        processedFilters[column.key] = selectedOption.value
+      }
+    }
+  })
+  
+  emit('filter', processedFilters)
 }
 
 const clearAllFilters = () => {
